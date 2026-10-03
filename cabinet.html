@@ -12,6 +12,7 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;font-family:"Roboto","Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
 a{color:var(--accent);text-decoration:none}
 button{font-family:inherit}
+button:focus:not(:focus-visible){outline:none}
 /* top bar */
 .top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
 .top-in{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:64px;gap:16px}
@@ -84,20 +85,17 @@ button{font-family:inherit}
 .pbody{display:none;padding:2px 12px 10px}
 .prop.open>.pbody{display:block}
 /* charge rows */
-.ch{display:grid;grid-template-columns:30px 1fr 88px 118px 92px;gap:8px;align-items:center;padding:8px 8px;margin:4px 0;border-radius:5px;font-size:12px;background:#fff;border:1px solid #edf0f2;transition:box-shadow .3s,background .3s,border-color .3s}
+.ch{display:grid;grid-template-columns:30px 1fr 88px 118px 92px;gap:8px;align-items:center;padding:8px 4px;font-size:12px;border-bottom:1px solid #e6eaee}
 .ch .n{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .ch .a{text-align:right;color:#666;white-space:nowrap}
 .ch .d{text-align:right;white-space:nowrap}
 .ch .d small{color:var(--muted);font-size:10px;margin-right:3px}
-.ch.unpaid{border-color:#f3b4ae;background:#fff6f5;animation:glow 2s ease-in-out infinite}
 .ch.unpaid .d{color:var(--red);font-weight:600}
-.ch.paid{border-color:#cfe9d8;background:#f3fbf6}
 .ch.paid .d{color:var(--green)}
-@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(224,52,43,.0)}50%{box-shadow:0 0 8px 1px rgba(224,52,43,.35)}}
 .pdf{display:inline-block;font-size:8px;font-weight:700;color:var(--red);border:1px solid #f0a9a3;border-radius:3px;padding:2px 4px;background:#fff;line-height:1}
 .pay{border:0;border-radius:4px;padding:7px 8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff;white-space:nowrap}
 .pay:hover{background:var(--accent-d)}
-.pay.done{background:#e3f4ea;color:var(--green);cursor:default}
+.pay.done{background:transparent;color:var(--green);cursor:default}
 .debtline{display:flex;justify-content:space-between;padding:10px 8px 4px;font-size:12px;font-weight:700}
 .debtline .v{color:var(--red)}
 .debtline .v.ok{color:var(--green)}
@@ -140,7 +138,7 @@ button{font-family:inherit}
   .bal .btn{flex:1;padding:11px 8px}
   .prow{grid-template-columns:24px 1fr 20px 34px auto 10px;padding:11px 8px;gap:6px;font-size:12px}
   .pbody,.list{padding:2px 6px 8px}
-  .ch{grid-template-columns:30px 1fr auto;grid-template-areas:"p n a" "d d b";row-gap:6px;padding:9px 8px}
+  .ch{grid-template-columns:30px 1fr auto;grid-template-areas:"p n a" "d d b";row-gap:6px;padding:9px 2px}
   .ch .pdfw{grid-area:p}.ch .n{grid-area:n}.ch .a{grid-area:a}
   .ch .d{grid-area:d;text-align:left}
   .ch .pay{grid-area:b;justify-self:end;padding:8px 14px}
