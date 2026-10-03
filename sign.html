@@ -5,22 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Подписание договора (демо) — Мои документы</title>
-<link rel="stylesheet" href="deal.css?v=18">
+<link rel="stylesheet" href="deal.css?v=19">
 <style id="ctcss"></style>
 </head>
 <body class="dp hasbar">
 <header class="top"><div class="top-in"><div class="logo">МОИ <b>ДОКУМЕНТЫ</b></div><span class="chip acc">демо</span></div></header>
 <main class="page" id="app"></main>
 <div class="abar" id="bar"></div>
-<script src="qrcode.js?v=18"></script>
-<script src="deal.js?v=18"></script>
+<script src="qrcode.js?v=19"></script>
+<script src="deal.js?v=19"></script>
+<script src="back.js?v=19"></script>
 <script>
 (function(){
   var D=window.DemoDeal,app=document.getElementById('app'),bar=document.getElementById('bar'),esc=D.esc;
   document.getElementById('ctcss').textContent=D.CT_CSS;
   var NOTE='<div class="demo-note">Демо: никаких реальных входов, СМС, подписей и платежей. Данные «из Госуслуг» — вымышленные. Всё сохраняется только в этом браузере (localStorage); чтобы подпись дошла до владельца с другого устройства, нужен сервер.</div>';
   var q=new URLSearchParams(location.search),x=D.fromLink(D.dec(q.get('c')));
-  function back(objId){return '<a class="back" href="cabinet.html#rent'+(objId?'-'+encodeURIComponent(objId):'')+'" data-back>← В кабинет владельца (демо)</a>';}
+  function back(objId){return '<a class="back" href="cabinet.html#rent'+(objId?'-'+encodeURIComponent(objId):'')+'" data-back>В кабинет владельца (демо)</a>';}
   function noBar(){bar.style.display='none';document.body.classList.remove('hasbar');}
   if(!x){noBar();app.innerHTML=back('')+'<div class="card"><h1>Ссылка недействительна</h1><p class="sub">Не удалось прочитать данные договора. Попросите владельца отправить ссылку ещё раз.</p>'+NOTE+'</div>';return;}
   var d=D.get(x.id)||x,LK='demoTenantLogin_'+d.id,objId=d.objId||x.objId;

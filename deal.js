@@ -225,10 +225,11 @@
     setTimeout(function(){ov.remove();cb&&cb();},1200);
   }
   function gosSign(info,cb){
-    var ov=gosOverlay('<div class="g-t">Подписание документа</div><div class="g-doc"><div class="g-l">Документ</div><b>'+esc(info.doc)+'</b><div class="g-l">Подписант</div><b>'+esc(info.who)+'</b></div>'+
+    var ov=gosOverlay('<a href="#" class="bk g-bk" id="g-back">← Назад</a><div class="g-t">Подписание документа</div><div class="g-doc"><div class="g-l">Документ</div><b>'+esc(info.doc)+'</b><div class="g-l">Подписант</div><b>'+esc(info.who)+'</b></div>'+
       '<p class="g-s">Демо-режим: настоящая электронная подпись не создаётся, в договор будет добавлена отметка «Подписано через Госуслуги (демо)».</p>'+
       '<button type="button" class="g-btn" id="g-ok">Подтвердить подписание</button><button type="button" class="g-btn2" id="g-no">Отмена</button>');
     ov.querySelector('#g-no').onclick=function(){ov.remove();};
+    ov.querySelector('#g-back').onclick=function(e){e.preventDefault();ov.remove();};
     ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
     ov.querySelector('#g-ok').onclick=function(){var sh=ov.querySelector('.g-sheet');sh.innerHTML='<div class="g-head"><span class="g-mark">Г</span>Госуслуги <span class="g-demo">ДЕМО</span></div><div class="g-spin"></div><p class="g-p">Подписываем (демо)…</p>';
       setTimeout(function(){ov.remove();cb&&cb(Date.now());},800);};

@@ -5,16 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Оплата счёта (демо) — Мои документы</title>
-<link rel="stylesheet" href="deal.css?v=18">
+<link rel="stylesheet" href="deal.css?v=19">
 </head>
 <body class="dp">
 <header class="top"><div class="top-in"><div class="logo">МОИ <b>ДОКУМЕНТЫ</b></div><span class="chip acc">демо</span></div></header>
 <main class="page" id="app"></main>
-<script src="deal.js?v=18"></script>
+<script src="deal.js?v=19"></script>
+<script src="back.js?v=19"></script>
 <script>
 (function(){
   var D=window.DemoDeal,app=document.getElementById('app'),esc=D.esc;
-  var BACK='<a class="back" href="cabinet.html#rent-bill" data-back>← В кабинет получателя (демо)</a>';
+  var BACK='<a class="back" href="cabinet.html#rent-bill" data-back>В кабинет получателя (демо)</a>';
   var NOTE='<div class="demo-note">Демо-оплата: деньги не списываются, данные карты не запрашиваются. Статус сохраняется только в этом браузере; для работы между устройствами нужен сервер.</div>';
   var x=D.dec(new URLSearchParams(location.search).get('c'));
   var id=x&&D.str(x.i,40),amount=x?Math.round((+x.a||0)*100)/100:0,kind=x&&D.TAX[x.k]?x.k:'fl';

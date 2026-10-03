@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <title>Мои документы — личный кабинет (демо)</title>
-<link rel="stylesheet" href="deal.css?v=18">
+<link rel="stylesheet" href="deal.css?v=19">
 <style>
 :root{--accent:#c8603f;--accent-bg:#f7ecea;--accent-bg-h:#efdbd6;--bg:#f2f2f2;--line:#ececec;--text:#2b2b2b;--muted:#8a8a8a;--green:#2e9e5b;--sub:#f6f8fa}
 *{box-sizing:border-box}
@@ -99,6 +99,57 @@ button,button:focus,button:focus-visible,button:active{outline:none;box-shadow:n
 .debtline .v{color:var(--accent)}
 .debtline .v.ok{color:var(--green)}
 .list{padding:2px 12px 10px}
+/* back bar + profile menu */
+.cbk{max-width:1240px;margin:0 auto;padding:12px 24px 0}
+@media(max-width:600px){.cbk{padding:10px 14px 0}}
+.mbar{margin:-4px 0 10px}
+.profile{position:relative}
+.pdots{position:absolute;top:10px;right:10px;width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:#777;font-size:24px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pdots:hover,.pdots:active{background:var(--accent-bg);color:var(--accent)}
+.avatar{overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.pmi{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:none;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer;font:inherit;color:var(--text)}
+.pmi:last-of-type{border-bottom:0}.pmi b{display:block;font-size:14px;font-weight:600}.pmi small{display:block;color:#888;font-size:12px;margin-top:2px;overflow-wrap:anywhere}
+.pmi .ic{width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px}
+.pmi .pchev{margin-left:auto;color:#bbb;font-size:18px}
+.avprev{width:120px;height:120px;border-radius:50%;margin:8px auto 12px;background:#ececec;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:12px}.avprev img{width:100%;height:100%;object-fit:cover}
+.avfile{display:block;margin:0 auto 6px;font-size:13px}
+.phl label{display:flex;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.phl input{width:18px;height:18px;accent-color:var(--accent)}.phl b{font-size:14px}.phl small{display:block;font-size:11px;color:#888}
+.phl .gs{font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-bg);border-radius:10px;padding:2px 7px;margin-left:auto;white-space:nowrap}
+.perr{color:#c0392b;font-size:12px;min-height:16px;margin-top:4px}
+/* МФЦ booking (demo) */
+.mfcm{max-width:520px;padding:18px}
+.mfch{display:flex;justify-content:space-between;align-items:center}.mfch h3{margin:0}
+.mfcx{background:none;border:0;font-size:26px;line-height:1;color:#999;cursor:pointer;padding:0 4px}
+.mfcdemo{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-bg);border-radius:4px;padding:6px 9px;margin:8px 0}
+.mfcst{display:flex;gap:6px;overflow-x:auto;margin:6px 0 12px;-webkit-overflow-scrolling:touch}
+.mfcst span{white-space:nowrap;font-size:12px;padding:5px 10px;border-radius:14px;background:#f1f1f1;color:#888}
+.mfcst span.on{background:var(--accent-bg);color:var(--accent);font-weight:600}.mfcst span.done{background:#e8f5ee;color:var(--green)}
+.mfctabs{display:flex;gap:8px;margin-bottom:10px}
+.mfctabs button{flex:1;border:0;border-radius:4px;padding:10px;font-size:13px;font-weight:600;background:#f1f1f1;color:#777;cursor:pointer}
+.mfctabs button.on{background:var(--accent-bg);color:var(--accent)}
+.mfci{border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:8px;cursor:pointer;line-height:1.4}
+.mfci small{color:#888}.mfci.on{border-color:var(--accent);background:#fdf6f4}
+.mfcmap{height:320px;border-radius:6px;overflow:hidden;background:#eef0f2;border:1px solid var(--line)}
+.mfcsel{font-size:13px;line-height:1.4;padding:9px 11px;background:var(--sub);border-radius:6px;margin:10px 0}.mfcsel small{color:#888}
+.mfcnav{display:flex;gap:10px;margin-top:14px}.mfcnav .btn{flex:1;margin:0}
+.btn[disabled]{opacity:.45;cursor:default}
+.mcalh{display:flex;justify-content:space-between;align-items:center;margin:4px 0 8px}
+.mcalh button{border:0;background:var(--accent-bg);color:var(--accent);width:34px;height:34px;border-radius:4px;font-size:18px;cursor:pointer}.mcalh button[disabled]{opacity:.3}
+.mcalg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.mcalg i{font-style:normal;font-size:11px;color:#999;padding:2px 0}
+.mcalg button{border:0;border-radius:4px;padding:10px 0;font-size:14px;background:var(--accent-bg);color:var(--accent);font-weight:600;cursor:pointer}
+.mcalg button[disabled]{background:none;color:#c8c8c8;font-weight:400;cursor:default}.mcalg button.full{text-decoration:line-through}
+.mcalg button.today{box-shadow:inset 0 0 0 1px var(--accent)}.mcalg button.on{background:var(--accent);color:#fff}
+.mfclg{font-size:11px;color:#999;margin-top:8px}
+.mfcslots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mfcslots button{border:0;border-radius:4px;padding:10px 0;font-size:13px;font-weight:600;background:var(--accent-bg);color:var(--accent);cursor:pointer}
+.mfcslots button[disabled]{background:#f1f1f1;color:#c4c4c4;text-decoration:line-through;cursor:default}.mfcslots button.on{background:var(--accent);color:#fff}
+.mfcsum>div{padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.4}.mfcsum span{display:block;font-size:11px;color:#999}.mfcsum small{color:#888}
+.mfcp{font-size:12px;color:#888}
+.mfccard{border:1px solid var(--accent-bg-h);background:#fdf8f6;border-radius:6px;padding:11px 12px;margin-top:10px;font-size:13px;line-height:1.45}
+.mfccard small{color:#888}.mfcct{font-size:11px;text-transform:uppercase;color:#999;letter-spacing:.3px}.mfccw{font-weight:700;color:var(--accent);font-size:15px;margin:2px 0 4px}
+.mfcca{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:13px}.mfcca a{color:var(--accent)}
 /* modal */
 .ov{position:fixed;inset:0;background:rgba(20,20,20,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
 .ov.show{display:flex}
@@ -357,18 +408,21 @@ body:not(.year) .yearv{display:none}
     <a href="#">УМФЦ</a><a href="#">О ПРОЕКТЕ</a><a href="#">МЕРЫ ПОДДЕРЖКИ</a><a href="#">ДОКУМЕНТЫ</a><a href="#">УСЛУГИ</a><a href="#">ВАКАНСИИ</a><a href="#">КОНТАКТЫ</a><a href="#" class="out" id="logout">ВЫЙТИ</a>
   </nav>
 </div></header>
+<div class="bkbar cbk"><a href="#" class="bk" id="backBtn">← Назад</a></div>
 
 <div class="wrap">
   <aside class="card profile">
-    <div class="avatar"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-9 2.2-9 5v3h18v-3c0-2.8-4.6-5-9-5z"/></svg></div>
+    <button type="button" class="pdots" id="profMenu" aria-label="Меню профиля">⋯</button>
+    <div class="avatar" id="avatar"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-9 2.2-9 5v3h18v-3c0-2.8-4.6-5-9-5z"/></svg></div>
     <div class="pname">Яковлев Владимир Владимирович</div>
     <div class="field"><div class="l">Дата рождения</div><div class="v">19.06.1981</div></div>
-    <div class="field"><div class="l">Контактный телефон</div><div class="v">+7(968)8688886</div></div>
-    <div class="field"><div class="l">Мой МФЦ</div><a href="#">Указать</a></div>
+    <div class="field"><div class="l">Контактный телефон</div><div class="v" id="phoneV">+7 (968) 868-88-86</div></div>
+    <div class="field"><div class="l">Электронная почта</div><div class="v" id="emailV"></div></div>
+    <div class="field"><div class="l">Мой МФЦ</div><div id="mfcField"><a href="#" data-mfcopen>Указать</a></div></div>
     <div class="field"><div class="l">Род деятельности</div><a href="#">Указать</a></div>
     <div class="field"><div class="l">Налоговый статус</div><div class="v" id="taxStatus"></div><a href="#" id="taxEdit">Изменить</a></div>
-    <button class="btn btn-acc" type="button" id="primaryBtn">Предварительная запись</button>
-    <button class="btn btn-out" type="button" id="editProfile">Редактировать профиль</button>
+    <button class="btn btn-acc" type="button" id="primaryBtn">Запись в МФЦ</button>
+    <div id="mfcCard" style="display:none"></div>
     <button class="btn btn-out" type="button" id="rentBtn">Сдать недвижимость</button>
     <button class="btn btn-out" type="button" id="billBtn">Выставить счёт</button>
   </aside>
@@ -410,9 +464,11 @@ body:not(.year) .yearv{display:none}
 <div class="ov" id="ov"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 
-<script src="qrcode.js?v=18"></script>
-<script src="deal.js?v=18"></script>
-<script src="scan3d.js?v=18"></script>
+<script src="qrcode.js?v=19"></script>
+<script src="deal.js?v=19"></script>
+<script src="scan3d.js?v=19"></script>
+<script src="mfc.js?v=19"></script>
+<script src="back.js?v=19" data-nobar></script>
 <script>
 (function(){
   if(!localStorage.getItem('demoUser')){location.replace('index.html');return;}
@@ -714,7 +770,7 @@ body:not(.year) .yearv{display:none}
     document.querySelectorAll('.tab[data-view]').forEach(function(t){t.classList.toggle('on',t.getAttribute('data-view')===view);});
     document.getElementById('navPay').classList.toggle('on',view!=='rent');
     document.getElementById('navRent').classList.toggle('on',view==='rent');
-    document.getElementById('primaryBtn').textContent=view==='month'?'Предварительная запись':'← Назад';
+    
     setTotal();
     if(push)history.replaceState(null,'',location.pathname+location.search+(view==='month'?'':'#'+view));
   }
@@ -736,7 +792,7 @@ body:not(.year) .yearv{display:none}
     else if(fz){
       /* single-object mode: only the selected object */
       var d=activeDeal(fz.id),hist=historyOf(fz.id);
-      h+='<a href="#" class="rback" data-rback="1">← К объектам</a>';
+      
       h+='<div class="robj active single" data-robj="'+fz.id+'"><div class="rhead">'+objHead(fz,d)+'<div class="racts"><button class="btn" type="button" data-egrn="'+fz.id+'">Скачать ЕГРН</button></div></div>';
       if(rui.mode==='return'&&rui.ret&&D.get(rui.ret)){h+=retPanel(D.get(rui.ret));}
       else if(rui.mode==='history'){
@@ -789,7 +845,7 @@ body:not(.year) .yearv{display:none}
   }
   function billPanel(){
     var D=DemoDeal,opts=D.taxOpts(),k=rui.billK&&opts.some(function(t){return t.k===rui.billK;})?rui.billK:D.taxDefault(),bl=rui.billLast&&D.billGet(rui.billLast);
-    var h='<a href="#" class="rback" data-rback="1">← К объектам</a><h2>Выставить счёт</h2><div class="rsub">Укажите статус, сумму и телефон плательщика — отправим СМС со ссылкой на оплату (демо). После оплаты доход и налог попадут в НАЛОГИ и в таблицу 2026.</div>'+
+    var h='<h2>Выставить счёт</h2><div class="rsub">Укажите статус, сумму и телефон плательщика — отправим СМС со ссылкой на оплату (демо). После оплаты доход и налог попадут в НАЛОГИ и в таблицу 2026.</div>'+
       '<div class="pform bill"><div class="rlbl">Получаете как</div><div class="tchips">'+opts.map(function(t){return '<button type="button" class="tchip'+(t.k===k?' on':'')+'" data-billk="'+t.k+'">'+t.opt+'</button>';}).join('')+'</div>'+
       '<div class="tnote" id="bill-tn">'+D.TAX[k].name+'</div>'+
       '<label class="f" for="bill-amt">Сумма платежа, руб.</label><input class="inp" id="bill-amt" type="number" inputmode="numeric" min="1" step="1" placeholder="60000" value="'+esc(rui.billAmt||'')+'">'+
@@ -805,16 +861,16 @@ body:not(.year) .yearv{display:none}
       '<span class="chip '+(b.status==='paid'?'ok':'wait')+'">'+(b.status==='paid'?'оплачен '+D.dstr(b.paidT):'ждём оплату')+'</span>'+(b.status==='paid'?'':'<a class="lnk" href="'+esc(D.billLink(b))+'" data-billlink="'+esc(b.id)+'">открыть</a>')+'</div>';}).join(''):'<div class="hempty">Счетов пока нет</div>');
     return h;
   }
-  function taxModal(){
+  function taxModal(bk){
     var p=DemoDeal.taxProfile(),T=DemoDeal.TAX;
     showModal('<h3>Налоговый статус (демо)</h3><p style="font-size:12px;color:#777">В реальном сервисе статусы подтягиваются из ФНС/Госуслуг. Здесь — демо-настройка.</p>'+
       '<label class="tchk"><input type="checkbox" id="tx-ip"'+(p.ip?' checked':'')+'> ИП · УСН «доходы» 6% <small>(8% при превышении лимита)</small></label>'+
       '<label class="tchk"><input type="checkbox" id="tx-sz"'+(p.sz?' checked':'')+'> Самозанятый · НПД 4% <small>(только жилые помещения)</small></label>'+
       '<label class="tchk"><input type="checkbox" checked disabled> Физлицо · НДФЛ 13% <small>(есть всегда)</small></label>'+
       '<label class="f" for="tx-def">Сдавать по умолчанию как</label><select class="inp" id="tx-def">'+['ip','sz','fl'].map(function(k){return '<option value="'+k+'"'+(p.rentAs===k?' selected':'')+'>'+T[k].opt+'</option>';}).join('')+'</select>'+
-      '<div class="row"><button class="btn" type="button" data-close>Отмена</button><button class="btn" type="button" id="txSave">Сохранить</button></div>');
+      '<div class="row"><button class="btn" type="button" data-close>Отмена</button><button class="btn" type="button" id="txSave">Сохранить</button></div>',bk);
     document.getElementById('txSave').onclick=function(){var np={ip:document.getElementById('tx-ip').checked,sz:document.getElementById('tx-sz').checked,rentAs:document.getElementById('tx-def').value};
-      DemoDeal.saveTaxProfile(np);rui.tax={};rui.billK=null;closeModal();renderTaxStatus();renderAll();toast('Налоговый статус: '+DemoDeal.taxStatusText());};
+      DemoDeal.saveTaxProfile(np);rui.tax={};rui.billK=null;closeModal();renderTaxStatus();renderAll();toast('Налоговый статус: '+DemoDeal.taxStatusText());if(bk)bk();};
   }
   function renderTaxStatus(){var e=document.getElementById('taxStatus');if(e)e.textContent=DemoDeal.taxStatusText()+'; сдаю как '+DemoDeal.TAX[DemoDeal.taxDefault()].short;}
   function objTaxOpts(z){return DemoDeal.taxOpts().filter(function(t){return !(z.type==='кл'&&t.k==='sz');});}
@@ -953,7 +1009,7 @@ body:not(.year) .yearv{display:none}
     if((el=t.closest('[data-osign]'))){id=el.getAttribute('data-osign');var d3=D.get(id);if(!d3||d3.status!=='tenant_signed')return true;
       D.gosSign({doc:D.ctTitle(d3)+' · '+d3.addr,who:D.OWNER},function(tm){var d5=D.get(id);if(!d5||d5.status!=='tenant_signed'){renderAll();return;}
         d5.ownerSig='gos';d5.ownerT=tm;d5.status='owner_signed';D.put(d5);renderRent();toast('Договор подписан обеими сторонами');});return true;}
-    if((el=t.closest('[data-taxedit]'))){e.preventDefault();taxModal();return true;}
+    if((el=t.closest('[data-taxedit]'))){e.preventDefault();profMenu();return true;}
     if((el=t.closest('[data-taxk]'))){var tp=el.getAttribute('data-taxk').split('|');rui.tax[tp[0]]=tp[1];
       el.parentNode.querySelectorAll('.tchip').forEach(function(b){b.classList.toggle('on',b===el);});document.getElementById('tk-'+tp[0]).textContent=D.TAX[tp[1]].name;
       document.getElementById('tc-'+tp[0]).innerHTML=taxCalcHtml(rui.price[tp[0]],tp[1],'мес');return true;}
@@ -1067,7 +1123,9 @@ body:not(.year) .yearv{display:none}
 
   /* ===== modal ===== */
   var ov=document.getElementById('ov'),modal=document.getElementById('modal');
-  function showModal(h){modal.innerHTML=h;ov.classList.add('show');}
+  window.__mfcToast=function(m){toast(m);};
+  var modalBack=null;
+  function showModal(h,bk){modalBack=bk||null;modal.innerHTML='<div class="mbar"><a href="#" class="bk" data-mback>← Назад</a></div>'+h;ov.classList.add('show');}
   function closeModal(){if(window.Scan3D)Scan3D.disposeIn(modal);ov.classList.remove('show');modal.innerHTML='';modal.classList.remove('wide');}
   ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
@@ -1141,6 +1199,7 @@ body:not(.year) .yearv{display:none}
   document.addEventListener('click',function(e){
     var t=e.target;
     if(t.closest('[data-close]')){closeModal();return;}
+    if(t.closest('[data-mback]')){e.preventDefault();if(modalBack){var f=modalBack;f();}else closeModal();return;}
     var eg=t.closest('[data-egrn]');
     if(eg){e.preventDefault();e.stopPropagation();egrnModal(eg.getAttribute('data-egrn'));return;}
     if(t.closest('#rentp')&&handleRentClick(t,e))return;
@@ -1162,11 +1221,11 @@ body:not(.year) .yearv{display:none}
   document.getElementById('payAll').onclick=function(){var us=allUnpaid();payUnits(us,'Оплата всей задолженности ('+us.length+' начисл.)');};
   document.getElementById('topupBtn').onclick=function(){topupModal(0);};
   document.getElementById('autoBtn').onclick=autopayModal;
-  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо: баланс, оплаты, историю, автоплатежи и аренду?')){state=defState();save();DemoDeal.clear();if(window.Scan3D)Scan3D.idbClear();rui={focus:null,mode:'flow',price:{},dep:{},depTouched:{},from:{},tax:{},bill:false,billK:null,billLast:null};DemoDeal.billClear();localStorage.removeItem('demoTaxProfile_v1');renderAll();toast('Демо сброшено');}};
+  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо: баланс, оплаты, историю, автоплатежи и аренду?')){state=defState();save();DemoDeal.clear();if(window.Scan3D)Scan3D.idbClear();rui={focus:null,mode:'flow',price:{},dep:{},depTouched:{},from:{},tax:{},bill:false,billK:null,billLast:null};DemoDeal.billClear();localStorage.removeItem('demoTaxProfile_v1');if(window.Mfc)Mfc.clear();localStorage.removeItem('demoProfile_v1');localStorage.removeItem('demoAvatar_v1');renderProfile();renderAll();toast('Демо сброшено');}};
   document.getElementById('logout').onclick=function(e){e.preventDefault();localStorage.removeItem('demoUser');location.href='index.html';};
   document.querySelectorAll('a[href="#"]').forEach(function(a){if(!a.id)a.addEventListener('click',function(e){e.preventDefault();});});
   document.querySelectorAll('.tab[data-view]').forEach(function(t){t.addEventListener('click',function(){setView(t.getAttribute('data-view'),true);window.scrollTo(0,0);});});
-  document.getElementById('primaryBtn').addEventListener('click',function(){if(view!=='month'){setView('month',true);window.scrollTo(0,0);}});
+  document.getElementById('primaryBtn').addEventListener('click',function(){if(window.Mfc)Mfc.open();});
   document.getElementById('billBtn').addEventListener('click',function(){rui.bill=true;rui.billLast=null;rui.focus=null;renderRent();setView('rent',false);if(location.hash!=='#rent-bill')history.pushState(null,'',location.pathname+location.search+'#rent-bill');document.getElementById('rentp').scrollIntoView({block:'start'});});
   document.getElementById('rentBtn').addEventListener('click',function(){rui.focus=null;rui.bill=false;renderRent();setView('rent',true);document.getElementById('rentp').scrollIntoView({block:'start'});});
   window.addEventListener('hashchange',function(){var v=hashView();renderRent();setView(v,false);});
@@ -1179,8 +1238,55 @@ body:not(.year) .yearv{display:none}
   /* iOS Safari/WebKit only synthesizes click on plain elements (div rows) if an ancestor below <body> has a click listener;
      the app delegates clicks on document, so register no-op listeners on the containers. */
   document.querySelectorAll('.wrap,#ov').forEach(function(el){el.addEventListener('click',function(){});});
+  /* ---- back control (cabinet) ---- */
+  function goBack(){
+    if(view==='rent'&&(rui.focus||rui.bill)){rui.bill=false;if(/^#rent-/.test(location.hash))history.replaceState(null,'',location.pathname+location.search+'#rent');rentGo(null);return;}
+    if(view!=='month'){setView('month',true);window.scrollTo(0,0);return;}
+    if(window.DemoBack)DemoBack.go('index.html');else location.href='index.html';
+  }
+  document.getElementById('backBtn').addEventListener('click',function(e){e.preventDefault();goBack();});
+  /* ---- profile (demo): avatar, email, contact phone from Госуслуги ---- */
+  var PKEY='demoProfile_v1',AKEY='demoAvatar_v1';
+  var GPH=['+7 (968) 868-88-86','+7 (900) 000-00-01','+7 (900) 000-00-02'];
+  function prof(){var p;try{p=JSON.parse(localStorage.getItem(PKEY)||'{}')||{};}catch(e){p={};}if(!p.phone)p.phone=GPH[0];if(p.email==null)p.email='';return p;}
+  function saveProf(p){localStorage.setItem(PKEY,JSON.stringify(p));renderProfile();}
+  window.__profPhone=function(){return prof().phone;};
+  function renderProfile(){var p=prof(),a=localStorage.getItem(AKEY),av=document.getElementById('avatar');
+    document.getElementById('phoneV').textContent=p.phone;
+    document.getElementById('emailV').innerHTML=p.email?esc(p.email):'<a href="#" data-pmail>Указать</a>';
+    av.innerHTML=a?'<img src="'+a+'" alt="Фото профиля">':'<svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-9 2.2-9 5v3h18v-3c0-2.8-4.6-5-9-5z"/></svg>';}
+  function profMenu(){var p=prof(),a=localStorage.getItem(AKEY);
+    showModal('<h3>Профиль</h3>'+
+      '<button type="button" class="pmi" data-pm="avatar"><span class="ic">📷</span><span><b>Фото профиля</b><small>'+(a?'Сменить или удалить фото':'Загрузить фото')+'</small></span><span class="pchev">›</span></button>'+
+      '<button type="button" class="pmi" data-pm="email"><span class="ic">✉</span><span><b>Электронная почта</b><small>'+(p.email?esc(p.email):'не указана')+'</small></span><span class="pchev">›</span></button>'+
+      '<button type="button" class="pmi" data-pm="phone"><span class="ic">☎</span><span><b>Контактный телефон</b><small>'+esc(p.phone)+' · номера из Госуслуг (демо)</small></span><span class="pchev">›</span></button>'+
+      '<button type="button" class="pmi" data-pm="tax"><span class="ic">₽</span><span><b>Налоговый статус</b><small>'+esc(DemoDeal.taxStatusText())+'</small></span><span class="pchev">›</span></button>'+
+      '<div class="note">Демо: данные профиля хранятся только в этом браузере.</div>');
+    modal.querySelectorAll('[data-pm]').forEach(function(b){b.onclick=function(){var k=b.getAttribute('data-pm');if(k==='avatar')avatarModal();else if(k==='email')emailModal();else if(k==='phone')phoneModal();else taxModal(profMenu);};});}
+  function avatarModal(){var cur=localStorage.getItem(AKEY),pend=null;
+    showModal('<h3>Фото профиля</h3><div class="avprev" id="avPrev">'+(cur?'<img src="'+cur+'" alt="">':'нет фото')+'</div>'+
+      '<input type="file" accept="image/*" class="avfile" id="avFile"><div class="perr" id="avErr"></div>'+
+      '<div class="row">'+(cur?'<button class="btn" type="button" id="avDel">Удалить фото</button>':'')+'<button class="btn" type="button" id="avSave" disabled>Сохранить</button></div>',profMenu);
+    document.getElementById('avFile').onchange=function(){var f=this.files&&this.files[0];if(!f)return;if(!/^image\//.test(f.type)){document.getElementById('avErr').textContent='Выберите изображение';return;}
+      var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var S=256,c=document.createElement('canvas');c.width=c.height=S;var k=Math.max(S/im.width,S/im.height),w=im.width*k,h=im.height*k;
+        c.getContext('2d').drawImage(im,(S-w)/2,(S-h)/2,w,h);pend=c.toDataURL('image/jpeg',.85);document.getElementById('avPrev').innerHTML='<img src="'+pend+'" alt="">';document.getElementById('avSave').disabled=false;document.getElementById('avErr').textContent='';};
+        im.onerror=function(){document.getElementById('avErr').textContent='Не удалось открыть изображение';};im.src=r.result;};r.readAsDataURL(f);};
+    document.getElementById('avSave').onclick=function(){if(!pend)return;try{localStorage.setItem(AKEY,pend);}catch(e){document.getElementById('avErr').textContent='Не хватает места в браузере';return;}renderProfile();toast('Фото обновлено');profMenu();};
+    var d=document.getElementById('avDel');if(d)d.onclick=function(){localStorage.removeItem(AKEY);renderProfile();toast('Фото удалено');profMenu();};}
+  function emailModal(){var p=prof();
+    showModal('<h3>Электронная почта</h3><label class="f" for="pmEmail">E-mail</label><input class="inp" id="pmEmail" type="email" inputmode="email" autocomplete="email" maxlength="80" placeholder="name@example.ru" value="'+esc(p.email)+'"><div class="perr" id="pmErr"></div>'+
+      '<div class="row"><button class="btn" type="button" id="pmSave">Сохранить</button></div>',profMenu);
+    document.getElementById('pmSave').onclick=function(){var v=document.getElementById('pmEmail').value.trim();if(v&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){document.getElementById('pmErr').textContent='Проверьте адрес почты';return;}
+      var q=prof();q.email=v;saveProf(q);toast(v?'Почта сохранена':'Почта удалена');profMenu();};}
+  function phoneModal(){var p=prof();
+    showModal('<h3>Контактный телефон</h3><p style="font-size:12px;color:#777">Номера автоматически подтянуты из Госуслуг для этого абонента (демо). Выбранный станет основным контактным.</p><div class="phl">'+
+      GPH.map(function(n){return '<label><input type="radio" name="pmPh" value="'+esc(n)+'"'+(n===p.phone?' checked':'')+'><span><b>'+esc(n)+'</b><small>'+(n===p.phone?'основной':'дополнительный')+'</small></span><span class="gs">из Госуслуг (демо)</span></label>';}).join('')+
+      '</div><div class="row"><button class="btn" type="button" id="phSave">Сделать основным</button></div>',profMenu);
+    document.getElementById('phSave').onclick=function(){var r=modal.querySelector('input[name="pmPh"]:checked');if(!r)return;var q=prof();q.phone=r.value;saveProf(q);toast('Основной телефон: '+r.value);profMenu();};}
+  document.getElementById('profMenu').addEventListener('click',profMenu);
+  document.addEventListener('click',function(e){if(e.target.closest('[data-pmail]')){e.preventDefault();emailModal();}});
+  renderProfile();
   document.getElementById('taxEdit').addEventListener('click',function(e){e.preventDefault();taxModal();});
-  document.getElementById('editProfile').addEventListener('click',taxModal);
   renderTaxStatus();
   var hv0=hashView();
   renderAll();
