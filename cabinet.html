@@ -134,6 +134,15 @@ button,button:focus,button:focus-visible,button:active{outline:none;box-shadow:n
 .yt th.stick{background:#f1f3f5}
 .yt tr.sec td.stick{background:#e9ecef}
 .yt .mobl{display:none}
+/* year subtotals & footer */
+.yt tr.sub td{font-weight:700;background:#f7f8f9;border-bottom:1px solid #e3e6e9;font-size:10.5px}
+.yt tr.sub td.c-r,.yt tr.sub td.c-t{color:#555;text-transform:none}
+.yt tfoot td{background:#e9ecef;font-weight:700;border-bottom:1px solid #dde1e5;padding:8px 6px}
+.yt tfoot tr.first td{border-top:2px solid #c9ced3}
+.yt td.zero{color:#888}
+.yt .tot.neg{color:var(--accent)}
+.yt tr.sub td.stick,.yt tfoot td.stick{background:inherit}
+.yt tr.sub td.stick{background:#f7f8f9}.yt tfoot td.stick{background:#e9ecef}
 body.year .mgrid{display:none}
 body:not(.year) .yearv{display:none}
 @media (max-width:600px){
@@ -146,6 +155,8 @@ body:not(.year) .yearv{display:none}
   .yt .c-t{left:0;width:66px;min-width:66px;max-width:66px;white-space:normal;overflow-wrap:anywhere}
   .yt .c-o{left:66px;box-shadow:1px 0 0 #dfe3e7}
   .yt tr.sec td.c-t{box-shadow:none}
+  .yt tr.sub td.c-t{background:#f7f8f9;box-shadow:1px 0 0 #dfe3e7}
+  .yt tfoot td.c-t{background:#e9ecef;box-shadow:1px 0 0 #cfd4d9}
 }
 /* responsive */
 @media (max-width:1100px){.nav{gap:14px}.nav a{font-size:11px}}
@@ -406,10 +417,34 @@ body:not(.year) .yearv{display:none}
         var t=rowYear(r);
         h+='<tr><td class="c-r stick">'+s.r+'</td><td class="c-t">'+esc(r.type)+'</td><td class="c-o obj">'+esc(r.obj)+'</td>'+cells+'<td class="tot'+(t>0?' pos':'')+'">'+t+'</td></tr>';
       });
+      /* section subtotal */
+      var sv=[];for(var m2=0;m2<12;m2++){var has=s.rows.some(function(r){return r.vals[m2]!=null;});sv.push(has?secNet(s,m2):null);}
+      h+=sumRow('sub','Итого '+s.r,sv,'data-sub="'+s.id+'"');
     });
-    document.getElementById('yt').innerHTML=h+'</tbody>';
+    h+='</tbody><tfoot>';
+    var exp=[],inc=[],net=[],pd=[],up=[];
+    for(var m3=0;m3<12;m3++){
+      var hasM=SECTIONS.some(function(s){return s.rows.some(function(r){return r.vals[m3]!=null;});});
+      if(!hasM){exp.push(null);inc.push(null);net.push(null);pd.push(null);up.push(null);continue;}
+      var e=0,i=0;SECTIONS.forEach(function(s){s.rows.forEach(function(r){var v=r.vals[m3];if(v==null)return;if(v<0)e+=v;else i+=v;});});
+      var us=allUnits(m3),u=debtOf(us);
+      exp.push(e);inc.push(i);net.push(e+i);up.push(-u);pd.push(r2(sum(us,function(x){return x.amount;})-u));
+    }
+    h+=sumRow('foot first','Расходы',exp,'data-foot="exp"')+sumRow('foot','Доходы',inc,'data-foot="inc"')+
+       sumRow('foot','Итог месяца',net,'data-foot="net"','Итог года: ')+sumRow('foot','Оплачено',pd,'data-foot="paid"')+sumRow('foot','К оплате',up,'data-foot="due"');
+    document.getElementById('yt').innerHTML=h+'</tfoot>';
   }
 
+  function sumRow(cls,label,vals,attr,totPrefix){
+    var cells='',t=0,any=false;
+    vals.forEach(function(v,m){
+      if(v==null){cells+='<td class="m dash">-</td>';return;}
+      any=true;t+=v;cells+='<td class="m '+(v<0?'neg':v>0?'pos':'zero')+'" data-m="'+m+'">'+v+'</td>';
+    });
+    t=r2(t);
+    return '<tr class="'+cls+'" '+attr+'><td class="c-r stick">'+label+'</td><td class="c-t" colspan="2"><span class="mobl">'+label+'</span></td>'+cells+
+      '<td class="tot '+(t<0?'neg':t>0?'pos':'zero')+'" data-total="'+t+'"'+(totPrefix?' title="'+totPrefix+t+'"':'')+'>'+(any?t:'-')+'</td></tr>';
+  }
   var view='month';
   function setTotal(){
     var el=document.getElementById('total'),n=view==='year'?yearNet():monthNet(CUR);
