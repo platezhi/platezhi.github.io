@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Оплата счёта (демо) — Мои документы</title>
+<link rel="stylesheet" href="deal.css?v=17">
+</head>
+<body class="dp">
+<header class="top"><div class="top-in"><div class="logo">МОИ <b>ДОКУМЕНТЫ</b></div><span class="chip acc">демо</span></div></header>
+<main class="page" id="app"></main>
+<script src="deal.js?v=17"></script>
+<script>
+(function(){
+  var D=window.DemoDeal,app=document.getElementById('app'),esc=D.esc;
+  var BACK='<a class="back" href="cabinet.html#rent-bill" data-back>← В кабинет получателя (демо)</a>';
+  var NOTE='<div class="demo-note">Демо-оплата: деньги не списываются, данные карты не запрашиваются. Статус сохраняется только в этом браузере; для работы между устройствами нужен сервер.</div>';
+  var x=D.dec(new URLSearchParams(location.search).get('c'));
+  var id=x&&D.str(x.i,40),amount=x?Math.round((+x.a||0)*100)/100:0,kind=x&&D.TAX[x.k]?x.k:'fl';
+  if(!id||!(amount>0&&amount<=1e7)){app.innerHTML=BACK+'<div class="card"><h1>Ссылка недействительна</h1>'+NOTE+'</div>';return;}
+  var b=D.billGet(id)||{id:id,no:D.num(x.n,1e6)||1,kind:kind,amount:amount,purpose:D.str(x.p,80)||'Оплата',phone:D.str(x.ph,20),created:+x.t||Date.now(),status:'sent'};
+  var T=D.TAX[b.kind],who=esc(D.OWNER)+(b.kind==='ip'?', ИП':b.kind==='sz'?', самозанятый':'');
+  function paidView(){app.innerHTML=BACK+'<div class="card"><div class="ok-big">✓ Счёт №'+b.no+' оплачен (демо)</div><p class="sub">'+D.rub(b.amount)+' · '+esc(b.purpose)+'<br>Получатель: '+who+'<br>Оплачено '+D.dtstr(b.paidT||Date.now())+'</p>'+NOTE+'</div>';}
+  if(b.status==='paid'){paidView();return;}
+  app.innerHTML=BACK+'<div class="card"><h1>Счёт №'+b.no+'</h1><p class="sub">от '+D.dtstr(b.created)+'</p>'+
+    '<div class="rowsum"><span>Получатель</span><span>'+who+'</span></div>'+
+    '<div class="rowsum"><span>Назначение</span><span>'+esc(b.purpose)+'</span></div>'+
+    '<div class="rowsum"><span>Плательщик</span><span>'+esc(b.phone||'—')+'</span></div>'+
+    '<div class="rowsum total"><span>К оплате</span><b id="total">'+D.rub(b.amount)+'</b></div>'+
+    '<p class="sub">Налог с этой суммы ('+T.tax+') уплачивает получатель — для вас сумма не меняется.</p>'+
+    NOTE+'<button class="btn solid" type="button" id="pay">Оплатить (демо)</button></div>';
+  document.getElementById('pay').onclick=function(){
+    this.disabled=true;app.querySelector('.card').insertAdjacentHTML('beforeend','<div class="spin"></div>');
+    setTimeout(function(){var cur=D.billGet(id)||b;cur.status='paid';cur.paidT=Date.now();cur.payer=cur.payer||'Плательщик';D.billPut(cur);b=cur;paidView();},700);
+  };
+})();
+</script>
+</body>
+</html>

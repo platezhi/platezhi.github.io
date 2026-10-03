@@ -29,16 +29,38 @@
   function dtstr(t){var d=new Date(t);return dstr(t)+' '+p2(d.getHours())+':'+p2(d.getMinutes());}
 
   function baseUrl(){return new URL('.',location.href).href;}
-  function linkData(d){return {i:d.id,k:d.type,o:d.obj,a:d.addr,p:d.price,z:d.deposit,f:d.from,ph:d.phone||'',t:d.created,b:d.objId||'',s:d.ins?[d.ins.owner.no,d.ins.owner.premium,d.ins.tenant.no,d.ins.tenant.premium]:0,v:(d.inv||[]).slice(0,60).map(function(i){return [i.room,i.name,+i.qty||1,+i.cond||0,+i.val||0,i.note||''];})};}
+  function linkData(d){return {i:d.id,k:d.type,o:d.obj,a:d.addr,p:d.price,z:d.deposit,f:d.from,ph:d.phone||'',t:d.created,b:d.objId||'',x:d.tax?d.tax.k:'',s:d.ins?[d.ins.owner.no,d.ins.owner.premium,d.ins.tenant.no,d.ins.tenant.premium]:0,v:(d.inv||[]).slice(0,60).map(function(i){return [i.room,i.name,+i.qty||1,+i.cond||0,+i.val||0,i.note||''];})};}
   function fromLink(x){
     if(!x||typeof x!=='object')return null;
     var d={id:str(x.i,40),type:x.k==='кл'?'кл':'кв',obj:str(x.o,80),addr:str(x.a,160),price:num(x.p,1e7),deposit:Math.max(0,Math.round(+x.z)||0),from:Math.min(11,Math.max(0,Math.round(+x.f)||0)),phone:str(x.ph,30),created:+x.t||Date.now(),objId:str(x.b,20),status:'sent'};
+    if(x.x&&TAX[x.x])d.tax={k:x.x};
     if(Array.isArray(x.s)&&x.s.length===4)d.ins={owner:{no:str(x.s[0],30),premium:num(x.s[1],1e7)},tenant:{no:str(x.s[2],30),premium:num(x.s[3],1e7)}};
     if(Array.isArray(x.v))d.inv=x.v.slice(0,60).filter(Array.isArray).map(function(a,k){return {id:'l'+k,room:str(a[0],30),name:str(a[1],60),qty:num(a[2],999)||1,cond:Math.min(2,Math.max(0,Math.round(+a[3])||0)),val:num(a[4],1e8),note:str(a[5],120),photo:''};});
     return d.id&&d.price&&d.addr?d:null;
   }
   function signLink(d){return baseUrl()+'sign.html?c='+enc(linkData(d));}
   function payLink(d){return baseUrl()+'pay.html?c='+enc({b:d.objId||'',n:d.tenant&&d.tenant.fio||'',ti:insTenant(d),tn:d.ins?d.ins.tenant.no:'',i:d.id,p:d.price,z:d.deposit,a:d.addr,f:d.from,k:d.type,o:d.obj,t:d.created});}
+  /* ---- owner's tax status (demo profile) ---- */
+  var TAXKEY='demoTaxProfile_v1';
+  var TAX={ip:{k:'ip',rate:0.06,short:'ИП',opt:'ИП · УСН 6% (8% при превышении лимита)',name:'ИП · УСН 6% (8% при превышении лимита)',tax:'УСН 6%',ct:'индивидуальный предприниматель, упрощённая система налогообложения (УСН «доходы», ставка 6%; 8% при превышении лимита доходов)'},
+    sz:{k:'sz',rate:0.04,short:'Самозанятый',opt:'Самозанятый · НПД 4%',name:'Самозанятый · НПД 4%',tax:'НПД 4%',ct:'плательщик налога на профессиональный доход (самозанятый), ставка 4% с доходов от физических лиц'},
+    fl:{k:'fl',rate:0.13,short:'Физлицо',opt:'Физлицо · НДФЛ 13%',name:'Физлицо · НДФЛ 13%',tax:'НДФЛ 13%',ct:'физическое лицо, налог на доходы физических лиц (НДФЛ) 13%'}};
+  function taxProfile(){var p=null;try{p=JSON.parse(localStorage.getItem(TAXKEY));}catch(e){}if(!p||typeof p!=='object')p={ip:true,sz:false,rentAs:'ip'};p.fl=true;if(!avail(p,p.rentAs))p.rentAs=taxPref(p);return p;}
+  function avail(p,k){return k==='fl'||(k==='ip'&&!!p.ip)||(k==='sz'&&!!p.sz);}
+  function taxPref(p){return p.ip?'ip':p.sz?'sz':'fl';}
+  function saveTaxProfile(p){p.fl=true;if(!avail(p,p.rentAs))p.rentAs=taxPref(p);localStorage.setItem(TAXKEY,JSON.stringify(p));}
+  function taxOpts(p){p=p||taxProfile();return ['ip','sz','fl'].filter(function(k){return avail(p,k);}).map(function(k){return TAX[k];});}
+  function taxDefault(p){p=p||taxProfile();return avail(p,p.rentAs)?p.rentAs:taxPref(p);}
+  function taxOf(amount,k){var t=TAX[k]||TAX.fl;return Math.round((+amount||0)*t.rate*100)/100;}
+  function taxStatusText(p){p=p||taxProfile();return taxOpts(p).map(function(t){return t.name;}).join(', ');}
+  /* ---- demo invoices («Выставить счёт») ---- */
+  var BKEY='demoBills_v1';
+  function bills(){try{var b=JSON.parse(localStorage.getItem(BKEY));if(b&&typeof b==='object'&&b.bills)return b;}catch(e){}return {bills:{},n:0};}
+  function billAll(){var b=bills().bills;return Object.keys(b).map(function(k){return b[k];}).sort(function(a,c){return (c.created||0)-(a.created||0);});}
+  function billGet(id){return bills().bills[id]||null;}
+  function billPut(x){var b=bills();if(!b.bills[x.id]){b.n=(b.n||0)+1;x.no=x.no||b.n;}b.bills[x.id]=x;localStorage.setItem(BKEY,JSON.stringify(b));return x;}
+  function billClear(){localStorage.removeItem(BKEY);}
+  function billLink(x){return baseUrl()+'invoice.html?c='+enc({i:x.id,n:x.no,k:x.kind,a:x.amount,p:x.purpose,ph:x.phone,t:x.created});}
   function ctNo(d){var t=new Date(d.created||Date.now());return 'Д-'+t.getFullYear()+p2(t.getMonth()+1)+p2(t.getDate())+'-'+String(d.id||'').slice(-4).toUpperCase();}
   function period(d){var f=d.from||0;return {from:'01.'+p2(f+1)+'.2026',to:dstr(new Date(2026,f+11,0))};}
   /* ---- DEMO "Моё проживание" QR: link to check.html with deal summary (not an official document) ---- */
@@ -76,7 +98,7 @@
       '<div class="ct-demo">ДЕМО-ОБРАЗЕЦ · не является юридически значимым документом</div>'+
       '<h3 class="ct-title">'+title+'</h3>'+
       '<div class="ct-meta"><span>г. ________________</span><span>№ '+esc(ctNo(d))+' от '+dstr(d.created||Date.now())+'</span></div>'+
-      '<p><b>'+OWNER+'</b>, именуемый в дальнейшем «'+R.O+'», с одной стороны, и '+line(t.fio,'ФИО ____________________')+
+      '<p><b>'+OWNER+'</b>'+(d.tax&&TAX[d.tax.k]?' ('+TAX[d.tax.k].ct+')':'')+', именуемый в дальнейшем «'+R.O+'», с одной стороны, и '+line(t.fio,'ФИО ____________________')+
       (t.birth?', дата рождения '+line(t.birth):'')+', паспорт '+line(t.passport,'серия, номер __________')+(t.reg?', зарегистрирован(а) по адресу: '+line(t.reg):'')+', тел. '+line(t.phone||d.phone,'______________')+
       ', именуемый(ая) в дальнейшем «'+R.T+'», с другой стороны, заключили настоящий договор о нижеследующем.</p>'+
       '<h4>1. Предмет договора</h4>'+
@@ -87,6 +109,7 @@
       '<p>3.1. Плата за пользование составляет <b>'+rub(d.price)+'</b> в месяц.</p>'+
       '<p>3.2. Плата вносится ежемесячно, не позднее 5-го числа текущего месяца. Первый платёж вносится при подписании договора.</p>'+
       (st?'':'<p>3.3. Коммунальные услуги по счётчикам (электроэнергия, вода) оплачивает '+R.T+'; прочие платежи — '+R.O+'.</p>')+
+      (d.tax&&TAX[d.tax.k]?'<p>'+(st?'3.3':'3.4')+'. Налоговый статус '+R.Og+': <b>'+TAX[d.tax.k].name+'</b>. Сумма налога с ежемесячной платы — <b>'+rub(taxOf(d.price,d.tax.k))+'</b> ('+Math.round(TAX[d.tax.k].rate*100)+'% от '+rub(d.price)+'). Налог уплачивает '+R.O+' самостоятельно; плата для '+R.Tg+' не увеличивается. Залог доходом не является до его зачёта.</p>':'')+
       '<h4>4. Залог</h4><p>4.1. '+R.T+' вносит обеспечительный платёж (залог) в размере <b>'+rub(d.deposit)+'</b>. Залог возвращается при прекращении договора при отсутствии задолженности и ущерба.</p>'+
       '<h4>5. Права и обязанности сторон</h4>'+
       '<p>5.1. '+R.O+' обязуется передать '+(st?'Помещение':'Квартиру')+' в состоянии, пригодном для использования, и не препятствовать пользованию.</p>'+
@@ -218,5 +241,5 @@
 
   w.DemoDeal={KEY:KEY,MG:MG,STEPS:STEPS,STATUS:STATUS,OWNER:OWNER,load:load,save:save,all:all,get:get,put:put,clear:clear,newId:newId,enc:enc,dec:dec,fromLink:fromLink,
     signLink:signLink,payLink:payLink,due:due,isStorage:isStorage,stepOf:stepOf,stepper:stepper,contractHtml:contractHtml,contractDoc:contractDoc,smsHtml:smsHtml,
-    SigPad:SigPad,copy:copy,insMake:insMake,insCard:insCard,insTitles:insTitles,insTenant:insTenant,INS_NOTE:INS_NOTE,ownerDue:ownerDue,CONDS:CONDS,RET:RET,invDefault:invDefault,invItem:invItem,invRooms:invRooms,invTotal:invTotal,retCalc:retCalc,ctNo:ctNo,period:period,checkData:checkData,checkLink:checkLink,qrSvg:qrSvg,qrCard:qrCard,gosLogin:gosLogin,gosSign:gosSign,ctTitle:ctTitle,TENANT_DEMO:TENANT_DEMO,esc:esc,fmt:fmt,rub:rub,dstr:dstr,dtstr:dtstr,num:num,str:str,CT_CSS:CT_CSS};
+    SigPad:SigPad,copy:copy,TAX:TAX,taxProfile:taxProfile,saveTaxProfile:saveTaxProfile,taxOpts:taxOpts,taxDefault:taxDefault,taxOf:taxOf,taxStatusText:taxStatusText,billAll:billAll,billGet:billGet,billPut:billPut,billClear:billClear,billLink:billLink,insMake:insMake,insCard:insCard,insTitles:insTitles,insTenant:insTenant,INS_NOTE:INS_NOTE,ownerDue:ownerDue,CONDS:CONDS,RET:RET,invDefault:invDefault,invItem:invItem,invRooms:invRooms,invTotal:invTotal,retCalc:retCalc,ctNo:ctNo,period:period,checkData:checkData,checkLink:checkLink,qrSvg:qrSvg,qrCard:qrCard,gosLogin:gosLogin,gosSign:gosSign,ctTitle:ctTitle,TENANT_DEMO:TENANT_DEMO,esc:esc,fmt:fmt,rub:rub,dstr:dstr,dtstr:dtstr,num:num,str:str,CT_CSS:CT_CSS};
 })(window);

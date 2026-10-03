@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <title>Мои документы — личный кабинет (демо)</title>
-<link rel="stylesheet" href="deal.css">
+<link rel="stylesheet" href="deal.css?v=17">
 <style>
 :root{--accent:#c8603f;--accent-bg:#f7ecea;--accent-bg-h:#efdbd6;--bg:#f2f2f2;--line:#ececec;--text:#2b2b2b;--muted:#8a8a8a;--green:#2e9e5b;--sub:#f6f8fa}
 *{box-sizing:border-box}
@@ -172,6 +172,42 @@ body.rent .mhead{display:none}
 .robj.active{background:#fff}
 .rbody{padding:2px 0 6px}
 .rlbl{font-size:12px;font-weight:600;margin:12px 0 2px;color:#444}
+.rlbl small{font-weight:400;color:#888}.rlbl small a{color:var(--accent)}
+/* tax status / invoices */
+.tchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
+.tchip{border:0;background:#f3f3f3;color:#666;border-radius:16px;padding:9px 12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.tchip.on{background:var(--accent-bg);color:var(--accent)}
+.tnote{font-size:11.5px;color:#888;margin:2px 0}
+.taxcalc{font-size:13px;margin:6px 0 2px;padding:8px 10px;background:#faf6f5;border-radius:6px;color:#555}
+.taxcalc b.due,.taxline b.due,.ledger .due,.ledsum .due{color:var(--accent)}
+.taxline{font-size:12.5px;color:#555;margin:6px 0 8px}.taxline a{color:var(--accent)}
+.rtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.rtop h2{margin:0}.rtop .btn{width:auto;padding:10px 16px}
+.btn.solid{background:var(--accent);color:#fff}.btn.solid:hover{background:#b5543a}
+.dl.bill{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}.dl.bill .lnk{grid-column:1/-1;justify-self:start;padding:0;color:var(--accent);font-size:12px}
+.billsent{margin:12px 0}
+.tchk{display:flex;gap:8px;align-items:center;font-size:13px;margin:10px 0}.tchk input{width:20px;height:20px;accent-color:var(--accent)}.tchk small{color:#888}
+.tsub{border-top:1px solid var(--line)}
+.tsrow{display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;font-size:13px;font-weight:600;color:#444}
+.tsrow .tsn{flex:1}.tsrow .tsa{text-align:right;white-space:nowrap}.tsrow .tsa small{display:block;font-size:10.5px;font-weight:600}
+.tsrow .chev{font-size:10px;color:#aaa}.tsub.open>.tsrow .chev{transform:rotate(180deg)}
+.tsub.has-debt>.tsrow .tsn{color:var(--accent)}
+.tsbody{display:none;padding:0 8px 10px}.tsub.open>.tsbody{display:block}
+.tsbody .tsub{margin-left:6px}
+.dbt{color:var(--accent)}.ok{color:var(--green)}
+.ledw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ledger{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0}
+.ledger th{text-align:left;font-size:10.5px;color:#888;font-weight:600;padding:6px 4px;border-bottom:1px solid var(--line)}
+.ledger td{padding:7px 4px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+.ledger td:nth-child(n+3),.ledger th:nth-child(n+3){text-align:right;white-space:nowrap}
+.ledger small{color:#999;font-size:10.5px}
+.ledger .lin,.ledsum .lin{color:var(--green)}.ledger .okc,.ledsum .okc{color:var(--green)}
+.ledger tr.plan td{opacity:.7}
+.ledger tfoot td{font-weight:700;border-bottom:0}
+.ledger .pay.sm{display:block;margin:4px 0 0 auto;padding:5px 9px;font-size:11px;width:auto}
+.ledsum{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:12px;background:#faf6f5;border-radius:6px;padding:10px 12px;margin:8px 0}
+.ledsum div{display:flex;flex-direction:column}.ledsum span{color:#888;font-size:11px}.ledsum b{font-size:14px}
+.tnote{line-height:1.4}p.tnote{margin:4px 0}
+.yt tr.ysub td{background:#faf3f1;color:var(--accent);font-weight:700;font-size:11px}.yt tr.ysub.l2 td.c-t{padding-left:18px}
 /* inventory editor */
 .inv-room{margin:10px 0 4px}
 .inv-rh{display:flex;justify-content:space-between;align-items:center;font-weight:700;color:var(--accent);font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
@@ -330,8 +366,9 @@ body:not(.year) .yearv{display:none}
     <div class="field"><div class="l">Контактный телефон</div><div class="v">+7(968)8688886</div></div>
     <div class="field"><div class="l">Мой МФЦ</div><a href="#">Указать</a></div>
     <div class="field"><div class="l">Род деятельности</div><a href="#">Указать</a></div>
+    <div class="field"><div class="l">Налоговый статус</div><div class="v" id="taxStatus"></div><a href="#" id="taxEdit">Изменить</a></div>
     <button class="btn btn-acc" type="button" id="primaryBtn">Предварительная запись</button>
-    <button class="btn btn-out" type="button">Редактировать профиль</button>
+    <button class="btn btn-out" type="button" id="editProfile">Редактировать профиль</button>
     <button class="btn btn-out" type="button" id="rentBtn">Сдать недвижимость</button>
   </aside>
 
@@ -372,9 +409,9 @@ body:not(.year) .yearv{display:none}
 <div class="ov" id="ov"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 
-<script src="qrcode.js"></script>
-<script src="deal.js"></script>
-<script src="scan3d.js"></script>
+<script src="qrcode.js?v=17"></script>
+<script src="deal.js?v=17"></script>
+<script src="scan3d.js?v=17"></script>
 <script>
 (function(){
   if(!localStorage.getItem('demoUser')){location.replace('index.html');return;}
@@ -413,6 +450,7 @@ body:not(.year) .yearv{display:none}
   SECTIONS.forEach(function(s){s.rows.forEach(function(r){for(var m=0;m<12;m++)unitsFor(r,m).forEach(function(u){UNITS[u.key]=u;});});});
 
   /* ===== rent: objects come ONLY from shared ЖКХ data ===== */
+  var TSEC=SECTIONS.filter(function(s){return s.id==='tax';})[0];TSEC.rows.forEach(function(r){r.sub='fl';});
   var ZSEC=SECTIONS.filter(function(s){return s.id==='zhkh';})[0], RSEC=SECTIONS.filter(function(s){return s.id==='rent';})[0], ISEC=SECTIONS.filter(function(s){return s.id==='ins';})[0];
   function zObjects(){return ZSEC.rows;}
   var MONTHS_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
@@ -430,7 +468,15 @@ body:not(.year) .yearv{display:none}
         state.hist.push({t:d.paidT||Date.now(),title:'Аренда: оплата от арендатора (1-й месяц + залог), '+d.obj,amount:a});changed=true;
       }
     });
+    DemoDeal.billAll().forEach(function(b){
+      if(b.status==='paid'&&!state.billsApplied[b.id]){state.billsApplied[b.id]=1;state.wallet=r2(state.wallet+b.amount);
+        state.hist.push({t:b.paidT||Date.now(),title:'Оплата по счёту №'+b.no+' ('+b.purpose+')',amount:b.amount});changed=true;}
+    });
     if(changed)save();
+    DemoDeal.billAll().forEach(function(b){if(b.status!=='paid')return;
+      var vals=[];for(var m=0;m<12;m++)vals.push(m===CUR?b.amount:null);
+      var o={id:'billx_'+b.id,sec:RSEC,type:'счёт '+DemoDeal.TAX[b.kind].short,obj:'№'+b.no+' '+b.purpose,vals:vals,parts:null,dyn:true,label:'счёт №'+b.no+' · '+b.purpose};
+      RSEC.rows.push(o);ROWS[o.id]=o;});
     zObjects().forEach(function(z){
       var x=paidDeal(z.id);if(!x)return;
       var vals=[];for(var m=0;m<12;m++)vals.push(m>=x.from?x.price:null);
@@ -446,14 +492,38 @@ body:not(.year) .yearv{display:none}
       var o={id:'insx_'+d.id,sec:ISEC,type:'полис наймодателя',obj:d.obj,vals:vals,parts:null,dyn:true,label:'полис '+d.ins.owner.no+' · '+d.obj};
       ISEC.rows.push(o);ROWS[o.id]=o;unitsFor(o,d.from).forEach(function(u){UNITS[u.key]=u;});
     });
+    /* taxes on rent / invoice income: ИП → «Налоги ИП», физлицо/самозанятый → «Налоги физ лица» › «Доход физ лица» */
+    TSEC.rows.filter(function(r){return r.dyn;}).forEach(function(r){delete ROWS[r.id];for(var m=0;m<12;m++)delete UNITS[r.id+'|'+m+'|0'];});
+    TSEC.rows=TSEC.rows.filter(function(r){return !r.dyn;});
+    var srcs={};
+    taxIncomes().forEach(function(e){
+      var o=srcs[e.src];
+      if(!o){var T=DemoDeal.TAX[e.kind];o=srcs[e.src]={id:'tax_'+e.src,sec:TSEC,sub:e.kind==='ip'?'ip':'flinc',kind:e.kind,type:T.tax,obj:e.obj,vals:new Array(12).fill(null),parts:null,dyn:true,label:T.tax+' · '+e.obj};TSEC.rows.push(o);ROWS[o.id]=o;}
+      o.vals[e.m]=r2((o.vals[e.m]||0)-e.tax);
+    });
+    Object.keys(srcs).forEach(function(k){var o=srcs[k];for(var m=0;m<12;m++)unitsFor(o,m).forEach(function(u){UNITS[u.key]=u;});});
+  }
+  var MONTHS_NOM=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+  function p2(x){return (x<10?'0':'')+x;}
+  /* every taxable receipt: rent months of paid deals (deposit excluded) and paid invoices */
+  function taxIncomes(){
+    var L=[];
+    DemoDeal.all().forEach(function(d){
+      if(d.status!=='paid'||!d.tax||!DemoDeal.TAX[d.tax.k]||!ROWS[d.objId])return;
+      for(var m=d.from;m<12;m++)L.push({src:'d'+d.id,kind:d.tax.k,m:m,date:m===d.from&&d.paidT?DemoDeal.dstr(d.paidT):'01.'+p2(m+1)+'.2026',planned:m!==d.from,
+        payer:d.tenant&&d.tenant.fio||'арендатор',purpose:'Аренда '+d.obj+' за '+MONTHS_NOM[m],obj:d.obj,amount:d.price,tax:DemoDeal.taxOf(d.price,d.tax.k)});
+    });
+    DemoDeal.billAll().forEach(function(b){if(b.status!=='paid')return;
+      L.push({src:'b'+b.id,kind:b.kind,m:CUR,date:DemoDeal.dstr(b.paidT||Date.now()),planned:false,payer:(b.payer||'плательщик')+(b.phone?' ('+b.phone+')':''),purpose:'Счёт №'+b.no+': '+b.purpose,obj:'счёт №'+b.no,amount:b.amount,tax:DemoDeal.taxOf(b.amount,b.kind)});});
+    return L.sort(function(a,b){return a.m-b.m;});
   }
 
   /* ===== state ===== */
-  function defState(){return {wallet:START_WALLET,paid:{},hist:[],auto:{},dealsApplied:{}};}
+  function defState(){return {wallet:START_WALLET,paid:{},hist:[],auto:{},dealsApplied:{},billsApplied:{}};}
   var state;
   try{state=JSON.parse(localStorage.getItem(KEY));}catch(e){state=null;}
   if(!state||typeof state!=='object'||typeof state.wallet!=='number')state=defState();
-  state.paid=state.paid||{};state.hist=state.hist||[];state.auto=state.auto||{};state.dealsApplied=state.dealsApplied||{};
+  state.paid=state.paid||{};state.hist=state.hist||[];state.auto=state.auto||{};state.dealsApplied=state.dealsApplied||{};state.billsApplied=state.billsApplied||{};
   function save(){localStorage.setItem(KEY,JSON.stringify(state));}
   function isPaid(u){return u.m<CUR||!!state.paid[u.key];}
   function r2(x){return Math.round(x*100)/100;}
@@ -503,7 +573,8 @@ body:not(.year) .yearv{display:none}
         '<div class="crow" data-toggle="'+s.id+'">'+ICON+
         '<span class="cname">'+s.name+(a&&a.on?' <span class="badge">автоплатёж · '+a.day+' число</span>':'')+'</span>'+
         '<span class="camt">'+fmt(net)+' РУБ.'+(d?'<small class="dbt">к оплате '+fmt(d)+'</small>':(units.length?'<small class="ok">оплачено ✓</small>':'<small class="ok">поступление</small>'))+'</span><span class="chev">▼</span></div><div class="cbody">';
-      if(s.props){
+      if(s.id==='tax'){h+=taxBody(s,m);}
+      else if(s.props){
         s.rows.forEach(function(r){
           var us=unitsFor(r,m),pd=debtOf(us),tk=r.obj.split(' '),n=tk.pop(),hh=tk.pop();
           h+='<div class="prop'+(open[r.id]?' open':'')+(pd?' has-debt':'')+'"><div class="prow" data-toggle="'+r.id+'"><span>'+esc(r.type)+'</span><span>'+esc(tk.join(' '))+'</span><span>'+esc(hh)+'</span><span>'+esc(n)+'</span>'+
@@ -524,6 +595,41 @@ body:not(.year) .yearv{display:none}
     var pa=document.getElementById('payAll');pa.disabled=!debt;pa.style.opacity=debt?1:.5;
     renderHist();
   }
+  function tsub(id,title,amtHtml,debt,inner){
+    return '<div class="tsub'+(open[id]?' open':'')+(debt?' has-debt':'')+'" data-tsub="'+id+'"><div class="tsrow" data-toggle="'+id+'"><span class="tsn">'+title+'</span><span class="tsa">'+amtHtml+'</span><span class="chev">▼</span></div><div class="tsbody">'+inner+'</div></div>';
+  }
+  function taxBody(s,m){
+    var fl=s.rows.filter(function(r){return r.sub==='fl';}),fli=s.rows.filter(function(r){return r.sub==='flinc';}),ip=s.rows.filter(function(r){return r.sub==='ip';});
+    var inc=taxIncomes(),h='';
+    /* Налоги физ лица (month m) */
+    var flU=[];fl.concat(fli).forEach(function(r){flU=flU.concat(unitsFor(r,m));});var flD=debtOf(flU);
+    var inner='<div class="list">'+fl.map(function(r){return unitsFor(r,m).map(chargeRow).join('');}).join('');
+    var fle=inc.filter(function(e){return e.kind!=='ip';});
+    if(fle.length){
+      var fiU=[];fli.forEach(function(r){for(var k=0;k<12;k++)fiU=fiU.concat(unitsFor(r,k));});var fiD=debtOf(fiU);
+      var tb='<div class="ledw"><table class="ledger fl"><thead><tr><th>Дата</th><th>Плательщик / назначение</th><th>Доход</th><th>Налог</th></tr></thead><tbody>'+
+        fle.map(function(e){var u=UNITS['tax_'+e.src+'|'+e.m+'|0'],pd=u&&isPaid(u);return '<tr'+(e.planned?' class="plan"':'')+'><td>'+e.date+(e.planned?'<br><small>ожидается</small>':'')+'</td><td>'+esc(e.payer)+'<br><small>'+esc(e.purpose)+'</small></td><td class="lin">+'+fmt(e.amount)+'</td><td class="'+(pd?'okc':'due')+'">'+fmt(e.tax)+'<br><small>'+DemoDeal.TAX[e.kind].tax+(pd?' · оплачен ✓':'')+'</small>'+(u&&!pd?'<button class="pay sm" type="button" data-pay="'+u.key+'">Оплатить</button>':'')+'</td></tr>';}).join('')+
+        '</tbody><tfoot><tr><td colspan="2">Итого</td><td class="lin">+'+fmt(sum(fle,function(e){return e.amount;}))+'</td><td>'+fmt(sum(fle,function(e){return e.tax;}))+'</td></tr></tfoot></table></div>';
+      inner+=tsub('tax_flinc','Доход физ лица','+'+rub(sum(fle,function(e){return e.amount;}))+(fiD?'<small class="dbt">налог к оплате '+fmt(fiD)+'</small>':'<small class="ok">налог оплачен ✓</small>'),fiD,tb);
+    }
+    inner+=debtLine(flU)+'</div>';
+    h+=tsub('tax_fl','Налоги физ лица',rub(sum(fl.concat(fli),function(r){return val(r,m)||0;}))+(flD?'<small class="dbt">к оплате '+fmt(flD)+'</small>':'<small class="ok">оплачено ✓</small>'),flD,inner);
+    /* Налоги ИП: дебет/кредит за 2026 */
+    var ipe=inc.filter(function(e){return e.kind==='ip';});
+    if(DemoDeal.taxProfile().ip||ipe.length){
+      var ipU=[];ip.forEach(function(r){for(var k=0;k<12;k++)ipU=ipU.concat(unitsFor(r,k));});var ipD=debtOf(ipU),ipAcc=sum(ipU,function(u){return u.amount;}),ipPaid=r2(ipAcc-ipD),ipInc=sum(ipe,function(e){return e.amount;});
+      var lt='<div class="ledw"><table class="ledger"><thead><tr><th>Дата</th><th>Операция</th><th>Дебет</th><th>Кредит</th></tr></thead><tbody>';
+      ipe.forEach(function(e){var u=UNITS['tax_'+e.src+'|'+e.m+'|0'],pd=u&&isPaid(u);
+        lt+='<tr'+(e.planned?' class="plan"':'')+'><td>'+e.date+(e.planned?'<br><small>ожидается</small>':'')+'</td><td>'+(e.planned?'Доход ожидается: ':'Доход получен: ')+esc(e.purpose)+'<br><small>'+esc(e.payer)+'</small></td><td class="lin">+'+fmt(e.amount)+'</td><td></td></tr>'+
+          '<tr class="taxl'+(e.planned?' plan':'')+'"><td></td><td>Налог УСН 6% начислен</td><td></td><td class="'+(pd?'okc':'due')+'">'+fmt(e.tax)+(pd?'<br><small>оплачен ✓</small>':'')+(u&&!pd?'<button class="pay sm" type="button" data-pay="'+u.key+'">Оплатить</button>':'')+'</td></tr>'+
+          (pd?'<tr class="paidl"><td></td><td>Налог оплачен</td><td class="okc">'+fmt(e.tax)+'</td><td></td></tr>':'');});
+      if(!ipe.length)lt+='<tr><td colspan="4" class="hempty">Доходов ИП пока нет — сдайте объект как ИП или выставьте счёт</td></tr>';
+      lt=(ipe.length?'<div class="ledsum"><div><span>Доходы (дебет)</span><b class="lin">+'+rub(ipInc)+'</b></div><div><span>Налог начислен (кредит)</span><b>'+rub(ipAcc)+'</b></div><div><span>Налог оплачен</span><b class="okc">'+rub(ipPaid)+'</b></div><div><span>Налог к оплате</span><b class="'+(ipD?'due':'okc')+'" id="ipDue">'+rub(ipD)+'</b></div></div>':'')+lt+'</tbody></table></div>'+
+        '<p class="tnote">Демо: УСН «доходы» 6% (8% при превышении лимита). Налог показан в месяце получения дохода; на деле УСН платится авансами поквартально.</p>';
+      h+=tsub('tax_ip','Налоги ИП',(ipD?'<small class="dbt">к оплате '+fmt(ipD)+'</small>':'<small class="ok">'+(ipAcc?'оплачено ✓':'нет начислений')+'</small>'),ipD,lt);
+    }
+    return h;
+  }
   function renderHist(){
     var el=document.getElementById('hist');
     if(!state.hist.length){el.innerHTML='<div class="hempty">Пока нет операций</div>';return;}
@@ -538,7 +644,11 @@ body:not(.year) .yearv{display:none}
     var h='<thead><tr><th class="c-r stick">Раздел</th><th class="c-t">Тип</th><th class="c-o">Объект</th>'+MONTHS.map(function(m){return '<th class="m">'+m+'</th>';}).join('')+'<th>Итого</th></tr></thead><tbody>';
     SECTIONS.forEach(function(s){
       h+='<tr class="sec"><td class="c-r stick">'+s.name+'</td><td class="c-t" colspan="2"><span class="mobl">'+s.name+'</span></td><td colspan="13"></td></tr>';
-      s.rows.forEach(function(r){
+      var rows=s.rows;
+      if(s.id==='tax'){var g=function(k){return s.rows.filter(function(r){return r.sub===k;});},fli=g('flinc'),ipr=g('ip');
+        rows=[{hdr:'Налоги физ лица',id:'fl'}].concat(g('fl'),fli.length?[{hdr:'Доход физ лица',id:'flinc',lvl:2}]:[],fli,(DemoDeal.taxProfile().ip||ipr.length)?[{hdr:'Налоги ИП',id:'ip'}]:[],ipr);}
+      rows.forEach(function(r){
+        if(r.hdr){h+='<tr class="ysub'+(r.lvl?' l2':'')+'" data-ysub="'+r.id+'"><td class="c-r stick"></td><td class="c-t" colspan="2">'+r.hdr+'</td><td colspan="13"></td></tr>';return;}
         var cells='';
         for(var m=0;m<12;m++){var v=r.vals[m];
           if(v==null){cells+='<td class="m dash">-</td>';continue;}
@@ -594,7 +704,7 @@ body:not(.year) .yearv{display:none}
     el.textContent=fmt(n)+' РУБ.';el.className='total'+(n>0?' pos':'');
   }
   function renderAll(){syncRent();renderMonth();renderYear();renderRent();setTotal();}
-  function hashView(){var h=location.hash;if(/^#rent-/.test(h)){var z=decodeURIComponent(h.slice(6));if(ROWS[z]){rui.focus=z;rui.mode='flow';}return 'rent';}
+  function hashView(){var h=location.hash;if(h==='#rent-bill'){rui.bill=true;rui.focus=null;return 'rent';}if(/^#rent-/.test(h)){var z=decodeURIComponent(h.slice(6));if(ROWS[z]){rui.focus=z;rui.mode='flow';}return 'rent';}
     return h==='#year'?'year':h==='#rent'?'rent':'month';}
   function setView(v,push){
     view=(v==='year'||v==='rent')?v:'month';
@@ -609,7 +719,7 @@ body:not(.year) .yearv{display:none}
   }
 
   /* ===== rent view ===== */
-  var rui={focus:null,mode:'flow',price:{},dep:{},depTouched:{},from:{}},pads={};
+  var rui={focus:null,mode:'flow',price:{},dep:{},depTouched:{},from:{},tax:{},bill:false,billK:null,billLast:null},pads={};
   function chipCls(st){return st==='paid'?'ok':(st==='sent'||st==='owner_signed')?'wait':st==='tenant_signed'?'acc':'';}
   function historyOf(zid){return DemoDeal.all().filter(function(d){return d.objId===zid&&d.ownerSig&&(d.status==='owner_signed'||d.status==='paid'||d.status==='ended');});}
   var HST={owner_signed:['подписан','acc'],paid:['оплачен','ok'],ended:['завершён','']};
@@ -621,7 +731,8 @@ body:not(.year) .yearv{display:none}
   function renderRent(){
     var D=DemoDeal,h='',el=document.getElementById('rentp');
     var fz=rui.focus&&ROWS[rui.focus]?ROWS[rui.focus]:null;
-    if(fz){
+    if(rui.bill&&!fz){h=billPanel();}
+    else if(fz){
       /* single-object mode: only the selected object */
       var d=activeDeal(fz.id),hist=historyOf(fz.id);
       h+='<a href="#" class="rback" data-rback="1">← К объектам</a>';
@@ -638,7 +749,7 @@ body:not(.year) .yearv{display:none}
       }
       h+='</div>';
     }else{
-      h='<h2>Сдать недвижимость</h2><div class="rsub">Нажмите на объект и укажите цену — сформируем договор, отправим арендатору по СМС на подпись, вы подпишете со своей стороны, и арендатор получит ссылку на оплату.</div>'+
+      h='<div class="rtop"><h2>Сдать недвижимость</h2><button class="btn solid" type="button" data-billnew="1">Выставить счёт</button></div><div class="taxline">Налоговый статус: <b>'+esc(DemoDeal.taxStatusText())+'</b> · по умолчанию сдаёте как <b>'+DemoDeal.TAX[DemoDeal.taxDefault()].short+'</b> · <a href="#" data-taxedit="1">изменить</a></div><div class="rsub">Нажмите на объект и укажите цену — сформируем договор, отправим арендатору по СМС на подпись, вы подпишете со своей стороны, и арендатор получит ссылку на оплату.</div>'+
         '<div class="demo-note">Демо: СМС не отправляются, подписи и оплата условные, данные карты не запрашиваются. Всё хранится только в этом браузере.</div>';
       var inc=0;
       zObjects().forEach(function(z){
@@ -664,16 +775,63 @@ body:not(.year) .yearv{display:none}
   function priceForm(z){
     var id=z.id,f=rui.from[id]!=null?rui.from[id]:CUR+1,opts='';
     for(var m=CUR;m<12;m++)opts+='<option value="'+m+'"'+(m==f?' selected':'')+'>'+MONTHS[m]+' 2026</option>';
-    return '<div class="pform"><label class="f" for="pf-price-'+id+'">Цена в месяц, руб.</label><input class="inp" id="pf-price-'+id+'" data-pf="price" data-z="'+id+'" type="number" inputmode="numeric" min="1" step="1" placeholder="60000" value="'+esc(rui.price[id]||'')+'">'+
+    var tk=objTax(z),opts2=objTaxOpts(z);
+    return '<div class="pform"><div class="taxsel" data-taxsel="'+id+'"><div class="rlbl">Сдаёте как <small>(налоговый статус из профиля · <a href="#" data-taxedit="1">изменить</a>)</small></div><div class="tchips">'+
+      opts2.map(function(t){return '<button type="button" class="tchip'+(t.k===tk?' on':'')+'" data-taxk="'+id+'|'+t.k+'">'+t.opt+'</button>';}).join('')+'</div>'+
+      (z.type==='кл'?'<div class="tnote">Самозанятый не может сдавать нежилое</div>':'')+
+      '<div class="tnote" id="tk-'+id+'">'+DemoDeal.TAX[tk].name+'</div></div>'+
+      '<label class="f" for="pf-price-'+id+'">Цена в месяц, руб.</label><input class="inp" id="pf-price-'+id+'" data-pf="price" data-z="'+id+'" type="number" inputmode="numeric" min="1" step="1" placeholder="60000" value="'+esc(rui.price[id]||'')+'">'+
+      '<div class="taxcalc" id="tc-'+id+'">'+taxCalcHtml(rui.price[id],tk,'мес')+'</div>'+
       '<label class="f" for="pf-dep-'+id+'">Залог, руб.</label><input class="inp" id="pf-dep-'+id+'" data-pf="dep" data-z="'+id+'" type="number" inputmode="numeric" min="0" step="1" placeholder="равен цене" value="'+esc(rui.dep[id]||'')+'">'+
       '<label class="f" for="pf-from-'+id+'">Начало аренды</label><select class="inp" id="pf-from-'+id+'" data-pf="from" data-z="'+id+'">'+opts+'</select>'+
       '<div class="err" id="pf-err-'+id+'"></div><div class="racts"><button class="btn" type="button" data-pfcancel="'+id+'">Отмена</button><button class="btn" type="button" data-mkdeal="'+id+'">Далее: опись имущества</button></div></div>';
   }
+  function billPanel(){
+    var D=DemoDeal,opts=D.taxOpts(),k=rui.billK&&opts.some(function(t){return t.k===rui.billK;})?rui.billK:D.taxDefault(),bl=rui.billLast&&D.billGet(rui.billLast);
+    var h='<a href="#" class="rback" data-rback="1">← К объектам</a><h2>Выставить счёт</h2><div class="rsub">Укажите статус, сумму и телефон плательщика — отправим СМС со ссылкой на оплату (демо). После оплаты доход и налог попадут в НАЛОГИ и в таблицу 2026.</div>'+
+      '<div class="pform bill"><div class="rlbl">Получаете как</div><div class="tchips">'+opts.map(function(t){return '<button type="button" class="tchip'+(t.k===k?' on':'')+'" data-billk="'+t.k+'">'+t.opt+'</button>';}).join('')+'</div>'+
+      '<div class="tnote" id="bill-tn">'+D.TAX[k].name+'</div>'+
+      '<label class="f" for="bill-amt">Сумма платежа, руб.</label><input class="inp" id="bill-amt" type="number" inputmode="numeric" min="1" step="1" placeholder="60000" value="'+esc(rui.billAmt||'')+'">'+
+      '<div class="taxcalc" id="bill-tax">'+taxCalcHtml(rui.billAmt,k)+'</div>'+
+      '<label class="f" for="bill-purp">Назначение</label><input class="inp" id="bill-purp" maxlength="80" value="'+esc(rui.billPurp||'Оплата аренды')+'">'+
+      '<label class="f" for="bill-ph">Телефон плательщика</label><input class="inp" id="bill-ph" type="tel" inputmode="tel" maxlength="20" placeholder="+7 900 000-00-00" value="'+esc(rui.billPh||'')+'">'+
+      '<div class="err" id="bill-err"></div><div class="racts"><button class="btn solid" type="button" data-billsend="1">Отправить счёт по СМС</button></div></div>';
+    if(bl){var L=D.billLink(bl);h+='<div class="billsent"><span class="chip '+(bl.status==='paid'?'ok':'wait')+'">Счёт №'+bl.no+(bl.status==='paid'?' оплачен':' отправлен, ждём оплату')+'</span>'+
+      D.smsHtml(bl.phone,'Владимир Яковлев: счёт №'+bl.no+' на '+D.rub(bl.amount)+' ('+bl.purpose+'). Оплатить:',L)+
+      (bl.status==='paid'?'':'<div class="racts"><a class="btn" href="'+esc(L)+'" data-billlink="'+esc(bl.id)+'">Открыть как плательщик (демо)</a><button class="btn" type="button" data-copy="'+esc(L)+'">Скопировать ссылку</button></div>')+'</div>';}
+    var all=D.billAll();
+    h+='<h2 style="margin-top:18px">История счетов</h2>'+(all.length?all.map(function(b){var T=D.TAX[b.kind];return '<div class="dl bill" data-bill="'+esc(b.id)+'"><div><b>№'+b.no+' · '+esc(b.purpose)+'</b> · '+rub(b.amount)+'<br><small>'+D.dtstr(b.created)+' · '+esc(b.phone)+' · '+T.opt+' · налог '+rub(D.taxOf(b.amount,b.kind))+'</small></div>'+
+      '<span class="chip '+(b.status==='paid'?'ok':'wait')+'">'+(b.status==='paid'?'оплачен '+D.dstr(b.paidT):'ждём оплату')+'</span>'+(b.status==='paid'?'':'<a class="lnk" href="'+esc(D.billLink(b))+'" data-billlink="'+esc(b.id)+'">открыть</a>')+'</div>';}).join(''):'<div class="hempty">Счетов пока нет</div>');
+    return h;
+  }
+  function taxModal(){
+    var p=DemoDeal.taxProfile(),T=DemoDeal.TAX;
+    showModal('<h3>Налоговый статус (демо)</h3><p style="font-size:12px;color:#777">В реальном сервисе статусы подтягиваются из ФНС/Госуслуг. Здесь — демо-настройка.</p>'+
+      '<label class="tchk"><input type="checkbox" id="tx-ip"'+(p.ip?' checked':'')+'> ИП · УСН «доходы» 6% <small>(8% при превышении лимита)</small></label>'+
+      '<label class="tchk"><input type="checkbox" id="tx-sz"'+(p.sz?' checked':'')+'> Самозанятый · НПД 4% <small>(только жилые помещения)</small></label>'+
+      '<label class="tchk"><input type="checkbox" checked disabled> Физлицо · НДФЛ 13% <small>(есть всегда)</small></label>'+
+      '<label class="f" for="tx-def">Сдавать по умолчанию как</label><select class="inp" id="tx-def">'+['ip','sz','fl'].map(function(k){return '<option value="'+k+'"'+(p.rentAs===k?' selected':'')+'>'+T[k].opt+'</option>';}).join('')+'</select>'+
+      '<div class="row"><button class="btn" type="button" data-close>Отмена</button><button class="btn" type="button" id="txSave">Сохранить</button></div>');
+    document.getElementById('txSave').onclick=function(){var np={ip:document.getElementById('tx-ip').checked,sz:document.getElementById('tx-sz').checked,rentAs:document.getElementById('tx-def').value};
+      DemoDeal.saveTaxProfile(np);rui.tax={};rui.billK=null;closeModal();renderTaxStatus();renderAll();toast('Налоговый статус: '+DemoDeal.taxStatusText());};
+  }
+  function renderTaxStatus(){var e=document.getElementById('taxStatus');if(e)e.textContent=DemoDeal.taxStatusText()+'; сдаю как '+DemoDeal.TAX[DemoDeal.taxDefault()].short;}
+  function objTaxOpts(z){return DemoDeal.taxOpts().filter(function(t){return !(z.type==='кл'&&t.k==='sz');});}
+  function objTax(z){var o=objTaxOpts(z),k=rui.tax[z.id]||DemoDeal.taxDefault();if(!o.some(function(t){return t.k===k;}))k=o[0].k;return k;}
+  function taxCalcHtml(amount,k,per){var a=+amount||0,T=DemoDeal.TAX[k];if(!(a>0))return '<span>Введите сумму — налог '+Math.round(T.rate*100)+'% посчитается автоматически</span>';
+    var tx=DemoDeal.taxOf(a,k);return '<span>Налог '+T.tax+':</span> <b class="due">'+rub(tx)+(per?'/'+per:'')+'</b><span> · остаётся '+rub(r2(a-tx))+'</span>';}
   function dealBody(d){
     var D=DemoDeal,id=esc(d.id),ct='<div class="ct-box">'+D.contractHtml(d)+'</div>',kind=D.isStorage(d)?'аренды кладовой':'найма квартиры';
-    if(d.status==='inv')return invEditor(d);
+    var taxl=d.tax&&D.TAX[d.tax.k]?'<div class="taxline">Сдаёте как <b>'+D.TAX[d.tax.k].name+'</b> · налог <b class="due">'+rub(D.taxOf(d.price,d.tax.k))+'/мес</b></div>':'';
+    if(d.status==='inv')return taxl+invEditor(d);
+    if(d.status==='paid')taxl=taxl.replace('</div>',' — начисляется в НАЛОГИ › '+(d.tax.k==='ip'?'Налоги ИП':'Налоги физ лица › Доход физ лица')+'</div>');
     if(d.status==='ins')return '<div class="rlbl">Страхование — обязательно для сделок через сервис</div><div class="demo-note">'+D.INS_NOTE+'</div>'+D.insCard(d,'owner')+D.insCard(d,'tenant')+
       '<div class="racts"><button class="btn" type="button" data-invedit="'+id+'">← Опись</button><button class="btn solid" type="button" data-insdone="'+id+'">Далее: договор</button></div>';
+    if(taxl&&d.status!=='inv')return taxl+dealBody2(d);
+    return dealBody2(d);
+  }
+  function dealBody2(d){
+    var D=DemoDeal,id=esc(d.id),ct='<div class="ct-box">'+D.contractHtml(d)+'</div>',kind=D.isStorage(d)?'аренды кладовой':'найма квартиры';
     if(d.status==='draft')return '<div class="rlbl">Договор (стандартный шаблон) с Приложением №1 — описью имущества</div><div class="racts"><button class="btn" type="button" data-invedit="'+id+'">Изменить опись ('+(d.inv||[]).length+')</button></div>'+ct+
       '<label class="f" for="ph-'+id+'">Телефон арендатора</label><input class="inp" id="ph-'+id+'" type="tel" inputmode="tel" maxlength="20" placeholder="+7 900 000-00-00" value="'+esc(d.phone||'')+'">'+
       '<div class="err" id="pherr-'+id+'"></div><div class="racts"><button class="btn" type="button" data-dcancel="'+id+'">Отменить</button><button class="btn" type="button" data-send="'+id+'">Отправить по СМС</button></div>';
@@ -770,14 +928,14 @@ body:not(.year) .yearv{display:none}
   }
   function handleRentClick(t,e){
     var D=DemoDeal,el,id;
-    if((el=t.closest('[data-pfcancel]'))||(el=t.closest('[data-rback]'))){e.preventDefault();rentGo(null);return true;}
+    if((el=t.closest('[data-pfcancel]'))||(el=t.closest('[data-rback]'))){e.preventDefault();rui.bill=false;if(/^#rent-/.test(location.hash))history.replaceState(null,'',location.pathname+location.search+'#rent');rentGo(null);return true;}
     if((el=t.closest('[data-rhist]'))){rentGo(el.getAttribute('data-rhist'),'history');return true;}
     if((el=t.closest('[data-mkdeal]'))){
       id=el.getAttribute('data-mkdeal');var z=ROWS[id],err=document.getElementById('pf-err-'+id);
       var pr=Math.round(+document.getElementById('pf-price-'+id).value),dv=document.getElementById('pf-dep-'+id).value,dp=dv===''?pr:Math.round(+dv),fr=+document.getElementById('pf-from-'+id).value;
       if(!(pr>0&&pr<=10000000)){err.textContent='Укажите цену от 1 до 10 000 000 руб.';return true;}
       if(!(dp>=0&&dp<=10000000)){err.textContent='Проверьте сумму залога';return true;}
-      var d={id:D.newId(),objId:z.id,type:z.type,obj:z.obj,addr:addrOf(z),price:pr,deposit:dp,from:fr,created:Date.now(),status:'inv',inv:D.invDefault(z.type)};d.ins=D.insMake(d);
+      var d={id:D.newId(),objId:z.id,type:z.type,obj:z.obj,addr:addrOf(z),price:pr,deposit:dp,from:fr,created:Date.now(),status:'inv',inv:D.invDefault(z.type),tax:{k:objTax(z)}};d.ins=D.insMake(d);
       D.put(d);rui.price[id]='';rui.dep[id]='';rui.depTouched[id]=false;rentGo(id);
       toast('Проверьте опись имущества');return true;
     }
@@ -794,6 +952,19 @@ body:not(.year) .yearv{display:none}
     if((el=t.closest('[data-osign]'))){id=el.getAttribute('data-osign');var d3=D.get(id);if(!d3||d3.status!=='tenant_signed')return true;
       D.gosSign({doc:D.ctTitle(d3)+' · '+d3.addr,who:D.OWNER},function(tm){var d5=D.get(id);if(!d5||d5.status!=='tenant_signed'){renderAll();return;}
         d5.ownerSig='gos';d5.ownerT=tm;d5.status='owner_signed';D.put(d5);renderRent();toast('Договор подписан обеими сторонами');});return true;}
+    if((el=t.closest('[data-taxedit]'))){e.preventDefault();taxModal();return true;}
+    if((el=t.closest('[data-taxk]'))){var tp=el.getAttribute('data-taxk').split('|');rui.tax[tp[0]]=tp[1];
+      el.parentNode.querySelectorAll('.tchip').forEach(function(b){b.classList.toggle('on',b===el);});document.getElementById('tk-'+tp[0]).textContent=D.TAX[tp[1]].name;
+      document.getElementById('tc-'+tp[0]).innerHTML=taxCalcHtml(rui.price[tp[0]],tp[1],'мес');return true;}
+    if((el=t.closest('[data-billnew]'))){rui.bill=true;rui.billLast=null;rui.focus=null;renderRent();location.hash='rent-bill';return true;}
+    if((el=t.closest('[data-billk]'))){rui.billK=el.getAttribute('data-billk');el.parentNode.querySelectorAll('.tchip').forEach(function(b){b.classList.toggle('on',b===el);});
+      document.getElementById('bill-tn').textContent=D.TAX[rui.billK].name;document.getElementById('bill-tax').innerHTML=taxCalcHtml(rui.billAmt,rui.billK);return true;}
+    if((el=t.closest('[data-billsend]'))){var ba=Math.round(+document.getElementById('bill-amt').value*100)/100,bp=document.getElementById('bill-purp').value.trim()||'Оплата',bph=document.getElementById('bill-ph').value.trim(),be=document.getElementById('bill-err');
+      if(!(ba>0&&ba<=10000000)){be.textContent='Укажите сумму от 1 до 10 000 000 руб.';return true;}
+      if(bph.replace(/\D/g,'').length<10||bph.replace(/\D/g,'').length>12){be.textContent='Укажите телефон плательщика';return true;}
+      var bk=rui.billK&&D.taxOpts().some(function(x){return x.k===rui.billK;})?rui.billK:D.taxDefault();
+      var bb=D.billPut({id:'B'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36),kind:bk,amount:ba,purpose:bp.slice(0,80),phone:bph,created:Date.now(),status:'sent'});
+      rui.billLast=bb.id;rui.billAmt='';rui.billPh='';rui.billPurp='';renderRent();toast('Счёт №'+bb.no+' отправлен по СМС (демо)');return true;}
     if((el=t.closest('[data-invdone]'))){id=el.getAttribute('data-invdone');var di=D.get(id);if(!di)return true;
       di.inv=(di.inv||[]).filter(function(i){return String(i.name||'').trim();});if(!di.ins)di.ins=D.insMake(di);di.status='ins';D.put(di);renderRent();toast('Опись сохранена. Страхование — следующий шаг');return true;}
     if((el=t.closest('[data-insdone]'))){var dn=D.get(el.getAttribute('data-insdone'));if(dn){dn.status='draft';D.put(dn);renderRent();toast('Договор сформирован: опись и полисы включены');}return true;}
@@ -825,11 +996,14 @@ body:not(.year) .yearv{display:none}
   }
   document.addEventListener('input',function(e){
     var t=e.target,k=t.getAttribute&&t.getAttribute('data-pf');if(!k)return;var id=t.getAttribute('data-z');
-    if(k==='price'){rui.price[id]=t.value;if(!rui.depTouched[id]){rui.dep[id]=t.value;var dpi=document.getElementById('pf-dep-'+id);if(dpi)dpi.value=t.value;}}
+    if(k==='price'){var tce=document.getElementById('tc-'+id);if(tce&&ROWS[id])tce.innerHTML=taxCalcHtml(t.value,objTax(ROWS[id]),'мес');rui.price[id]=t.value;if(!rui.depTouched[id]){rui.dep[id]=t.value;var dpi=document.getElementById('pf-dep-'+id);if(dpi)dpi.value=t.value;}}
     else if(k==='dep'){rui.dep[id]=t.value;rui.depTouched[id]=true;}
     else if(k==='from'){rui.from[id]=+t.value;}
   });
   document.addEventListener('change',function(e){var t=e.target;if(t.getAttribute&&t.getAttribute('data-pf')==='from')rui.from[t.getAttribute('data-z')]=+t.value;});
+  document.addEventListener('input',function(e){var t=e.target;if(!t.id)return;
+    if(t.id==='bill-amt'){rui.billAmt=t.value;var k=rui.billK&&DemoDeal.taxOpts().some(function(x){return x.k===rui.billK;})?rui.billK:DemoDeal.taxDefault();document.getElementById('bill-tax').innerHTML=taxCalcHtml(t.value,k);}
+    else if(t.id==='bill-ph')rui.billPh=t.value;else if(t.id==='bill-purp')rui.billPurp=t.value;});
   function invField(t){var k=t.getAttribute&&t.getAttribute('data-if');if(!k)return;var it=t.closest('[data-iid]'),box=t.closest('[data-inv]');if(!it||!box)return;var iid=it.getAttribute('data-iid');
     var d=invUpd(box.getAttribute('data-inv'),function(d){d.inv.forEach(function(i){if(i.id!==iid)return;var v=t.value;
       if(k==='qty')i.qty=Math.max(1,Math.min(999,Math.round(+v)||1));else if(k==='val')i.val=Math.max(0,Math.min(1e8,Math.round(+v)||0));else if(k==='cond')i.cond=Math.min(2,Math.max(0,+v||0));else i[k]=String(v).slice(0,k==='note'?120:60);});});
@@ -987,7 +1161,7 @@ body:not(.year) .yearv{display:none}
   document.getElementById('payAll').onclick=function(){var us=allUnpaid();payUnits(us,'Оплата всей задолженности ('+us.length+' начисл.)');};
   document.getElementById('topupBtn').onclick=function(){topupModal(0);};
   document.getElementById('autoBtn').onclick=autopayModal;
-  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо: баланс, оплаты, историю, автоплатежи и аренду?')){state=defState();save();DemoDeal.clear();if(window.Scan3D)Scan3D.idbClear();rui={focus:null,mode:'flow',price:{},dep:{},depTouched:{},from:{}};renderAll();toast('Демо сброшено');}};
+  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо: баланс, оплаты, историю, автоплатежи и аренду?')){state=defState();save();DemoDeal.clear();if(window.Scan3D)Scan3D.idbClear();rui={focus:null,mode:'flow',price:{},dep:{},depTouched:{},from:{},tax:{},bill:false,billK:null,billLast:null};DemoDeal.billClear();localStorage.removeItem('demoTaxProfile_v1');renderAll();toast('Демо сброшено');}};
   document.getElementById('logout').onclick=function(e){e.preventDefault();localStorage.removeItem('demoUser');location.href='index.html';};
   document.querySelectorAll('a[href="#"]').forEach(function(a){if(!a.id)a.addEventListener('click',function(e){e.preventDefault();});});
   document.querySelectorAll('.tab[data-view]').forEach(function(t){t.addEventListener('click',function(){setView(t.getAttribute('data-view'),true);window.scrollTo(0,0);});});
@@ -1000,6 +1174,12 @@ body:not(.year) .yearv{display:none}
     marchCol:function(){return sum(SECTIONS,function(s){return sum(s.rows,function(r){return r.vals[CUR]||0;});});}};
 
   var ctst=document.createElement('style');ctst.textContent=DemoDeal.CT_CSS;document.head.appendChild(ctst);
+  /* iOS Safari/WebKit only synthesizes click on plain elements (div rows) if an ancestor below <body> has a click listener;
+     the app delegates clicks on document, so register no-op listeners on the containers. */
+  document.querySelectorAll('.wrap,#ov').forEach(function(el){el.addEventListener('click',function(){});});
+  document.getElementById('taxEdit').addEventListener('click',function(e){e.preventDefault();taxModal();});
+  document.getElementById('editProfile').addEventListener('click',taxModal);
+  renderTaxStatus();
   var hv0=hashView();
   renderAll();
   setView(hv0,false);
