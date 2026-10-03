@@ -1,6 +1,6 @@
 /* Demo booking to МФЦ «Мои документы». Nothing is sent anywhere; stored in localStorage. */
 (function(){
-  var KEY='demoMfc_v1',V='19';
+  var KEY='demoMfc_v1',V='20';
   var LIST=[
     {id:'tver',name:'МФЦ района Тверской',addr:'Москва, Настасьинский пер., д. 7',metro:'Пушкинская, Тверская, Чеховская',ll:[55.76777,37.60490]},
     {id:'arb',name:'МФЦ района Арбат',addr:'Москва, пер. Сивцев Вражек, д. 20',metro:'Смоленская, Кропоткинская',ll:[55.74795,37.59434]},
@@ -73,7 +73,7 @@
     var s=document.createElement('script');s.src='vendor/leaflet/leaflet.js?v='+V;s.onload=cb;s.onerror=function(){var e=document.getElementById('mfcMap');if(e)e.innerHTML='<p class="mfcp">Карта не загрузилась — выберите МФЦ списком.</p>';};document.head.appendChild(s);}
   function initMap(){loadLeaflet(function(){var el=document.getElementById('mfcMap');if(!el||map)return;
     L.Icon.Default.imagePath='vendor/leaflet/images/';
-    map=L.map(el,{zoomControl:true,attributionControl:true}).setView([55.765,37.62],10);
+    map=L.map(el,{zoomControl:true,attributionControl:true}).setView([55.765,37.62],10);map.attributionControl.setPrefix(false);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© участники OpenStreetMap'}).addTo(map);
     var b=[];LIST.forEach(function(x){var mk=L.marker(x.ll,{title:x.name,alt:x.name}).addTo(map);mk.bindPopup('<b>'+esc(x.name)+'</b><br>'+esc(x.addr));
       mk.on('click',function(){pick(x.id,true);});if(mk._icon)mk._icon.setAttribute('data-mk',x.id);b.push(x.ll);});
