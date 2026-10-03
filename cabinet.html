@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <title>Мои документы — личный кабинет (демо)</title>
-<link rel="stylesheet" href="deal.css?v=17">
+<link rel="stylesheet" href="deal.css?v=18">
 <style>
 :root{--accent:#c8603f;--accent-bg:#f7ecea;--accent-bg-h:#efdbd6;--bg:#f2f2f2;--line:#ececec;--text:#2b2b2b;--muted:#8a8a8a;--green:#2e9e5b;--sub:#f6f8fa}
 *{box-sizing:border-box}
@@ -370,6 +370,7 @@ body:not(.year) .yearv{display:none}
     <button class="btn btn-acc" type="button" id="primaryBtn">Предварительная запись</button>
     <button class="btn btn-out" type="button" id="editProfile">Редактировать профиль</button>
     <button class="btn btn-out" type="button" id="rentBtn">Сдать недвижимость</button>
+    <button class="btn btn-out" type="button" id="billBtn">Выставить счёт</button>
   </aside>
 
   <section class="card main">
@@ -409,9 +410,9 @@ body:not(.year) .yearv{display:none}
 <div class="ov" id="ov"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 
-<script src="qrcode.js?v=17"></script>
-<script src="deal.js?v=17"></script>
-<script src="scan3d.js?v=17"></script>
+<script src="qrcode.js?v=18"></script>
+<script src="deal.js?v=18"></script>
+<script src="scan3d.js?v=18"></script>
 <script>
 (function(){
   if(!localStorage.getItem('demoUser')){location.replace('index.html');return;}
@@ -793,7 +794,7 @@ body:not(.year) .yearv{display:none}
       '<div class="tnote" id="bill-tn">'+D.TAX[k].name+'</div>'+
       '<label class="f" for="bill-amt">Сумма платежа, руб.</label><input class="inp" id="bill-amt" type="number" inputmode="numeric" min="1" step="1" placeholder="60000" value="'+esc(rui.billAmt||'')+'">'+
       '<div class="taxcalc" id="bill-tax">'+taxCalcHtml(rui.billAmt,k)+'</div>'+
-      '<label class="f" for="bill-purp">Назначение</label><input class="inp" id="bill-purp" maxlength="80" value="'+esc(rui.billPurp||'Оплата аренды')+'">'+
+      '<label class="f" for="bill-purp">Назначение</label><input class="inp" id="bill-purp" maxlength="80" placeholder="Назначение платежа" value="'+esc(rui.billPurp||'')+'">'+
       '<label class="f" for="bill-ph">Телефон плательщика</label><input class="inp" id="bill-ph" type="tel" inputmode="tel" maxlength="20" placeholder="+7 900 000-00-00" value="'+esc(rui.billPh||'')+'">'+
       '<div class="err" id="bill-err"></div><div class="racts"><button class="btn solid" type="button" data-billsend="1">Отправить счёт по СМС</button></div></div>';
     if(bl){var L=D.billLink(bl);h+='<div class="billsent"><span class="chip '+(bl.status==='paid'?'ok':'wait')+'">Счёт №'+bl.no+(bl.status==='paid'?' оплачен':' отправлен, ждём оплату')+'</span>'+
@@ -1166,7 +1167,8 @@ body:not(.year) .yearv{display:none}
   document.querySelectorAll('a[href="#"]').forEach(function(a){if(!a.id)a.addEventListener('click',function(e){e.preventDefault();});});
   document.querySelectorAll('.tab[data-view]').forEach(function(t){t.addEventListener('click',function(){setView(t.getAttribute('data-view'),true);window.scrollTo(0,0);});});
   document.getElementById('primaryBtn').addEventListener('click',function(){if(view!=='month'){setView('month',true);window.scrollTo(0,0);}});
-  document.getElementById('rentBtn').addEventListener('click',function(){rui.focus=null;renderRent();setView('rent',true);document.getElementById('rentp').scrollIntoView({block:'start'});});
+  document.getElementById('billBtn').addEventListener('click',function(){rui.bill=true;rui.billLast=null;rui.focus=null;renderRent();setView('rent',false);if(location.hash!=='#rent-bill')history.pushState(null,'',location.pathname+location.search+'#rent-bill');document.getElementById('rentp').scrollIntoView({block:'start'});});
+  document.getElementById('rentBtn').addEventListener('click',function(){rui.focus=null;rui.bill=false;renderRent();setView('rent',true);document.getElementById('rentp').scrollIntoView({block:'start'});});
   window.addEventListener('hashchange',function(){var v=hashView();renderRent();setView(v,false);});
 
   /* test hook (read-only) */
