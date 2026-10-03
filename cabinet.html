@@ -2,24 +2,329 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Платежи — кабинет</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Мои документы — личный кабинет (демо)</title>
 <style>
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:760px;margin:0 auto;padding:20px 16px;color:#1f2937;background:#f7f8fa}
-header{display:flex;justify-content:space-between;align-items:center}
-a{color:#0d4cd3}
-.card{background:#fff;border-radius:12px;padding:18px;margin:14px 0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.card h2{margin:0 0 6px;font-size:18px}
-.demo{font-size:12px;color:#b45309;background:#fef3c7;border-radius:8px;padding:8px;margin-top:10px}
+:root{--accent:#d9532b;--accent-d:#c2441f;--bg:#f2f2f2;--line:#ececec;--text:#2b2b2b;--muted:#8a8a8a;--red:#e0342b;--green:#2e9e5b;--sub:#f6f8fa}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:"Roboto","Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+a{color:var(--accent);text-decoration:none}
+button{font-family:inherit}
+/* top bar */
+.top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.top-in{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:64px;gap:16px}
+.logo{font-weight:700;font-size:20px;letter-spacing:.3px;color:#1d1d1d;white-space:nowrap}
+.logo b{color:var(--accent);font-weight:700}
+.nav{display:flex;gap:22px;align-items:center}
+.nav a{color:#1d1d1d;font-size:12px;font-weight:500;letter-spacing:.2px;white-space:nowrap}
+.nav a:hover{color:var(--accent)}
+.nav a.out{color:var(--accent)}
+/* layout */
+.wrap{max-width:1140px;margin:28px auto;padding:0 16px;display:grid;grid-template-columns:270px 1fr;gap:22px;align-items:start}
+.card{background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+/* profile */
+.profile{padding:24px 22px}
+.avatar{width:72px;height:72px;border-radius:50%;background:#ececec;margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
+.avatar svg{width:28px;height:28px;fill:#b5b5b5}
+.pname{text-align:center;font-weight:700;font-size:15px;line-height:1.4;margin-bottom:18px}
+.field{margin-bottom:14px}
+.field .l{font-size:11px;color:var(--muted);margin-bottom:3px}
+.field .v{font-size:13px}
+.field a{font-size:12px}
+.btn{display:block;width:100%;border-radius:4px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;text-align:center}
+.btn-acc{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-acc:hover{background:var(--accent-d)}
+.btn-out{background:#fff;color:#333;border-color:#dcdcdc;margin-top:10px}
+.btn-out:hover{border-color:#bbb}
+/* main card */
+.main{overflow:hidden}
+.mhead{display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:4px}
+.tab{padding:16px 10px 12px;font-size:11px;font-weight:600;color:#666;border-bottom:2px solid transparent;cursor:pointer;letter-spacing:.3px}
+.tab.on{color:#222;border-bottom-color:var(--accent)}
+.total{color:var(--accent);font-weight:600;font-size:15px}
+.mgrid{display:grid;grid-template-columns:1fr 170px}
+.side{border-left:1px solid var(--line);padding-top:14px}
+.side a{display:block;padding:10px 14px;font-size:12px;color:#444;border-left:2px solid transparent}
+.side a.on{background:#fbefeb;color:var(--accent);border-left-color:var(--accent)}
+.content{padding:14px 22px 24px;min-width:0}
+/* balance bar */
+.bal{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line);border-radius:6px;margin-bottom:12px;background:#fff}
+.bal .t{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.bal .s{font-size:20px;font-weight:700;margin-top:2px}
+.bal .s.debt{color:var(--red)}
+.bal .s.ok{color:var(--green)}
+.bal .acts{display:flex;gap:8px;flex-wrap:wrap}
+.bal .btn{width:auto;padding:10px 16px;margin:0}
+.demo{font-size:11px;color:var(--muted);margin:0 2px 8px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.demo span{background:#fff4e5;color:#a35a00;border-radius:4px;padding:3px 7px}
+/* categories */
+.cat{border-bottom:1px solid var(--line)}
+.crow{display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.ico{width:30px;height:30px;flex:0 0 30px;border-radius:50%;background:#e9e9e9;display:flex;align-items:center;justify-content:center}
+.ico svg{width:15px;height:15px;fill:#9a9a9a}
+.cname{font-size:13px;font-weight:500;letter-spacing:.3px;flex:1;min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cat.has-debt .cname{color:var(--accent)}
+.camt{font-size:13px;white-space:nowrap;text-align:right}
+.cat.has-debt .camt{color:var(--accent)}
+.camt small{display:block;font-size:10px;color:var(--muted)}
+.badge{font-size:9px;font-weight:600;text-transform:lowercase;background:#e8f5ee;color:var(--green);border:1px solid #bfe3cd;border-radius:10px;padding:1px 7px;letter-spacing:.2px}
+.chev{width:10px;color:#777;font-size:10px;transition:transform .2s}
+.open>.crow .chev,.open>.prow .chev{transform:rotate(180deg)}
+.cbody{display:none;background:var(--sub);border:1px solid #e6eaee;border-radius:5px;margin:0 0 12px}
+.cat.open>.cbody{display:block}
+/* property rows */
+.prop{border-bottom:1px solid #e6eaee}
+.prop:last-child{border-bottom:0}
+.prow{display:grid;grid-template-columns:30px 1fr 30px 50px auto 12px;gap:8px;align-items:center;padding:11px 12px;font-size:12px;cursor:pointer;color:#555}
+.prow .pa{text-align:right;white-space:nowrap}
+.prop.has-debt>.prow .pa{color:var(--red)}
+.pbody{display:none;padding:2px 12px 10px}
+.prop.open>.pbody{display:block}
+/* charge rows */
+.ch{display:grid;grid-template-columns:30px 1fr 88px 118px 92px;gap:8px;align-items:center;padding:8px 8px;margin:4px 0;border-radius:5px;font-size:12px;background:#fff;border:1px solid #edf0f2;transition:box-shadow .3s,background .3s,border-color .3s}
+.ch .n{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.ch .a{text-align:right;color:#666;white-space:nowrap}
+.ch .d{text-align:right;white-space:nowrap}
+.ch .d small{color:var(--muted);font-size:10px;margin-right:3px}
+.ch.unpaid{border-color:#f3b4ae;background:#fff6f5;animation:glow 2s ease-in-out infinite}
+.ch.unpaid .d{color:var(--red);font-weight:600}
+.ch.paid{border-color:#cfe9d8;background:#f3fbf6}
+.ch.paid .d{color:var(--green)}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(224,52,43,.0)}50%{box-shadow:0 0 8px 1px rgba(224,52,43,.35)}}
+.pdf{display:inline-block;font-size:8px;font-weight:700;color:var(--red);border:1px solid #f0a9a3;border-radius:3px;padding:2px 4px;background:#fff;line-height:1}
+.pay{border:0;border-radius:4px;padding:7px 8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff;white-space:nowrap}
+.pay:hover{background:var(--accent-d)}
+.pay.done{background:#e3f4ea;color:var(--green);cursor:default}
+.debtline{display:flex;justify-content:space-between;padding:10px 8px 4px;font-size:12px;font-weight:700}
+.debtline .v{color:var(--red)}
+.debtline .v.ok{color:var(--green)}
+.list{padding:2px 12px 10px}
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(20,20,20,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+.ov.show{display:flex}
+.modal{background:#fff;border-radius:8px;max-width:440px;width:100%;padding:22px;box-shadow:0 10px 40px rgba(0,0,0,.2);max-height:90vh;overflow:auto}
+.modal h3{margin:0 0 10px;font-size:17px}
+.modal p{margin:6px 0;line-height:1.45}
+.modal .sum{font-size:22px;font-weight:700;color:var(--accent);margin:10px 0}
+.modal .note{font-size:11px;color:#a35a00;background:#fff4e5;border-radius:4px;padding:7px 9px;margin-top:10px}
+.modal .row{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.modal .row .btn{width:auto;margin:0;padding:10px 18px}
+.ap{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.ap label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;cursor:pointer}
+.ap input{width:18px;height:18px;accent-color:var(--accent)}
+.ap select{font-size:13px;padding:5px;border:1px solid #ddd;border-radius:4px;background:#fff}
+.spin{width:34px;height:34px;border:4px solid #f3d6cc;border-top-color:var(--accent);border-radius:50%;margin:14px auto;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(80px);background:#2b2b2b;color:#fff;padding:10px 16px;border-radius:6px;font-size:13px;opacity:0;transition:.3s;z-index:60;max-width:90%}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* responsive */
+@media (max-width:1100px){.nav{gap:14px}.nav a{font-size:11px}}
+@media (max-width:900px){
+  .top{position:static}
+  .top-in{flex-direction:column;align-items:stretch;height:auto;padding:10px 14px 0;gap:6px}
+  .nav{overflow-x:auto;-webkit-overflow-scrolling:touch;gap:18px;padding:6px 0 10px;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .wrap{grid-template-columns:1fr;margin:14px auto;gap:14px;padding:0 10px}
+  .mgrid{grid-template-columns:1fr}
+  .side{border-left:0;border-top:1px solid var(--line);padding:8px 0}
+}
+@media (max-width:600px){
+  .profile{padding:18px 16px}
+  .content{padding:10px 12px 18px}
+  .mhead{padding:0 12px}
+  .bal{padding:12px}
+  .bal .acts{width:100%}
+  .bal .btn{flex:1;padding:11px 8px}
+  .prow{grid-template-columns:24px 1fr 20px 34px auto 10px;padding:11px 8px;gap:6px;font-size:12px}
+  .pbody,.list{padding:2px 6px 8px}
+  .ch{grid-template-columns:30px 1fr auto;grid-template-areas:"p n a" "d d b";row-gap:6px;padding:9px 8px}
+  .ch .pdfw{grid-area:p}.ch .n{grid-area:n}.ch .a{grid-area:a}
+  .ch .d{grid-area:d;text-align:left}
+  .ch .pay{grid-area:b;justify-self:end;padding:8px 14px}
+  .modal .row .btn{flex:1}
+}
 </style>
 </head>
 <body>
-<header><h1 id="hi">Здравствуйте!</h1><a href="#" onclick="localStorage.removeItem('demoUser');location.href='index.html'">Выйти</a></header>
-<div class="card"><h2>ПИК-Комфорт</h2><p>Квитанции приходят 1-го числа каждого месяца.</p></div>
-<div class="card"><h2>ДомОкей</h2><p>Оплата: <a href="https://domokey.ru/payments">domokey.ru/payments</a></p></div>
-<div class="demo">Демо-кабинет. Данные условные.</div>
+<header class="top"><div class="top-in">
+  <div class="logo">МОИ <b>ДОКУМЕНТЫ</b></div>
+  <nav class="nav">
+    <a href="#">УМФЦ</a><a href="#">О ПРОЕКТЕ</a><a href="#">МЕРЫ ПОДДЕРЖКИ</a><a href="#">ДОКУМЕНТЫ</a><a href="#">УСЛУГИ</a><a href="#">ВАКАНСИИ</a><a href="#">КОНТАКТЫ</a><a href="#" class="out" id="logout">ВЫЙТИ</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="card profile">
+    <div class="avatar"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-9 2.2-9 5v3h18v-3c0-2.8-4.6-5-9-5z"/></svg></div>
+    <div class="pname">Яковлев Владимир Владимирович</div>
+    <div class="field"><div class="l">Дата рождения</div><div class="v">19.06.1981</div></div>
+    <div class="field"><div class="l">Контактный телефон</div><div class="v">+7(968)8688886</div></div>
+    <div class="field"><div class="l">Мой МФЦ</div><a href="#">Указать</a></div>
+    <div class="field"><div class="l">Род деятельности</div><a href="#">Указать</a></div>
+    <button class="btn btn-acc" type="button">Предварительная запись</button>
+    <button class="btn btn-out" type="button">Редактировать профиль</button>
+  </aside>
+
+  <section class="card main">
+    <div class="mhead">
+      <div class="tabs"><div class="tab on">МАРТ</div><div class="tab">2026</div></div>
+      <div class="total" id="total"></div>
+    </div>
+    <div class="mgrid">
+      <div class="content">
+        <div class="bal">
+          <div><div class="t">Баланс / задолженность</div><div class="s" id="balance"></div></div>
+          <div class="acts">
+            <button class="btn btn-acc" type="button" id="payAll">Оплатить всё</button>
+            <button class="btn btn-out" type="button" id="autoBtn">Автоплатёж</button>
+          </div>
+        </div>
+        <div class="demo"><span>Демо-версия: реальные платежи не проводятся, данные карты не запрашиваются.</span><a href="#" id="reset">Сбросить демо</a></div>
+        <div id="cats"></div>
+      </div>
+      <nav class="side"><a href="#" class="on">Оплаты</a></nav>
+    </div>
+  </section>
+</div>
+
+<div class="ov" id="ov"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
 <script>
-var u=localStorage.getItem('demoUser'); if(!u){location.href='index.html'} else {document.getElementById('hi').textContent='Здравствуйте, '+u+'!'}
+(function(){
+  if(!localStorage.getItem('demoUser')){location.replace('index.html');return;}
+
+  var KEY_PAID='demoPaid_v1', KEY_AUTO='demoAutopay_v1';
+  function ch(id,name,amount,paid0){return {id:id,name:name,amount:amount,paid0:!!paid0};}
+  function flat(prefix,list){return list.map(function(x,i){return ch(prefix+i,x[0],x[1],x[2]);});}
+  var zhkh=[['УК',6000],['КАП',700],['ТКО',550],['мосэнерго',3500],['водоканал',3100]];
+  var DATA=[
+    {id:'tax',name:'НАЛОГИ',items:flat('tax',[['Налог на имущество физлиц',4200],['Земельный налог',1800],['Транспортный налог',9000]])},
+    {id:'zhkh',name:'ЖКХ',props:[
+      {id:'p265',t:'кв',street:'кронштадтский',h:'8',n:'265',items:flat('p265_',zhkh)},
+      {id:'p702',t:'кв',street:'кронштадтский',h:'8',n:'702',items:flat('p702_',zhkh)},
+      {id:'k14',t:'кл',street:'кронштадтский',h:'8',n:'14',title:'кладовая',items:flat('k14_',[['УК',900],['КАП',150]])}
+    ]},
+    {id:'loan',name:'КРЕДИТЫ',items:flat('loan',[['Ипотека, Сбербанк — платёж за март',45000],['Кредит наличными, Т-Банк',12500]])},
+    {id:'club',name:'КРУЖКИ',items:flat('club',[['Плавание, ФОК «Нептун»',3500],['Шахматы, ДДТ',2000,true]])},
+    {id:'ins',name:'СТРАХОВКИ',items:flat('ins',[['ОСАГО, Ингосстрах',8400],['Страхование квартиры, кв 265',2600]])}
+  ];
+  var DAYS=[1,5,10,15,20,25,28];
+
+  function load(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v&&typeof v==='object'?v:d;}catch(e){return d;}}
+  var paid=load(KEY_PAID,{}), auto=load(KEY_AUTO,{});
+  function save(){localStorage.setItem(KEY_PAID,JSON.stringify(paid));localStorage.setItem(KEY_AUTO,JSON.stringify(auto));}
+
+  var open={zhkh:true,p265:true};
+  var byId={};
+  DATA.forEach(function(c){allItems(c).forEach(function(it){byId[it.id]={it:it,cat:c};});});
+
+  function allItems(c){if(c.items)return c.items;var r=[];c.props.forEach(function(p){r=r.concat(p.items);});return r;}
+  function isPaid(it){return it.paid0||!!paid[it.id];}
+  function debt(it){return isPaid(it)?0:it.amount;}
+  function sum(list,f){return list.reduce(function(s,x){return s+f(x);},0);}
+  function fmt(n){var s=Math.abs(n).toFixed(2).split('.');s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,' ');return (n<0?'-':'')+s[0]+'.'+s[1];}
+  function rub(n){return fmt(n)+' руб.';}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var ICON='<span class="ico"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-9 2.2-9 5v3h18v-3c0-2.8-4.6-5-9-5z"/></svg></span>';
+
+  function chargeRow(it){
+    var p=isPaid(it);
+    return '<div class="ch '+(p?'paid':'unpaid')+'" data-item="'+it.id+'">'+
+      '<span class="pdfw"><span class="pdf">PDF</span></span>'+
+      '<span class="n">'+esc(it.name)+'</span>'+
+      '<span class="a">'+rub(it.amount)+'</span>'+
+      '<span class="d"><small>долг</small>'+rub(debt(it))+'</span>'+
+      (p?'<button class="pay done" type="button" disabled>Оплачено ✓</button>':'<button class="pay" type="button" data-pay="'+it.id+'">Оплатить</button>')+
+      '</div>';
+  }
+  function debtLine(list){var d=sum(list,debt);return '<div class="debtline"><span>Задолженность</span><span class="v'+(d?'':' ok')+'">'+rub(d)+'</span></div>';}
+
+  function render(){
+    var html='',total=0;
+    DATA.forEach(function(c){
+      var items=allItems(c),d=sum(items,debt);total+=d;
+      var a=auto[c.id];
+      html+='<div class="cat'+(open[c.id]?' open':'')+(d?' has-debt':'')+'">'+
+        '<div class="crow" data-toggle="'+c.id+'">'+ICON+
+        '<span class="cname">'+c.name+(a&&a.on?' <span class="badge">автоплатёж · '+a.day+' число</span>':'')+'</span>'+
+        '<span class="camt">'+(d?'-'+fmt(d):'0.00')+' РУБ.<small>'+(d?'к оплате':'долга нет')+'</small></span><span class="chev">▼</span></div>'+
+        '<div class="cbody">';
+      if(c.props){
+        c.props.forEach(function(p){
+          var pd=sum(p.items,debt);
+          html+='<div class="prop'+(open[p.id]?' open':'')+(pd?' has-debt':'')+'">'+
+            '<div class="prow" data-toggle="'+p.id+'" title="'+(p.title||'квартира')+'"><span>'+p.t+'</span><span>'+p.street+'</span><span>'+p.h+'</span><span>'+p.n+'</span>'+
+            '<span class="pa">'+rub(sum(p.items,function(i){return i.amount;}))+(pd?'<br><small>долг '+rub(pd)+'</small>':'')+'</span><span class="chev">▼</span></div>'+
+            '<div class="pbody">'+p.items.map(chargeRow).join('')+debtLine(p.items)+'</div></div>';
+        });
+      }else{
+        html+='<div class="list">'+c.items.map(chargeRow).join('')+debtLine(c.items)+'</div>';
+      }
+      html+='</div></div>';
+    });
+    document.getElementById('cats').innerHTML=html;
+    document.getElementById('total').textContent=(total?'-'+fmt(total):'0.00')+' РУБ.';
+    var b=document.getElementById('balance');
+    b.textContent=total?'-'+rub(total):'0.00 руб. — долгов нет';
+    b.className='s '+(total?'debt':'ok');
+    var pa=document.getElementById('payAll');pa.disabled=!total;pa.style.opacity=total?1:.5;
+  }
+
+  /* modal helpers */
+  var ov=document.getElementById('ov'),modal=document.getElementById('modal');
+  function showModal(h){modal.innerHTML=h;ov.classList.add('show');}
+  function closeModal(){ov.classList.remove('show');modal.innerHTML='';}
+  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+  var tt;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show');},2500);}
+
+  function confirmPay(ids,title){
+    ids=ids.filter(function(id){return !isPaid(byId[id].it);});
+    if(!ids.length)return;
+    var s=sum(ids,function(id){return byId[id].it.amount;});
+    showModal('<h3>Подтверждение оплаты</h3><p>'+esc(title)+'</p><div class="sum">'+rub(s)+'</div>'+
+      '<div class="note">Демо-режим: деньги не списываются, данные карты не нужны. Платёж будет только отмечен как оплаченный.</div>'+
+      '<div class="row"><button class="btn btn-out" type="button" data-close>Отмена</button><button class="btn btn-acc" type="button" id="okPay">Оплатить (демо)</button></div>');
+    document.getElementById('okPay').onclick=function(){
+      modal.innerHTML='<h3>Обработка платежа…</h3><div class="spin"></div><p style="text-align:center;color:#888;font-size:12px">демо, без списания средств</p>';
+      setTimeout(function(){ids.forEach(function(id){paid[id]=true;});save();closeModal();render();toast('Оплачено: '+rub(s)+' (демо)');},800);
+    };
+  }
+
+  function autopayModal(){
+    var h='<h3>Автоплатёж</h3><p style="font-size:12px;color:#777">Выберите категории и день месяца для автоматического списания.</p>';
+    DATA.forEach(function(c){var a=auto[c.id]||{on:false,day:10};
+      h+='<div class="ap"><label><input type="checkbox" data-ap="'+c.id+'"'+(a.on?' checked':'')+'>'+c.name+'</label>'+
+        '<select data-day="'+c.id+'" aria-label="День месяца">'+DAYS.map(function(d){return '<option value="'+d+'"'+(d==a.day?' selected':'')+'>'+d+' число</option>';}).join('')+'</select></div>';});
+    h+='<div class="note">Демо-режим: автоплатёж только сохраняется в браузере, реальных списаний не будет.</div>'+
+      '<div class="row"><button class="btn btn-out" type="button" data-close>Отмена</button><button class="btn btn-acc" type="button" id="okAuto">Сохранить</button></div>';
+    showModal(h);
+    document.getElementById('okAuto').onclick=function(){
+      DATA.forEach(function(c){auto[c.id]={on:modal.querySelector('[data-ap="'+c.id+'"]').checked,day:+modal.querySelector('[data-day="'+c.id+'"]').value};});
+      save();closeModal();render();toast('Настройки автоплатежа сохранены (демо)');
+    };
+  }
+
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(t.closest('[data-close]')){closeModal();return;}
+    var p=t.closest('[data-pay]');
+    if(p){e.stopPropagation();var r=byId[p.getAttribute('data-pay')];confirmPay([r.it.id],r.cat.name+': '+r.it.name);return;}
+    var tg=t.closest('[data-toggle]');
+    if(tg){var id=tg.getAttribute('data-toggle');open[id]=!open[id];tg.parentNode.classList.toggle('open',open[id]);return;}
+  });
+  document.getElementById('payAll').onclick=function(){confirmPay(Object.keys(byId),'Оплата всей задолженности по всем категориям');};
+  document.getElementById('autoBtn').onclick=autopayModal;
+  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо-данные (оплаты и автоплатежи)?')){localStorage.removeItem(KEY_PAID);localStorage.removeItem(KEY_AUTO);paid={};auto={};render();toast('Демо сброшено');}};
+  document.getElementById('logout').onclick=function(e){e.preventDefault();localStorage.removeItem('demoUser');location.href='index.html';};
+  document.querySelectorAll('a[href="#"]').forEach(function(a){if(!a.id)a.addEventListener('click',function(e){e.preventDefault();});});
+
+  render();
+})();
 </script>
 </body>
 </html>
