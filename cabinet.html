@@ -173,6 +173,46 @@ body:not(.year) .yearv{display:none}
   .ch .pay{grid-area:b;justify-self:end;padding:8px 14px}
   .modal .row .btn{flex:1}
 }
+
+/* balances */
+.bal .figs{display:flex;gap:28px;flex-wrap:wrap}
+.bal .s.wal{color:#222}
+.cat .camt{color:#333}
+.cat.has-debt .camt{color:var(--accent)}
+.cat.net-pos:not(.has-debt) .camt{color:var(--green)}
+.camt small.dbt{color:var(--accent)}
+.camt small.ok{color:var(--green)}
+.total.pos{color:var(--green)}
+.ch.income .a{color:var(--green)}
+.ch.income .d{color:var(--green)}
+.inc{font-size:8px;font-weight:700;color:var(--green);border:1px solid var(--green);border-radius:3px;padding:2px 4px;line-height:1;display:inline-block}
+.yt td.paid{color:#555}
+.yt td.paid i{font-style:normal;color:var(--green);font-size:9px;margin-left:2px}
+.yt td.unp,.yt td.part{color:var(--accent);cursor:pointer}
+.yt td.unp:hover,.yt td.part:hover{background:var(--accent-bg)}
+.yt td.part i{font-style:normal;font-size:9px;margin-left:2px}
+.ylegend{font-size:11px;color:var(--muted);margin:10px 2px 0;display:flex;gap:14px;flex-wrap:wrap}
+.ylegend b{font-weight:600}
+/* history */
+.hist{padding:12px 14px 16px}
+.hist h4{margin:0 0 8px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.hlist{max-height:460px;overflow:auto}
+.hi{padding:7px 0;border-bottom:1px solid var(--line);font-size:11px;line-height:1.35}
+.hi .dt{color:var(--muted);font-size:10px}
+.hi .ttl{color:#444;overflow-wrap:anywhere}
+.hi .am{font-weight:700}
+.hi .am.minus{color:var(--accent)}
+.hi .am.plus{color:var(--green)}
+.hempty{font-size:11px;color:var(--muted)}
+/* topup */
+.modal input.amt{width:100%;font-size:18px;padding:10px 12px;border:1px solid #ddd;border-radius:4px;margin:6px 0 10px;font-family:inherit}
+.modal input.amt:focus{outline:none;border-color:var(--accent)}
+.quick{display:flex;gap:8px;flex-wrap:wrap}
+.quick .btn{width:auto;flex:1;padding:8px 6px;margin:0;font-size:12px}
+.err{color:var(--accent);font-size:12px;min-height:16px}
+.mrow{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+.mrow b{font-weight:700}
+@media (max-width:600px){.bal .figs{gap:18px;width:100%}.bal .figs>div{flex:1}}
 </style>
 </head>
 <body>
@@ -203,18 +243,27 @@ body:not(.year) .yearv{display:none}
     <div class="mgrid">
       <div class="content">
         <div class="bal">
-          <div><div class="t">Баланс / задолженность</div><div class="s" id="balance"></div></div>
+          <div class="figs">
+            <div><div class="t">Баланс счёта</div><div class="s wal" id="wallet"></div></div>
+            <div><div class="t">Задолженность</div><div class="s" id="debt"></div></div>
+          </div>
           <div class="acts">
             <button class="btn btn-acc" type="button" id="payAll">Оплатить всё</button>
+            <button class="btn btn-acc" type="button" id="topupBtn">Пополнить</button>
             <button class="btn btn-out" type="button" id="autoBtn">Автоплатёж</button>
           </div>
         </div>
-        <div class="demo"><span>Демо-версия: реальные платежи не проводятся, данные карты не запрашиваются.</span><a href="#" id="reset">Сбросить демо</a></div>
+        <div class="demo"><span>Демо-версия: оплата виртуальная, реальные платежи не проводятся, данные карты не запрашиваются.</span><a href="#" id="reset">Сбросить демо</a></div>
         <div id="cats"></div>
       </div>
-      <nav class="side"><a href="#" class="on">Оплаты</a></nav>
+      <div class="side">
+        <a href="#" class="on">Оплаты</a>
+        <div class="hist"><h4>История операций</h4><div class="hlist" id="hist"></div></div>
+      </div>
     </div>
-    <div class="yearv"><div class="ytw"><table class="yt" id="yt"></table></div></div>
+    <div class="yearv"><div class="ytw"><table class="yt" id="yt"></table></div>
+      <div class="ylegend"><span><b style="color:var(--accent)">-1000</b> — не оплачено (нажмите, чтобы оплатить)</span><span><b style="color:#555">-1000</b><b style="color:var(--green)">✓</b> — оплачено</span><span><b style="color:var(--accent)">-13850½</b> — оплачено частично</span><span><b style="color:var(--green)">60000</b> — доход</span></div>
+    </div>
   </section>
 </div>
 
@@ -224,183 +273,257 @@ body:not(.year) .yearv{display:none}
 <script>
 (function(){
   if(!localStorage.getItem('demoUser')){location.replace('index.html');return;}
+  localStorage.removeItem('demoPaid_v1');localStorage.removeItem('demoAutopay_v1');
 
-  var KEY_PAID='demoPaid_v1', KEY_AUTO='demoAutopay_v1';
-  function ch(id,name,amount,paid0){return {id:id,name:name,amount:amount,paid0:!!paid0};}
-  function flat(prefix,list){return list.map(function(x,i){return ch(prefix+i,x[0],x[1],x[2]);});}
-  var zhkh=[['УК',6000],['КАП',700],['ТКО',550],['мосэнерго',3500],['водоканал',3100]];
-  var DATA=[
-    {id:'tax',name:'НАЛОГИ',items:flat('tax',[['Налог на имущество физлиц',4200],['Земельный налог',1800],['Транспортный налог',9000]])},
-    {id:'zhkh',name:'ЖКХ',props:[
-      {id:'p265',t:'кв',street:'кронштадтский',h:'8',n:'265',items:flat('p265_',zhkh)},
-      {id:'p702',t:'кв',street:'кронштадтский',h:'8',n:'702',items:flat('p702_',zhkh)},
-      {id:'k14',t:'кл',street:'кронштадтский',h:'8',n:'14',title:'кладовая',items:flat('k14_',[['УК',900],['КАП',150]])}
-    ]},
-    {id:'loan',name:'КРЕДИТЫ',items:flat('loan',[['Ипотека, Сбербанк — платёж за март',45000],['Кредит наличными, Т-Банк',12500]])},
-    {id:'club',name:'КРУЖКИ',items:flat('club',[['Плавание, ФОК «Нептун»',3500],['Шахматы, ДДТ',2000,true]])},
-    {id:'ins',name:'СТРАХОВКИ',items:flat('ins',[['ОСАГО, Ингосстрах',8400],['Страхование квартиры, кв 265',2600]])}
-  ];
-  var DAYS=[1,5,10,15,20,25,28];
-
-  function load(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v&&typeof v==='object'?v:d;}catch(e){return d;}}
-  var paid=load(KEY_PAID,{}), auto=load(KEY_AUTO,{});
-  function save(){localStorage.setItem(KEY_PAID,JSON.stringify(paid));localStorage.setItem(KEY_AUTO,JSON.stringify(auto));}
-
-  var open={zhkh:true,p265:true};
-  var byId={};
-  DATA.forEach(function(c){allItems(c).forEach(function(it){byId[it.id]={it:it,cat:c};});});
-
-  function allItems(c){if(c.items)return c.items;var r=[];c.props.forEach(function(p){r=r.concat(p.items);});return r;}
-  function isPaid(it){return it.paid0||!!paid[it.id];}
-  function debt(it){return isPaid(it)?0:it.amount;}
-  function sum(list,f){return list.reduce(function(s,x){return s+f(x);},0);}
-  function fmt(n){var s=Math.abs(n).toFixed(2).split('.');s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,' ');return (n<0?'-':'')+s[0]+'.'+s[1];}
-  function rub(n){return fmt(n)+' руб.';}
-  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-  var ICON='<span class="ico"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-9 2.2-9 5v3h18v-3c0-2.8-4.6-5-9-5z"/></svg></span>';
-
-  function chargeRow(it){
-    var p=isPaid(it);
-    return '<div class="ch '+(p?'paid':'unpaid')+'" data-item="'+it.id+'">'+
-      '<span class="pdfw"><span class="pdf">PDF</span></span>'+
-      '<span class="n">'+esc(it.name)+'</span>'+
-      '<span class="a">'+rub(it.amount)+'</span>'+
-      '<span class="d"><small>долг</small>'+rub(debt(it))+'</span>'+
-      (p?'<button class="pay done" type="button" disabled>Оплачено ✓</button>':'<button class="pay" type="button" data-pay="'+it.id+'">Оплатить</button>')+
-      '</div>';
-  }
-  function debtLine(list){var d=sum(list,debt);return '<div class="debtline"><span>Задолженность</span><span class="v'+(d?'':' ok')+'">'+rub(d)+'</span></div>';}
-
-  function render(){
-    var html='',total=0;
-    DATA.forEach(function(c){
-      var items=allItems(c),d=sum(items,debt);total+=d;
-      var a=auto[c.id];
-      html+='<div class="cat'+(open[c.id]?' open':'')+(d?' has-debt':'')+'">'+
-        '<div class="crow" data-toggle="'+c.id+'">'+ICON+
-        '<span class="cname">'+c.name+(a&&a.on?' <span class="badge">автоплатёж · '+a.day+' число</span>':'')+'</span>'+
-        '<span class="camt">'+(d?'-'+fmt(d):'0.00')+' РУБ.<small>'+(d?'к оплате':'долга нет')+'</small></span><span class="chev">▼</span></div>'+
-        '<div class="cbody">';
-      if(c.props){
-        c.props.forEach(function(p){
-          var pd=sum(p.items,debt);
-          html+='<div class="prop'+(open[p.id]?' open':'')+(pd?' has-debt':'')+'">'+
-            '<div class="prow" data-toggle="'+p.id+'" title="'+(p.title||'квартира')+'"><span>'+p.t+'</span><span>'+p.street+'</span><span>'+p.h+'</span><span>'+p.n+'</span>'+
-            '<span class="pa">'+rub(sum(p.items,function(i){return i.amount;}))+(pd?'<br><small>долг '+rub(pd)+'</small>':'')+'</span><span class="chev">▼</span></div>'+
-            '<div class="pbody">'+p.items.map(chargeRow).join('')+debtLine(p.items)+'</div></div>';
-        });
-      }else{
-        html+='<div class="list">'+c.items.map(chargeRow).join('')+debtLine(c.items)+'</div>';
-      }
-      html+='</div></div>';
-    });
-    document.getElementById('cats').innerHTML=html;
-    monthTotal=total;setTotal();
-    var b=document.getElementById('balance');
-    b.textContent=total?'-'+rub(total):'0.00 руб. — долгов нет';
-    b.className='s '+(total?'debt':'ok');
-    var pa=document.getElementById('payAll');pa.disabled=!total;pa.style.opacity=total?1:.5;
-  }
-
-  /* modal helpers */
-  var ov=document.getElementById('ov'),modal=document.getElementById('modal');
-  function showModal(h){modal.innerHTML=h;ov.classList.add('show');}
-  function closeModal(){ov.classList.remove('show');modal.innerHTML='';}
-  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
-  var tt;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show');},2500);}
-
-  function confirmPay(ids,title){
-    ids=ids.filter(function(id){return !isPaid(byId[id].it);});
-    if(!ids.length)return;
-    var s=sum(ids,function(id){return byId[id].it.amount;});
-    showModal('<h3>Подтверждение оплаты</h3><p>'+esc(title)+'</p><div class="sum">'+rub(s)+'</div>'+
-      '<div class="note">Демо-режим: деньги не списываются, данные карты не нужны. Платёж будет только отмечен как оплаченный.</div>'+
-      '<div class="row"><button class="btn btn-out" type="button" data-close>Отмена</button><button class="btn btn-acc" type="button" id="okPay">Оплатить (демо)</button></div>');
-    document.getElementById('okPay').onclick=function(){
-      modal.innerHTML='<h3>Обработка платежа…</h3><div class="spin"></div><p style="text-align:center;color:#888;font-size:12px">демо, без списания средств</p>';
-      setTimeout(function(){ids.forEach(function(id){paid[id]=true;});save();closeModal();render();toast('Оплачено: '+rub(s)+' (демо)');},800);
-    };
-  }
-
-  function autopayModal(){
-    var h='<h3>Автоплатёж</h3><p style="font-size:12px;color:#777">Выберите категории и день месяца для автоматического списания.</p>';
-    DATA.forEach(function(c){var a=auto[c.id]||{on:false,day:10};
-      h+='<div class="ap"><label><input type="checkbox" data-ap="'+c.id+'"'+(a.on?' checked':'')+'>'+c.name+'</label>'+
-        '<select data-day="'+c.id+'" aria-label="День месяца">'+DAYS.map(function(d){return '<option value="'+d+'"'+(d==a.day?' selected':'')+'>'+d+' число</option>';}).join('')+'</select></div>';});
-    h+='<div class="note">Демо-режим: автоплатёж только сохраняется в браузере, реальных списаний не будет.</div>'+
-      '<div class="row"><button class="btn btn-out" type="button" data-close>Отмена</button><button class="btn btn-acc" type="button" id="okAuto">Сохранить</button></div>';
-    showModal(h);
-    document.getElementById('okAuto').onclick=function(){
-      DATA.forEach(function(c){auto[c.id]={on:modal.querySelector('[data-ap="'+c.id+'"]').checked,day:+modal.querySelector('[data-day="'+c.id+'"]').value};});
-      save();closeModal();render();toast('Настройки автоплатежа сохранены (демо)');
-    };
-  }
-
-  document.addEventListener('click',function(e){
-    var t=e.target;
-    if(t.closest('[data-close]')){closeModal();return;}
-    var p=t.closest('[data-pay]');
-    if(p){e.stopPropagation();var r=byId[p.getAttribute('data-pay')];confirmPay([r.it.id],r.cat.name+': '+r.it.name);return;}
-    var tg=t.closest('[data-toggle]');
-    if(tg){var id=tg.getAttribute('data-toggle');open[id]=!open[id];tg.parentNode.classList.toggle('open',open[id]);return;}
-  });
-  document.getElementById('payAll').onclick=function(){confirmPay(Object.keys(byId),'Оплата всей задолженности по всем категориям');};
-  document.getElementById('autoBtn').onclick=autopayModal;
-  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо-данные (оплаты и автоплатежи)?')){localStorage.removeItem(KEY_PAID);localStorage.removeItem(KEY_AUTO);paid={};auto={};render();toast('Демо сброшено');}};
-  document.getElementById('logout').onclick=function(e){e.preventDefault();localStorage.removeItem('demoUser');location.href='index.html';};
-  document.querySelectorAll('a[href="#"]').forEach(function(a){if(!a.id)a.addEventListener('click',function(e){e.preventDefault();});});
-
-  /* ===== year view ===== */
+  /* ===== single data model (source of truth: year table) ===== */
+  var KEY='demoCabinet_v2', START_WALLET=300000, CUR=2; /* CUR = март (0-based) */
   var MONTHS=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
   function q3(v){return [v,v,v];}
-  var YEAR=[
-    {sec:'НАЛОГИ',r:'налоги',rows:[['кв','кронштадтский 8 265',q3(-2000)],['кв','кронштадтский 8 702',q3(-2000)],['кл','кронштадтский 8 14',q3(-500)],['мм','кронштадтский 9 178',q3(-1000)],['мм','кронштадтский 9 269',q3(-1000)],['авт','киа 211',q3(-3000)],['имущ ндфл','кронштадтский 8 503',q3(-50000)]]},
-    {sec:'ЖКХ',r:'жкх',rows:[['кв','кронштадтский 8 265',q3(-13850)],['кв','кронштадтский 8 702',q3(-13850)],['кл','кронштадтский 8 14',q3(-13850)]]},
-    {sec:'КРЕДИТЫ',r:'кредиты',rows:[['ипотека','684191',q3(-60000)],['ипотека','634/1027 -0003083',q3(-65000)]]},
-    {sec:'КРУЖКИ',r:'кружки',rows:[['баскетбол','-',q3(-1000)]]},
-    {sec:'СТРАХОВКИ',r:'страховки',rows:[['-','-',[null,null,-40000]]]},
-    {sec:'АРЕНДА',r:'аренда',rows:[['аренда','кронштадтский 6 100',q3(-30000)],['сдаю','смольная 49 329',q3(60000)]]},
-    {sec:'ШТРАФЫ',r:'штрафы',rows:[['авто','киа 211',[-1000,-2000,-5000]]]},
-    {sec:'ПОДПИСКИ',r:'подписки',rows:[['иви','-',q3(-500)]]}
+  var ZHKH=[['УК',6000],['КАП',700],['ТКО',550],['мосэнерго',3500],['водоканал',3100]];
+  var SECTIONS=[
+    {id:'tax',name:'НАЛОГИ',r:'налоги',rows:[['кв','кронштадтский 8 265',q3(-2000)],['кв','кронштадтский 8 702',q3(-2000)],['кл','кронштадтский 8 14',q3(-500)],['мм','кронштадтский 9 178',q3(-1000)],['мм','кронштадтский 9 269',q3(-1000)],['авт','киа 211',q3(-3000)],['имущ ндфл','кронштадтский 8 503',q3(-50000)]]},
+    {id:'zhkh',name:'ЖКХ',r:'жкх',props:true,rows:[['кв','кронштадтский 8 265',q3(-13850),ZHKH],['кв','кронштадтский 8 702',q3(-13850),ZHKH],['кл','кронштадтский 8 14',q3(-13850),ZHKH]]},
+    {id:'loan',name:'КРЕДИТЫ',r:'кредиты',rows:[['ипотека','684191',q3(-60000)],['ипотека','634/1027 -0003083',q3(-65000)]]},
+    {id:'club',name:'КРУЖКИ',r:'кружки',rows:[['баскетбол','-',q3(-1000)]]},
+    {id:'ins',name:'СТРАХОВКИ',r:'страховки',rows:[['-','-',[null,null,-40000]]]},
+    {id:'rent',name:'АРЕНДА',r:'аренда',rows:[['аренда','кронштадтский 6 100',q3(-30000)],['сдаю','смольная 49 329',q3(60000)]]},
+    {id:'fine',name:'ШТРАФЫ',r:'штрафы',rows:[['авто','киа 211',[-1000,-2000,-5000]]]},
+    {id:'sub',name:'ПОДПИСКИ',r:'подписки',rows:[['иви','-',q3(-500)]]}
   ];
-  var yearTotal=0;
+  var ROWS={};
+  SECTIONS.forEach(function(s){
+    s.rows=s.rows.map(function(r,i){
+      var o={id:s.id+i,sec:s,type:r[0],obj:r[1],vals:r[2].concat(new Array(12-r[2].length).fill(null)),parts:r[3]||null};
+      o.label=[o.type,o.obj].filter(function(x){return x&&x!=='-';}).join(' ')||s.r;
+      ROWS[o.id]=o;return o;
+    });
+  });
+  function val(row,m){return row.vals[m];}
+  function unitsFor(row,m){
+    var v=row.vals[m];if(v==null||v>=0)return [];
+    if(row.parts)return row.parts.map(function(p,i){return {key:row.id+'|'+m+'|'+i,row:row,m:m,name:p[0],amount:p[1]};});
+    return [{key:row.id+'|'+m+'|0',row:row,m:m,name:row.label,amount:-v}];
+  }
+  var UNITS={};
+  SECTIONS.forEach(function(s){s.rows.forEach(function(r){for(var m=0;m<12;m++)unitsFor(r,m).forEach(function(u){UNITS[u.key]=u;});});});
+
+  /* ===== state ===== */
+  function defState(){return {wallet:START_WALLET,paid:{},hist:[],auto:{}};}
+  var state;
+  try{state=JSON.parse(localStorage.getItem(KEY));}catch(e){state=null;}
+  if(!state||typeof state!=='object'||typeof state.wallet!=='number')state=defState();
+  state.paid=state.paid||{};state.hist=state.hist||[];state.auto=state.auto||{};
+  function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+  function isPaid(u){return u.m<CUR||!!state.paid[u.key];}
+  function r2(x){return Math.round(x*100)/100;}
+
+  /* ===== helpers ===== */
+  function sum(list,f){return list.reduce(function(s,x){return s+f(x);},0);}
+  function fmt(n){var neg=n<0;var s=Math.abs(n).toFixed(2).split('.');s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,' ');return (neg?'-':'')+s[0]+'.'+s[1];}
+  function rub(n){return fmt(n)+' руб.';}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function unpaidOf(units){return units.filter(function(u){return !isPaid(u);});}
+  function debtOf(units){return sum(unpaidOf(units),function(u){return u.amount;});}
+  function secUnits(s,m){var r=[];s.rows.forEach(function(row){r=r.concat(unitsFor(row,m));});return r;}
+  function allUnits(m){var r=[];SECTIONS.forEach(function(s){r=r.concat(secUnits(s,m));});return r;}
+  function allUnpaid(){return unpaidOf(Object.keys(UNITS).map(function(k){return UNITS[k];}));}
+  function secNet(s,m){return sum(s.rows,function(r){return val(r,m)||0;});}
+  function monthNet(m){return sum(SECTIONS,function(s){return secNet(s,m);});}
+  function rowYear(r){return sum(r.vals,function(v){return v||0;});}
+  function yearNet(){return sum(SECTIONS,function(s){return sum(s.rows,rowYear);});}
+  function nowStr(t){var d=new Date(t);function p(x){return (x<10?'0':'')+x;}return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes());}
+  var ICON='<span class="ico"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-9 2.2-9 5v3h18v-3c0-2.8-4.6-5-9-5z"/></svg></span>';
+
+  /* ===== month view ===== */
+  var open={zhkh:true,zhkh0:true};
+  function chargeRow(u){
+    var p=isPaid(u);
+    return '<div class="ch '+(p?'paid':'unpaid')+'" data-unit="'+u.key+'">'+
+      '<span class="pdfw"><span class="pdf">PDF</span></span><span class="n">'+esc(u.name)+'</span>'+
+      '<span class="a">'+rub(u.amount)+'</span>'+
+      '<span class="d"><small>долг</small>'+rub(p?0:u.amount)+'</span>'+
+      (p?'<button class="pay done" type="button" disabled>Оплачено ✓</button>':'<button class="pay" type="button" data-pay="'+u.key+'">Оплатить</button>')+'</div>';
+  }
+  function incomeRow(row,m){
+    return '<div class="ch income" data-income="'+row.id+'"><span class="pdfw"><span class="inc">ДОХОД</span></span><span class="n">'+esc(row.label)+'</span>'+
+      '<span class="a">+'+rub(val(row,m))+'</span><span class="d"><small>поступление</small></span>'+
+      '<button class="pay done" type="button" disabled>Получено ✓</button></div>';
+  }
+  function debtLine(units){var d=debtOf(units);return '<div class="debtline"><span>Задолженность</span><span class="v'+(d?'':' ok')+'">'+rub(d)+'</span></div>';}
+
+  function renderMonth(){
+    var m=CUR,h='';
+    SECTIONS.forEach(function(s){
+      var units=secUnits(s,m),d=debtOf(units),net=secNet(s,m);
+      if(!s.rows.some(function(r){return val(r,m)!=null;}))return;
+      var a=state.auto[s.id];
+      h+='<div class="cat'+(open[s.id]?' open':'')+(d?' has-debt':'')+(net>0?' net-pos':'')+'" data-cat="'+s.id+'" data-net="'+net+'" data-debt="'+d+'">'+
+        '<div class="crow" data-toggle="'+s.id+'">'+ICON+
+        '<span class="cname">'+s.name+(a&&a.on?' <span class="badge">автоплатёж · '+a.day+' число</span>':'')+'</span>'+
+        '<span class="camt">'+fmt(net)+' РУБ.'+(d?'<small class="dbt">к оплате '+fmt(d)+'</small>':(units.length?'<small class="ok">оплачено ✓</small>':'<small class="ok">поступление</small>'))+'</span><span class="chev">▼</span></div><div class="cbody">';
+      if(s.props){
+        s.rows.forEach(function(r){
+          var us=unitsFor(r,m),pd=debtOf(us),tk=r.obj.split(' '),n=tk.pop(),hh=tk.pop();
+          h+='<div class="prop'+(open[r.id]?' open':'')+(pd?' has-debt':'')+'"><div class="prow" data-toggle="'+r.id+'"><span>'+esc(r.type)+'</span><span>'+esc(tk.join(' '))+'</span><span>'+esc(hh)+'</span><span>'+esc(n)+'</span>'+
+            '<span class="pa">'+rub(-val(r,m))+(pd?'<br><small>долг '+rub(pd)+'</small>':'<br><small style="color:var(--green)">оплачено ✓</small>')+'</span><span class="chev">▼</span></div>'+
+            '<div class="pbody">'+us.map(chargeRow).join('')+debtLine(us)+'</div></div>';
+        });
+      }else{
+        h+='<div class="list">';
+        s.rows.forEach(function(r){var v=val(r,m);if(v==null)return;h+=v>0?incomeRow(r,m):unitsFor(r,m).map(chargeRow).join('');});
+        h+=debtLine(units)+'</div>';
+      }
+      h+='</div></div>';
+    });
+    document.getElementById('cats').innerHTML=h;
+    var debt=debtOf(allUnits(m));
+    document.getElementById('wallet').textContent=rub(state.wallet);
+    var de=document.getElementById('debt');de.textContent=rub(debt);de.className='s '+(debt?'debt':'ok');
+    var pa=document.getElementById('payAll');pa.disabled=!debt;pa.style.opacity=debt?1:.5;
+    renderHist();
+  }
+  function renderHist(){
+    var el=document.getElementById('hist');
+    if(!state.hist.length){el.innerHTML='<div class="hempty">Пока нет операций</div>';return;}
+    el.innerHTML=state.hist.slice().reverse().slice(0,30).map(function(x){
+      return '<div class="hi"><div class="dt">'+nowStr(x.t)+'</div><div class="ttl">'+esc(x.title)+'</div><div class="am '+(x.amount<0?'minus':'plus')+'">'+(x.amount>0?'+':'')+rub(x.amount)+'</div></div>';
+    }).join('');
+  }
+
+  /* ===== year view ===== */
   function renderYear(){
     var h='<thead><tr><th class="c-r stick">Раздел</th><th class="c-t">Тип</th><th class="c-o">Объект</th>'+MONTHS.map(function(m){return '<th class="m">'+m+'</th>';}).join('')+'<th>Итого</th></tr></thead><tbody>';
-    yearTotal=0;
-    YEAR.forEach(function(g){
-      h+='<tr class="sec"><td class="c-r stick">'+g.sec+'</td><td class="c-t" colspan="2"><span class="mobl">'+g.sec+'</span></td><td colspan="13"></td></tr>';
-      g.rows.forEach(function(r){
-        var t=0,cells='';
-        for(var i=0;i<12;i++){var v=r[2][i];
-          if(v==null){cells+='<td class="m dash">-</td>';}
-          else{t+=v;cells+='<td class="m '+(v<0?'neg':'pos')+'">'+v+'</td>';}}
-        yearTotal+=t;
-        h+='<tr><td class="c-r stick">'+g.r+'</td><td class="c-t">'+esc(r[0])+'</td><td class="c-o obj">'+esc(r[1])+'</td>'+cells+'<td class="tot'+(t>0?' pos':'')+'">'+t+'</td></tr>';
+    SECTIONS.forEach(function(s){
+      h+='<tr class="sec"><td class="c-r stick">'+s.name+'</td><td class="c-t" colspan="2"><span class="mobl">'+s.name+'</span></td><td colspan="13"></td></tr>';
+      s.rows.forEach(function(r){
+        var cells='';
+        for(var m=0;m<12;m++){var v=r.vals[m];
+          if(v==null){cells+='<td class="m dash">-</td>';continue;}
+          if(v>0){cells+='<td class="m pos" data-cell="'+r.id+'|'+m+'">'+v+'</td>';continue;}
+          var us=unitsFor(r,m),up=unpaidOf(us).length,st=up===0?'paid':(up===us.length?'unp':'part');
+          cells+='<td class="m '+st+'" data-cell="'+r.id+'|'+m+'"'+(st!=='paid'?' title="Нажмите, чтобы оплатить"':' title="Оплачено"')+'>'+v+(st==='paid'?'<i>✓</i>':st==='part'?'<i>½</i>':'')+'</td>';
+        }
+        var t=rowYear(r);
+        h+='<tr><td class="c-r stick">'+s.r+'</td><td class="c-t">'+esc(r.type)+'</td><td class="c-o obj">'+esc(r.obj)+'</td>'+cells+'<td class="tot'+(t>0?' pos':'')+'">'+t+'</td></tr>';
       });
     });
     document.getElementById('yt').innerHTML=h+'</tbody>';
   }
-  var view='month',monthTotal=0;
+
+  var view='month';
   function setTotal(){
-    var el=document.getElementById('total');
-    if(view==='year'){el.textContent=fmt(yearTotal)+' РУБ.';}
-    else{el.textContent=(monthTotal?'-'+fmt(monthTotal):'0.00')+' РУБ.';}
+    var el=document.getElementById('total'),n=view==='year'?yearNet():monthNet(CUR);
+    el.textContent=fmt(n)+' РУБ.';el.className='total'+(n>0?' pos':'');
   }
+  function renderAll(){renderMonth();renderYear();setTotal();}
   function setView(v,push){
     view=v==='year'?'year':'month';
     document.body.classList.toggle('year',view==='year');
     document.querySelectorAll('.tab[data-view]').forEach(function(t){t.classList.toggle('on',t.getAttribute('data-view')===view);});
     document.getElementById('primaryBtn').textContent=view==='year'?'← Назад':'Предварительная запись';
     setTotal();
-    if(push){var url=location.pathname+location.search+(view==='year'?'#year':'');history.replaceState(null,'',url);}
+    if(push)history.replaceState(null,'',location.pathname+location.search+(view==='year'?'#year':''));
   }
+
+  /* ===== modal ===== */
+  var ov=document.getElementById('ov'),modal=document.getElementById('modal');
+  function showModal(h){modal.innerHTML=h;ov.classList.add('show');}
+  function closeModal(){ov.classList.remove('show');modal.innerHTML='';}
+  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+  var tt;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show');},2600);}
+
+  /* ===== payments ===== */
+  function payUnits(units,title){
+    units=unpaidOf(units);
+    if(!units.length){toast('Нечего оплачивать');return;}
+    var s=r2(sum(units,function(u){return u.amount;}));
+    if(s>state.wallet){
+      var miss=r2(s-state.wallet);
+      showModal('<h3>Недостаточно средств</h3><p>'+esc(title)+'</p>'+
+        '<div class="mrow"><span>К оплате</span><b>'+rub(s)+'</b></div><div class="mrow"><span>Баланс счёта</span><b>'+rub(state.wallet)+'</b></div><div class="mrow"><span>Не хватает</span><b style="color:var(--accent)">'+rub(miss)+'</b></div>'+
+        '<p style="font-size:12px;color:#777">Пополните виртуальный баланс и повторите оплату.</p>'+
+        '<div class="row"><button class="btn" type="button" data-close>Отмена</button><button class="btn" type="button" id="goTop">Пополнить</button></div>');
+      document.getElementById('goTop').onclick=function(){topupModal(miss);};
+      return;
+    }
+    showModal('<h3>Подтверждение оплаты</h3><p>'+esc(title)+'</p><div class="sum">'+rub(s)+'</div>'+
+      '<div class="mrow"><span>Баланс счёта</span><b>'+rub(state.wallet)+'</b></div><div class="mrow"><span>После оплаты</span><b>'+rub(r2(state.wallet-s))+'</b></div>'+
+      '<div class="note">Демо-режим: оплата виртуальная, деньги не списываются, данные карты не нужны.</div>'+
+      '<div class="row"><button class="btn" type="button" data-close>Отмена</button><button class="btn" type="button" id="okPay">Оплатить</button></div>');
+    document.getElementById('okPay').onclick=function(){
+      modal.innerHTML='<h3>Обработка платежа…</h3><div class="spin"></div><p style="text-align:center;color:#888;font-size:12px">виртуальная оплата</p>';
+      setTimeout(function(){
+        units.forEach(function(u){state.paid[u.key]=true;});
+        state.wallet=r2(state.wallet-s);
+        state.hist.push({t:Date.now(),title:title,amount:-s});
+        save();closeModal();renderAll();toast('Оплачено: '+rub(s)+' (демо)');
+      },600);
+    };
+  }
+  function unitTitle(u){return u.row.sec.name+': '+(u.row.parts?u.row.label+' — '+u.name:u.name)+' ('+MONTHS[u.m].toLowerCase()+')';}
+  function topupModal(pre){
+    showModal('<h3>Пополнить баланс</h3><p style="font-size:12px;color:#777">Виртуальное пополнение для демо. Текущий баланс: <b>'+rub(state.wallet)+'</b></p>'+
+      '<input class="amt" id="tuAmt" type="number" inputmode="decimal" min="1" step="0.01" placeholder="Сумма, руб." value="'+(pre?Math.ceil(pre):'')+'">'+
+      '<div class="quick"><button class="btn" type="button" data-q="10000">+10 000</button><button class="btn" type="button" data-q="50000">+50 000</button><button class="btn" type="button" data-q="100000">+100 000</button></div>'+
+      '<div class="err" id="tuErr"></div><div class="note">Демо-режим: данные карты не запрашиваются, деньги не списываются.</div>'+
+      '<div class="row"><button class="btn" type="button" data-close>Отмена</button><button class="btn" type="button" id="okTu">Пополнить</button></div>');
+    var inp=document.getElementById('tuAmt');
+    modal.querySelectorAll('[data-q]').forEach(function(b){b.onclick=function(){inp.value=(parseFloat(inp.value)||0)+(+b.getAttribute('data-q'));};});
+    document.getElementById('okTu').onclick=function(){
+      var v=r2(parseFloat(String(inp.value).replace(',','.')));
+      if(!(v>0)||v>10000000){document.getElementById('tuErr').textContent='Введите сумму от 1 до 10 000 000 руб.';return;}
+      state.wallet=r2(state.wallet+v);state.hist.push({t:Date.now(),title:'Пополнение баланса',amount:v});
+      save();closeModal();renderAll();toast('Баланс пополнен на '+rub(v)+' (демо)');
+    };
+    setTimeout(function(){inp.focus();},50);
+  }
+  var DAYS=[1,5,10,15,20,25,28];
+  function autopayModal(){
+    var h='<h3>Автоплатёж</h3><p style="font-size:12px;color:#777">Выберите категории и день месяца для автоматической оплаты с виртуального баланса.</p>';
+    SECTIONS.forEach(function(s){if(!s.rows.some(function(r){return r.vals.some(function(v){return v!=null&&v<0;});}))return;var a=state.auto[s.id]||{on:false,day:10};
+      h+='<div class="ap"><label><input type="checkbox" data-ap="'+s.id+'"'+(a.on?' checked':'')+'>'+s.name+'</label><select data-day="'+s.id+'" aria-label="День месяца">'+DAYS.map(function(d){return '<option value="'+d+'"'+(d==a.day?' selected':'')+'>'+d+' число</option>';}).join('')+'</select></div>';});
+    h+='<div class="note">Демо-режим: автоплатёж — это настройка; списания по расписанию не происходят. Кнопка «Выполнить сейчас» оплатит долги выбранных категорий с виртуального баланса.</div>'+
+      '<div class="row" style="flex-wrap:wrap"><button class="btn" type="button" data-close>Отмена</button><button class="btn" type="button" id="runAuto">Выполнить сейчас</button><button class="btn" type="button" id="okAuto">Сохранить</button></div>';
+    showModal(h);
+    function collect(){modal.querySelectorAll('[data-ap]').forEach(function(c){var id=c.getAttribute('data-ap');state.auto[id]={on:c.checked,day:+modal.querySelector('[data-day="'+id+'"]').value};});save();}
+    document.getElementById('okAuto').onclick=function(){collect();closeModal();renderAll();toast('Настройки автоплатежа сохранены (демо)');};
+    document.getElementById('runAuto').onclick=function(){
+      collect();renderAll();
+      var us=[];SECTIONS.forEach(function(s){if(state.auto[s.id]&&state.auto[s.id].on)us=us.concat(secUnits(s,CUR));});
+      us=unpaidOf(us);
+      if(!us.length){closeModal();toast('Нет долгов в категориях с автоплатежом');return;}
+      payUnits(us,'Автоплатёж: '+SECTIONS.filter(function(s){return state.auto[s.id]&&state.auto[s.id].on;}).map(function(s){return s.name;}).join(', ')+' ('+us.length+' начисл.)');
+    };
+  }
+
+  /* ===== events ===== */
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(t.closest('[data-close]')){closeModal();return;}
+    var p=t.closest('[data-pay]');
+    if(p){e.stopPropagation();var u=UNITS[p.getAttribute('data-pay')];payUnits([u],unitTitle(u));return;}
+    var c=t.closest('td[data-cell]');
+    if(c){var k=c.getAttribute('data-cell').split('|'),r=ROWS[k[0]],m=+k[1],us=unpaidOf(unitsFor(r,m));
+      if(us.length)payUnits(us,r.sec.name+': '+r.label+' ('+MONTHS[m].toLowerCase()+')');return;}
+    var tg=t.closest('[data-toggle]');
+    if(tg){var id=tg.getAttribute('data-toggle');open[id]=!open[id];tg.parentNode.classList.toggle('open',open[id]);return;}
+  });
+  document.getElementById('payAll').onclick=function(){var us=allUnpaid();payUnits(us,'Оплата всей задолженности ('+us.length+' начисл.)');};
+  document.getElementById('topupBtn').onclick=function(){topupModal(0);};
+  document.getElementById('autoBtn').onclick=autopayModal;
+  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо: баланс, оплаты, историю и автоплатежи?')){state=defState();save();renderAll();toast('Демо сброшено');}};
+  document.getElementById('logout').onclick=function(e){e.preventDefault();localStorage.removeItem('demoUser');location.href='index.html';};
+  document.querySelectorAll('a[href="#"]').forEach(function(a){if(!a.id)a.addEventListener('click',function(e){e.preventDefault();});});
   document.querySelectorAll('.tab[data-view]').forEach(function(t){t.addEventListener('click',function(){setView(t.getAttribute('data-view'),true);window.scrollTo(0,0);});});
   document.getElementById('primaryBtn').addEventListener('click',function(){if(view==='year')setView('month',true);});
   window.addEventListener('hashchange',function(){setView(location.hash==='#year'?'year':'month',false);});
 
-  renderYear();
-  render();
+  /* test hook (read-only) */
+  window.__demo={monthNet:function(){return monthNet(CUR);},yearNet:yearNet,debt:function(){return debtOf(allUnits(CUR));},wallet:function(){return state.wallet;},
+    marchCol:function(){return sum(SECTIONS,function(s){return sum(s.rows,function(r){return r.vals[CUR]||0;});});}};
+
+  renderAll();
   setView(location.hash==='#year'?'year':'month',false);
 })();
 </script>
