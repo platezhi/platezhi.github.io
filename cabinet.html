@@ -339,6 +339,7 @@ body:not(.year) .yearv{display:none}
 <div class="ov" id="ov"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 
+<script src="qrcode.js"></script>
 <script src="deal.js"></script>
 <script>
 (function(){
@@ -585,7 +586,7 @@ body:not(.year) .yearv{display:none}
       if(rui.mode==='history'){
         h+='<div class="rlbl">Договоры по объекту ('+hist.length+')</div>'+(hist.length?hist.map(function(x){var st=HST[x.status];
           return '<div class="hrow" data-hist="'+esc(x.id)+'"><div class="hinfo"><b>'+D.dstr(x.ownerT)+'</b> · '+esc(x.tenant&&x.tenant.fio||'—')+'<br><small>'+rub(x.price)+'/мес, с '+MONTHS_GEN[x.from]+' 2026</small></div><span class="chip '+st[1]+'">'+st[0]+'</span>'+
-            '<div class="racts"><button class="btn" type="button" data-ctview="'+esc(x.id)+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+esc(x.id)+'">Скачать</button></div></div>';}).join(''):'<div class="hempty">Подписанных договоров пока нет</div>');
+            '<div class="racts"><button class="btn" type="button" data-ctview="'+esc(x.id)+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+esc(x.id)+'">Скачать</button>'+(x.paidT?'<button class="btn" type="button" data-qr="'+esc(x.id)+'">QR арендатора</button>':'')+'</div></div>';}).join(''):'<div class="hempty">Подписанных договоров пока нет</div>');
       }else{
         h+=D.stepper(D.stepOf(d,!d))+'<div class="rbody">'+(d?dealBody(d):priceForm(fz))+'</div>';
         if(hist.length)h+='<div class="racts" style="margin-top:12px"><button class="btn" type="button" data-rhist="'+fz.id+'">Договоры ('+hist.length+')</button></div>';
@@ -639,7 +640,7 @@ body:not(.year) .yearv{display:none}
       '<span class="chip wait">Ждём оплату: '+D.rub(D.due(d))+'</span><div class="racts"><a class="btn" href="'+esc(P)+'" data-paylink="'+id+'">Открыть страницу оплаты (демо)</a><button class="btn" type="button" data-copy="'+esc(P)+'">Скопировать ссылку</button></div>';}
     if(d.status==='paid')return '<span class="chip ok">Оплачено</span> <small>'+D.rub(d.paidAmount||D.due(d))+' · '+D.dtstr(d.paidT)+'</small>'+
       '<p class="rs on" style="font-size:12px">Объект сдаётся с 1 '+MONTHS_GEN[d.from]+' 2026. Доход добавлен в раздел АРЕНДА, оплата зачислена на баланс счёта.</p>'+
-      '<div class="racts"><button class="btn" type="button" data-ctview="'+id+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+id+'">Скачать договор</button><button class="btn" type="button" data-dend="'+id+'">Снять с аренды</button></div>';
+      '<div class="racts"><button class="btn" type="button" data-ctview="'+id+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+id+'">Скачать договор</button><button class="btn" type="button" data-dend="'+id+'">Снять с аренды</button></div>'+D.qrCard(d,'QR арендатора');
     return '';
   }
   function dlHtml(html,name){var blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},4000);}
@@ -678,6 +679,7 @@ body:not(.year) .yearv{display:none}
     if((el=t.closest('[data-osign]'))){id=el.getAttribute('data-osign');var d3=D.get(id);if(!d3||d3.status!=='tenant_signed')return true;
       D.gosSign({doc:D.ctTitle(d3)+' · '+d3.addr,who:D.OWNER},function(tm){var d5=D.get(id);if(!d5||d5.status!=='tenant_signed'){renderAll();return;}
         d5.ownerSig='gos';d5.ownerT=tm;d5.status='owner_signed';D.put(d5);renderRent();toast('Договор подписан обеими сторонами');});return true;}
+    if((el=t.closest('[data-qr]'))){var dq=D.get(el.getAttribute('data-qr'));if(dq)showModal(D.qrCard(dq,'QR арендатора')+'<div class="row"><button class="btn" type="button" data-close>Закрыть</button></div>');return true;}
     if((el=t.closest('[data-ctview]'))){ctModal(D.get(el.getAttribute('data-ctview')));return true;}
     if((el=t.closest('[data-ctdl]'))){var d4=D.get(el.getAttribute('data-ctdl'));dlHtml(D.contractDoc(d4),ctFile(d4));toast('Договор скачан (демо)');return true;}
     if((el=t.closest('[data-dend]'))){id=el.getAttribute('data-dend');

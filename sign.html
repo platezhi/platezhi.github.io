@@ -12,6 +12,7 @@
 <header class="top"><div class="top-in"><div class="logo">МОИ <b>ДОКУМЕНТЫ</b></div><span class="chip acc">демо</span></div></header>
 <main class="page" id="app"></main>
 <div class="abar" id="bar"></div>
+<script src="qrcode.js"></script>
 <script src="deal.js"></script>
 <script>
 (function(){
@@ -27,10 +28,11 @@
   function profile(){var p=Object.assign({},D.TENANT_DEMO);p.phone=d.phone||'';return p;}
   function done(){
     noBar();
-    app.innerHTML=back(objId)+'<div class="card"><div class="ok-big">✓ Договор подписан и отправлен владельцу</div><p class="sub">Спасибо, '+esc(d.tenant.fio)+'! Владелец подпишет договор со своей стороны и пришлёт ссылку на оплату первого месяца и залога (демо).</p>'+NOTE+'</div>'+
+    var paid=d.status==='paid'||(d.status==='ended'&&d.paidT);
+    app.innerHTML=back(objId)+(paid?'<div class="card">'+D.qrCard(d,'Моё проживание')+'</div>':'<div class="card"><div class="ok-big">✓ Договор подписан и отправлен владельцу</div><p class="sub">Спасибо, '+esc(d.tenant.fio)+'! Владелец подпишет договор со своей стороны и пришлёт ссылку на оплату первого месяца и залога (демо).</p>'+NOTE+'</div>')+
       '<div class="card"><h2>Ваш экземпляр</h2><div class="ct-box full">'+D.contractHtml(d)+'</div></div>';
   }
-  if(d.status==='cancelled'||d.status==='ended'){noBar();app.innerHTML=back(objId)+'<div class="card"><h1>Предложение отозвано</h1><p class="sub">Владелец отменил это предложение.</p>'+NOTE+'</div>';return;}
+  if(d.status==='cancelled'||(d.status==='ended'&&!(d.tenant&&d.tenant.sig))){noBar();app.innerHTML=back(objId)+'<div class="card"><h1>Предложение отозвано</h1><p class="sub">Владелец отменил это предложение.</p>'+NOTE+'</div>';return;}
   if(d.tenant&&d.tenant.sig){done();return;}
   function render(){
     var L=logged(),p=profile(),c=L?Object.assign({},d,{tenant:p}):d;

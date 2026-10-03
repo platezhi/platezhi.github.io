@@ -36,7 +36,21 @@
     return d.id&&d.price&&d.addr?d:null;
   }
   function signLink(d){return baseUrl()+'sign.html?c='+enc(linkData(d));}
-  function payLink(d){return baseUrl()+'pay.html?c='+enc({b:d.objId||'',i:d.id,p:d.price,z:d.deposit,a:d.addr,f:d.from,k:d.type,o:d.obj,t:d.created});}
+  function payLink(d){return baseUrl()+'pay.html?c='+enc({b:d.objId||'',n:d.tenant&&d.tenant.fio||'',i:d.id,p:d.price,z:d.deposit,a:d.addr,f:d.from,k:d.type,o:d.obj,t:d.created});}
+  function ctNo(d){var t=new Date(d.created||Date.now());return 'Д-'+t.getFullYear()+p2(t.getMonth()+1)+p2(t.getDate())+'-'+String(d.id||'').slice(-4).toUpperCase();}
+  function period(d){var f=d.from||0;return {from:'01.'+p2(f+1)+'.2026',to:dstr(new Date(2026,f+11,0))};}
+  /* ---- DEMO "Моё проживание" QR: link to check.html with deal summary (not an official document) ---- */
+  function shortName(f){var a=String(f||'').trim().split(/\s+/);return a[0]?a[0]+(a[1]?' '+a[1][0]+'.':'')+(a[2]?a[2][0]+'.':''):'';}
+  function checkData(d){var t=d.tenant||{},pr=period(d);return {i:d.id,n:t.fio||'',a:d.addr,k:d.type,no:ctNo(d),d:dstr(d.created||Date.now()),f:pr.from,u:pr.to,o:shortName(OWNER),s:d.status==='paid'?'paid':d.status==='ended'?'ended':'unpaid',pd:d.paidT?dstr(d.paidT):''};}
+  function checkLink(d){var b=location.protocol==='file:'?'https://platezhi.github.io/':baseUrl();return b+'check.html?c='+enc(checkData(d));}
+  function qrSvg(text){if(!w.qrcode)return '<div class="qr-miss">QR недоступен</div>';var q=w.qrcode(0,'M');q.addData(text);q.make();return q.createSvgTag({cellSize:4,margin:16,scalable:true,alt:'QR-код проверки проживания (демо)'});}
+  function qrCard(d,title){var L=checkLink(d),pr=period(d),t=d.tenant||{};
+    return '<div class="qr-card"><div class="qr-h">'+esc(title||'Моё проживание')+' <span class="qr-demo">ДЕМО</span></div>'+
+      '<div class="qr-row"><div class="qr-img" data-qr>'+qrSvg(L)+'</div><div class="qr-info"><div><span>Арендатор</span><b>'+esc(t.fio||'—')+'</b></div><div><span>Адрес</span><b>'+esc(d.addr)+'</b></div>'+
+      '<div><span>Договор</span><b>№ '+esc(ctNo(d))+' от '+dstr(d.created||Date.now())+'</b></div><div><span>Срок</span><b>'+pr.from+' — '+pr.to+'</b></div>'+
+      '<div><span>Оплата</span><b class="'+(d.status==='paid'?'qr-ok':'')+'">'+(d.status==='paid'?'оплачено':d.status==='ended'?'договор завершён':'не оплачено')+'</b></div></div></div>'+
+      '<a class="qr-link" href="'+esc(L)+'" data-checklink>Открыть страницу проверки</a>'+
+      '<div class="qr-note">Демо: QR ведёт на страницу с данными договора. Это не документ о регистрации и не подтверждается МВД.</div></div>';}
   function due(d){return (d.price||0)+(d.deposit||0);}
   function isStorage(d){return d.type==='кл';}
   function stepOf(d,priceOpen){
@@ -58,7 +72,7 @@
     var h='<div class="ct">'+
       '<div class="ct-demo">ДЕМО-ОБРАЗЕЦ · не является юридически значимым документом</div>'+
       '<h3 class="ct-title">'+title+'</h3>'+
-      '<div class="ct-meta"><span>г. ________________</span><span>'+dstr(d.created||Date.now())+'</span></div>'+
+      '<div class="ct-meta"><span>г. ________________</span><span>№ '+esc(ctNo(d))+' от '+dstr(d.created||Date.now())+'</span></div>'+
       '<p><b>'+OWNER+'</b>, именуемый в дальнейшем «'+R.O+'», с одной стороны, и '+line(t.fio,'ФИО ____________________')+
       (t.birth?', дата рождения '+line(t.birth):'')+', паспорт '+line(t.passport,'серия, номер __________')+(t.reg?', зарегистрирован(а) по адресу: '+line(t.reg):'')+', тел. '+line(t.phone||d.phone,'______________')+
       ', именуемый(ая) в дальнейшем «'+R.T+'», с другой стороны, заключили настоящий договор о нижеследующем.</p>'+
@@ -148,5 +162,5 @@
 
   w.DemoDeal={KEY:KEY,MG:MG,STEPS:STEPS,STATUS:STATUS,OWNER:OWNER,load:load,save:save,all:all,get:get,put:put,clear:clear,newId:newId,enc:enc,dec:dec,fromLink:fromLink,
     signLink:signLink,payLink:payLink,due:due,isStorage:isStorage,stepOf:stepOf,stepper:stepper,contractHtml:contractHtml,contractDoc:contractDoc,smsHtml:smsHtml,
-    SigPad:SigPad,copy:copy,gosLogin:gosLogin,gosSign:gosSign,ctTitle:ctTitle,TENANT_DEMO:TENANT_DEMO,esc:esc,fmt:fmt,rub:rub,dstr:dstr,dtstr:dtstr,num:num,str:str,CT_CSS:CT_CSS};
+    SigPad:SigPad,copy:copy,ctNo:ctNo,period:period,checkData:checkData,checkLink:checkLink,qrSvg:qrSvg,qrCard:qrCard,gosLogin:gosLogin,gosSign:gosSign,ctTitle:ctTitle,TENANT_DEMO:TENANT_DEMO,esc:esc,fmt:fmt,rub:rub,dstr:dstr,dtstr:dtstr,num:num,str:str,CT_CSS:CT_CSS};
 })(window);

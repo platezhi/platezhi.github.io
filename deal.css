@@ -75,3 +75,17 @@ body.dp .back{display:inline-block;margin:0 0 10px;color:#c8603f;font-size:13px;
 body.dp .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px;margin:6px 0}
 body.dp .kv span{color:#888}
 body.dp .src{display:inline-block;font-size:11px;color:#2e6fb5;background:#eef4fb;border-radius:8px;padding:2px 8px;margin-left:4px;font-weight:600}
+
+/* DEMO "Моё проживание" QR card */
+.qr-card{border:1px solid #e6e6e6;border-radius:8px;padding:14px;background:#fff;margin:10px 0}
+.qr-h{font-weight:700;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.qr-demo{font-size:10px;font-weight:700;background:#f7ecea;color:#c8603f;border-radius:8px;padding:2px 7px}
+.qr-row{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.qr-img{flex:0 0 auto;width:200px;max-width:100%;background:#fff;line-height:0}
+.qr-img svg{width:100%;height:auto;display:block}
+.qr-info{flex:1 1 200px;font-size:13px;min-width:0}
+.qr-info div{margin-bottom:6px}.qr-info span{display:block;font-size:11px;color:#888}.qr-info b{font-weight:600;overflow-wrap:anywhere}
+.qr-ok{color:#2e9e5b}
+.qr-link{display:inline-block;margin-top:8px;color:#c8603f;font-size:13px;font-weight:600;text-decoration:none}
+.qr-note{font-size:11px;color:#888;margin-top:8px;line-height:1.4}
+@media(max-width:480px){.qr-row{flex-direction:column;align-items:center}.qr-img{width:230px}.qr-info{width:100%}}
