@@ -78,7 +78,7 @@ button,button:focus,button:focus-visible,button:active{outline:none;box-shadow:n
 /* property rows */
 .prop{border-bottom:1px solid #e6eaee}
 .prop:last-child{border-bottom:0}
-.prow{display:grid;grid-template-columns:30px 1fr 30px 50px auto 12px;gap:8px;align-items:center;padding:11px 12px;font-size:12px;cursor:pointer;color:#555}
+.prow{display:grid;grid-template-columns:30px 1fr 30px 50px auto auto 12px;gap:8px;align-items:center;padding:11px 12px;font-size:12px;cursor:pointer;color:#555}
 .prow .pa{text-align:right;white-space:nowrap}
 .prop.has-debt>.prow .pa{color:var(--accent)}
 .pbody{display:none;padding:2px 12px 10px}
@@ -140,6 +140,40 @@ button,button:focus,button:focus-visible,button:active{outline:none;box-shadow:n
 .yt td.zero{color:#888}
 .yt .tot.neg{color:var(--accent)}
 .yt tfoot td.stick{background:#e9ecef}
+/* year: zhkh sub-rows */
+.yt td[data-ytoggle]{cursor:pointer}
+.yt .yexp{color:var(--accent);font-size:10px;display:inline-block;width:11px}
+.yt tr.subrow td{background:#fbfbfc;color:#777;font-size:10.5px;padding:5px 6px}
+.yt tr.subrow td.c-o{padding-left:18px}
+.yt tr.subrow td.stick{background:#fbfbfc}
+.yt tr.subrow td.unp{color:var(--accent);cursor:pointer}
+.yt tr.subrow td.unp:hover{background:var(--accent-bg)}
+.yt tr.subrow.hid{display:none}
+/* egrn button */
+.egrn{border:0;outline:none;box-shadow:none;-webkit-appearance:none;appearance:none;border-radius:4px;padding:6px 8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--accent-bg);color:var(--accent);white-space:nowrap;font-family:inherit}
+.egrn:hover{background:var(--accent-bg-h)}
+.egrn .s{display:none}
+/* rent view */
+.rentp{display:none}
+body.rent .rentp{display:block}
+body.rent .content>.bal,body.rent .content>.demo,body.rent #cats{display:none}
+body.rent .total{visibility:hidden}
+.rentp h2{font-size:16px;margin:4px 0 6px}
+.rentp .rsub{font-size:12px;color:#777;margin-bottom:12px}
+.robj{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.robj .rt{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.robj .ra{font-size:14px;font-weight:600;margin:2px 0}
+.robj .rs{font-size:12px;color:#777}
+.robj .rs.on{color:var(--green)}
+.racts{display:flex;gap:8px;flex-wrap:wrap}
+.racts .btn{width:auto;margin:0;padding:9px 14px;font-size:12px}
+.rtotal{margin-top:12px;font-size:13px;display:flex;justify-content:space-between;font-weight:600}
+.rtotal b{color:var(--green)}
+.modal.wide{max-width:760px}
+.modal iframe{width:100%;height:60vh;border:1px solid var(--line);border-radius:4px;background:#fff}
+.modal label.f{display:block;font-size:12px;color:#666;margin:10px 0 4px}
+.modal select.inp,.modal input.inp{width:100%;font-size:15px;padding:9px 10px;border:1px solid #ddd;border-radius:4px;font-family:inherit;background:#fff}
+.side a[data-nav]{cursor:pointer}
 body.year .mgrid{display:none}
 body:not(.year) .yearv{display:none}
 @media (max-width:600px){
@@ -149,10 +183,12 @@ body:not(.year) .yearv{display:none}
   .yt .c-t,.yt .c-o{position:sticky;z-index:1;background:#fff}
   .yt th.c-t,.yt th.c-o{background:#f1f3f5}
   .yt tr.sec td{background:#e9ecef}
-  .yt .c-t{left:0;width:66px;min-width:66px;max-width:66px;white-space:normal;overflow-wrap:anywhere}
-  .yt .c-o{left:66px;box-shadow:1px 0 0 #dfe3e7}
+  .yt .c-t{left:0;width:78px;min-width:78px;max-width:78px;white-space:normal;overflow-wrap:break-word}
+  .yt .c-o{left:78px;box-shadow:1px 0 0 #dfe3e7}
   .yt tr.sec td.c-t{box-shadow:none}
   .yt tfoot td.c-t{background:#e9ecef;box-shadow:1px 0 0 #cfd4d9}
+  .yt tr.subrow td.c-t,.yt tr.subrow td.c-o{background:#fbfbfc}
+  .yt tr.subrow td.c-o{padding-left:12px}
 }
 /* responsive */
 @media (max-width:1100px){.nav{gap:14px}.nav a{font-size:11px}}
@@ -173,6 +209,8 @@ body:not(.year) .yearv{display:none}
   .bal .acts{width:100%}
   .bal .btn{flex:1;padding:11px 8px}
   .prow{grid-template-columns:24px 1fr 20px 34px auto 10px;padding:11px 8px;gap:6px;font-size:12px}
+  .prow .egrn{grid-row:2;grid-column:2/6;justify-self:start;padding:5px 9px}
+  .racts{width:100%}.racts .btn{flex:1}
   .pbody,.list{padding:2px 6px 8px}
   .ch{grid-template-columns:30px 1fr auto;grid-template-areas:"p n a" "d d b";row-gap:6px;padding:9px 2px}
   .ch .pdfw{grid-area:p}.ch .n{grid-area:n}.ch .a{grid-area:a}
@@ -240,6 +278,7 @@ body:not(.year) .yearv{display:none}
     <div class="field"><div class="l">Род деятельности</div><a href="#">Указать</a></div>
     <button class="btn btn-acc" type="button" id="primaryBtn">Предварительная запись</button>
     <button class="btn btn-out" type="button">Редактировать профиль</button>
+    <button class="btn btn-out" type="button" id="rentBtn">Сдать недвижимость</button>
   </aside>
 
   <section class="card main">
@@ -262,9 +301,11 @@ body:not(.year) .yearv{display:none}
         </div>
         <div class="demo"><span>Демо-версия: оплата виртуальная, реальные платежи не проводятся, данные карты не запрашиваются.</span><a href="#" id="reset">Сбросить демо</a></div>
         <div id="cats"></div>
+        <div class="rentp" id="rentp"></div>
       </div>
       <div class="side">
-        <a href="#" class="on">Оплаты</a>
+        <a href="#" class="on" data-nav="month" id="navPay">Оплаты</a>
+        <a href="#" data-nav="rent" id="navRent">Сдать недвижимость</a>
         <div class="hist"><h4>История операций</h4><div class="hlist" id="hist"></div></div>
       </div>
     </div>
@@ -314,12 +355,29 @@ body:not(.year) .yearv{display:none}
   var UNITS={};
   SECTIONS.forEach(function(s){s.rows.forEach(function(r){for(var m=0;m<12;m++)unitsFor(r,m).forEach(function(u){UNITS[u.key]=u;});});});
 
+  /* ===== rent: objects come ONLY from shared ЖКХ data ===== */
+  var ZSEC=SECTIONS.filter(function(s){return s.id==='zhkh';})[0], RSEC=SECTIONS.filter(function(s){return s.id==='rent';})[0];
+  function zObjects(){return ZSEC.rows;}
+  var MONTHS_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  var TYPE_NAME={'кв':'Квартира','кл':'Кладовая'};
+  function addrOf(r){var tk=r.obj.split(' '),n=tk.pop(),h=tk.pop(),st=tk.join(' ');st=st.charAt(0).toUpperCase()+st.slice(1);return st+', д. '+h+', '+(r.type==='кл'?'кладовая № ':'кв. ')+n;}
+  function syncRent(){
+    RSEC.rows.filter(function(r){return r.dyn;}).forEach(function(r){delete ROWS[r.id];});
+    RSEC.rows=RSEC.rows.filter(function(r){return !r.dyn;});
+    zObjects().forEach(function(z){
+      var x=state.rentals[z.id];if(!x)return;
+      var vals=[];for(var m=0;m<12;m++)vals.push(m>=x.from?x.amount:null);
+      var o={id:'rentx_'+z.id,sec:RSEC,type:'сдаю',obj:z.obj,vals:vals,parts:null,dyn:true,label:'сдаю '+z.obj};
+      RSEC.rows.push(o);ROWS[o.id]=o;
+    });
+  }
+
   /* ===== state ===== */
-  function defState(){return {wallet:START_WALLET,paid:{},hist:[],auto:{}};}
+  function defState(){return {wallet:START_WALLET,paid:{},hist:[],auto:{},rentals:{}};}
   var state;
   try{state=JSON.parse(localStorage.getItem(KEY));}catch(e){state=null;}
   if(!state||typeof state!=='object'||typeof state.wallet!=='number')state=defState();
-  state.paid=state.paid||{};state.hist=state.hist||[];state.auto=state.auto||{};
+  state.paid=state.paid||{};state.hist=state.hist||[];state.auto=state.auto||{};state.rentals=state.rentals||{};
   function save(){localStorage.setItem(KEY,JSON.stringify(state));}
   function isPaid(u){return u.m<CUR||!!state.paid[u.key];}
   function r2(x){return Math.round(x*100)/100;}
@@ -356,6 +414,7 @@ body:not(.year) .yearv{display:none}
       '<span class="a">+'+rub(val(row,m))+'</span><span class="d"><small>поступление</small></span>'+
       '<button class="pay done" type="button" disabled>Получено ✓</button></div>';
   }
+  function egrnBtn(r){return '<button class="egrn" type="button" data-egrn="'+r.id+'" title="Демо-выписка (образец)"><span class="l">Скачать ЕГРН</span><span class="s">⤓ ЕГРН</span></button>';}
   function debtLine(units){var d=debtOf(units);return '<div class="debtline"><span>Задолженность</span><span class="v'+(d?'':' ok')+'">'+rub(d)+'</span></div>';}
 
   function renderMonth(){
@@ -372,7 +431,7 @@ body:not(.year) .yearv{display:none}
         s.rows.forEach(function(r){
           var us=unitsFor(r,m),pd=debtOf(us),tk=r.obj.split(' '),n=tk.pop(),hh=tk.pop();
           h+='<div class="prop'+(open[r.id]?' open':'')+(pd?' has-debt':'')+'"><div class="prow" data-toggle="'+r.id+'"><span>'+esc(r.type)+'</span><span>'+esc(tk.join(' '))+'</span><span>'+esc(hh)+'</span><span>'+esc(n)+'</span>'+
-            '<span class="pa">'+rub(-val(r,m))+(pd?'<br><small>долг '+rub(pd)+'</small>':'<br><small style="color:var(--green)">оплачено ✓</small>')+'</span><span class="chev">▼</span></div>'+
+            '<span class="pa">'+rub(-val(r,m))+(pd?'<br><small>долг '+rub(pd)+'</small>':'<br><small style="color:var(--green)">оплачено ✓</small>')+'</span>'+egrnBtn(r)+'<span class="chev">▼</span></div>'+
             '<div class="pbody">'+us.map(chargeRow).join('')+debtLine(us)+'</div></div>';
         });
       }else{
@@ -398,6 +457,7 @@ body:not(.year) .yearv{display:none}
   }
 
   /* ===== year view ===== */
+  var yopen={}; /* all collapsed on load */
   function renderYear(){
     var h='<thead><tr><th class="c-r stick">Раздел</th><th class="c-t">Тип</th><th class="c-o">Объект</th>'+MONTHS.map(function(m){return '<th class="m">'+m+'</th>';}).join('')+'<th>Итого</th></tr></thead><tbody>';
     SECTIONS.forEach(function(s){
@@ -411,7 +471,21 @@ body:not(.year) .yearv{display:none}
           cells+='<td class="m '+st+'" data-cell="'+r.id+'|'+m+'"'+(st!=='paid'?' title="Нажмите, чтобы оплатить"':' title="Оплачено"')+'>'+v+(st==='paid'?'<i>✓</i>':st==='part'?'<i>½</i>':'')+'</td>';
         }
         var t=rowYear(r);
-        h+='<tr><td class="c-r stick">'+s.r+'</td><td class="c-t">'+esc(r.type)+'</td><td class="c-o obj">'+esc(r.obj)+'</td>'+cells+'<td class="tot'+(t>0?' pos':'')+'">'+t+'</td></tr>';
+        if(r.parts){
+          var op=!!yopen[r.id],tg=' data-ytoggle="'+r.id+'" title="Показать начисления"';
+          h+='<tr class="hasparts" data-row="'+r.id+'"><td class="c-r stick">'+s.r+'</td><td class="c-t"'+tg+'><span class="yexp">'+(op?'▾':'▸')+'</span>'+esc(r.type)+'</td><td class="c-o obj"'+tg+'>'+esc(r.obj)+'</td>'+cells+'<td class="tot'+(t>0?' pos':'')+'">'+t+'</td></tr>';
+          r.parts.forEach(function(pt,pi){
+            var sc='',st2=0;
+            for(var m=0;m<12;m++){
+              if(r.vals[m]==null){sc+='<td class="m dash">-</td>';continue;}
+              var u=UNITS[r.id+'|'+m+'|'+pi],pp=isPaid(u);st2-=u.amount;
+              sc+='<td class="m '+(pp?'paid':'unp')+'"'+(pp?' title="Оплачено"':' data-yunit="'+u.key+'" title="Нажмите, чтобы оплатить"')+'>'+(-u.amount)+(pp?'<i>✓</i>':'')+'</td>';
+            }
+            h+='<tr class="subrow'+(op?'':' hid')+'" data-parent="'+r.id+'"><td class="c-r stick"></td><td class="c-t"></td><td class="c-o">'+esc(pt[0])+'</td>'+sc+'<td class="tot">'+st2+'</td></tr>';
+          });
+        }else{
+          h+='<tr><td class="c-r stick">'+s.r+'</td><td class="c-t">'+esc(r.type)+'</td><td class="c-o obj">'+esc(r.obj)+'</td>'+cells+'<td class="tot'+(t>0?' pos':'')+'">'+t+'</td></tr>';
+        }
       });
     });
     h+='</tbody><tfoot>';
@@ -443,20 +517,99 @@ body:not(.year) .yearv{display:none}
     var el=document.getElementById('total'),n=view==='year'?yearNet():monthNet(CUR);
     el.textContent=fmt(n)+' РУБ.';el.className='total'+(n>0?' pos':'');
   }
-  function renderAll(){renderMonth();renderYear();setTotal();}
+  function renderAll(){syncRent();renderMonth();renderYear();renderRent();setTotal();}
+  function hashView(){return location.hash==='#year'?'year':location.hash==='#rent'?'rent':'month';}
   function setView(v,push){
-    view=v==='year'?'year':'month';
+    view=(v==='year'||v==='rent')?v:'month';
     document.body.classList.toggle('year',view==='year');
+    document.body.classList.toggle('rent',view==='rent');
     document.querySelectorAll('.tab[data-view]').forEach(function(t){t.classList.toggle('on',t.getAttribute('data-view')===view);});
-    document.getElementById('primaryBtn').textContent=view==='year'?'← Назад':'Предварительная запись';
+    document.getElementById('navPay').classList.toggle('on',view!=='rent');
+    document.getElementById('navRent').classList.toggle('on',view==='rent');
+    document.getElementById('primaryBtn').textContent=view==='month'?'Предварительная запись':'← Назад';
     setTotal();
-    if(push)history.replaceState(null,'',location.pathname+location.search+(view==='year'?'#year':''));
+    if(push)history.replaceState(null,'',location.pathname+location.search+(view==='month'?'':'#'+view));
+  }
+
+  /* ===== rent view ===== */
+  function renderRent(){
+    var h='<h2>Сдать недвижимость</h2><div class="rsub">Ваши объекты из раздела ЖКХ. Демо: объявление не публикуется, договор не заключается.</div>',inc=0;
+    zObjects().forEach(function(z){
+      var x=state.rentals[z.id];
+      if(x)inc+=x.amount*(12-x.from);
+      h+='<div class="robj" data-robj="'+z.id+'"><div><div class="rt">'+(TYPE_NAME[z.type]||z.type)+' · '+esc(z.type)+'</div><div class="ra">'+esc(z.obj)+'</div>'+
+        '<div class="rs'+(x?' on':'')+'">'+(x?'Сдаётся: '+rub(x.amount)+'/мес с '+MONTHS_GEN[x.from]+' 2026'+(x.tenant?', арендатор: '+esc(x.tenant):''):'Не сдаётся')+'</div></div>'+
+        '<div class="racts">'+(x?'<button class="btn" type="button" data-rent="'+z.id+'">Изменить</button><button class="btn" type="button" data-unrent="'+z.id+'">Снять с аренды</button>':'<button class="btn" type="button" data-rent="'+z.id+'">Сдать</button>')+
+        '<button class="btn" type="button" data-egrn="'+z.id+'">Скачать ЕГРН</button></div></div>';
+    });
+    h+='<div class="rtotal"><span>Доход от аренды этих объектов в 2026</span><b>'+rub(inc)+'</b></div>';
+    document.getElementById('rentp').innerHTML=h;
+  }
+  function rentModal(zid){
+    var z=ROWS[zid],x=state.rentals[zid]||{amount:'',from:CUR+1,tenant:''};
+    var opts='';for(var m=CUR;m<12;m++)opts+='<option value="'+m+'"'+(m==x.from?' selected':'')+'>'+MONTHS[m]+' 2026</option>';
+    showModal('<h3>Сдать в аренду</h3><p><b>'+(TYPE_NAME[z.type]||z.type)+'</b>, '+esc(z.obj)+'</p>'+
+      '<label class="f" for="rAmt">Ставка в месяц, руб.</label><input class="inp" id="rAmt" type="number" inputmode="decimal" min="1" step="1" value="'+x.amount+'" placeholder="например, 50000">'+
+      '<label class="f" for="rFrom">Начало аренды</label><select class="inp" id="rFrom">'+opts+'</select>'+
+      '<label class="f" for="rTen">Арендатор (необязательно)</label><input class="inp" id="rTen" type="text" maxlength="60" value="'+esc(x.tenant||'')+'" placeholder="ФИО или название">'+
+      '<div class="err" id="rErr"></div><div class="note">Демо-режим: объявление не публикуется, договор не заключается. Доход появится в разделе АРЕНДА и в таблице 2026.</div>'+
+      '<div class="row"><button class="btn" type="button" data-close>Отмена</button><button class="btn" type="button" id="okRent">Сдать (демо)</button></div>');
+    document.getElementById('okRent').onclick=function(){
+      var a=Math.round(parseFloat(String(document.getElementById('rAmt').value).replace(',','.')));
+      if(!(a>0)||a>10000000){document.getElementById('rErr').textContent='Введите ставку от 1 до 10 000 000 руб.';return;}
+      state.rentals[zid]={amount:a,from:+document.getElementById('rFrom').value,tenant:document.getElementById('rTen').value.trim().slice(0,60)};
+      save();closeModal();renderAll();toast('Объект сдан в аренду (демо)');
+    };
+  }
+  function unrentModal(zid){
+    var z=ROWS[zid];
+    showModal('<h3>Снять с аренды?</h3><p>'+esc(z.obj)+'</p><div class="row"><button class="btn" type="button" data-close>Отмена</button><button class="btn" type="button" id="okUnrent">Снять</button></div>');
+    document.getElementById('okUnrent').onclick=function(){delete state.rentals[zid];save();closeModal();renderAll();toast('Объект снят с аренды (демо)');};
+  }
+
+  /* ===== EGRN demo extract (sample, not an official document) ===== */
+  function egrnDoc(z){
+    var d=new Date(),dt=nowStr(d.getTime()).slice(0,10);
+    var wm='';for(var i=0;i<6;i++)wm+='<div class="wm" style="top:'+(i*17-2)+'%">ДЕМО — не является официальным документом</div>';
+    return '<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Выписка из ЕГРН — ОБРАЗЕЦ (демо)</title><style>'+
+      'body{font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;padding:24px;position:relative;overflow-x:hidden}'+
+      '.wm{position:fixed;left:-20%;width:140%;text-align:center;transform:rotate(-28deg);font-size:34px;font-weight:700;color:rgba(200,96,63,.16);white-space:nowrap;pointer-events:none;z-index:0}'+
+      '.doc{position:relative;z-index:1;max-width:720px;margin:0 auto;border:2px dashed #c8603f;padding:22px}'+
+      '.banner{background:#f7ecea;color:#c8603f;font-weight:700;text-align:center;padding:10px;margin-bottom:16px;letter-spacing:.5px}'+
+      'h1{font-size:20px;margin:0 0 4px;text-align:center}.sub{text-align:center;color:#777;font-size:12px;margin-bottom:18px}'+
+      'table{width:100%;border-collapse:collapse;font-size:13px}td{border:1px solid #ddd;padding:8px;vertical-align:top}td:first-child{width:42%;color:#555;background:#fafafa}'+
+      '.ex{color:#c8603f;font-size:11px}.foot{margin-top:16px;font-size:11px;color:#777;line-height:1.5}'+
+      '@media print{.wm{color:rgba(200,96,63,.2)}}</style></head><body>'+wm+
+      '<div class="doc"><div class="banner">ОБРАЗЕЦ · ДЕМО · НЕ ЯВЛЯЕТСЯ ОФИЦИАЛЬНЫМ ДОКУМЕНТОМ</div>'+
+      '<h1>Выписка из ЕГРН — ОБРАЗЕЦ</h1><div class="sub">Демонстрационный пример, сформирован в демо-кабинете «Мои документы». Сведения условные.</div>'+
+      '<table><tr><td>Вид объекта</td><td>'+esc(TYPE_NAME[z.type]||z.type)+'</td></tr>'+
+      '<tr><td>Адрес (условный)</td><td>'+esc(addrOf(z))+'</td></tr>'+
+      '<tr><td>Кадастровый номер</td><td>78:00:0000000:000 <span class="ex">(пример, не настоящий номер)</span></td></tr>'+
+      '<tr><td>Правообладатель</td><td>Яковлев В.В.</td></tr>'+
+      '<tr><td>Вид права</td><td>Собственность <span class="ex">(условно)</span></td></tr>'+
+      '<tr><td>Дата формирования образца</td><td>'+dt+'</td></tr></table>'+
+      '<div class="foot">Документ сгенерирован автоматически в демонстрационных целях и не имеет юридической силы. Официальную выписку из ЕГРН можно заказать через Госуслуги, МФЦ или Росреестр.</div></div></body></html>';
+  }
+  function egrnFile(z){return 'EGRN-OBRAZEC-DEMO-'+(z.type==='кл'?'kl':'kv')+'-'+z.obj.split(' ').pop()+'.html';}
+  function egrnDownload(z){
+    var blob=new Blob([egrnDoc(z)],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download=egrnFile(z);document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},4000);
+  }
+  function egrnModal(zid){
+    var z=ROWS[zid];
+    showModal('<h3>Выписка из ЕГРН — образец (демо)</h3><p style="font-size:12px;color:#777">'+esc(addrOf(z))+'. Демонстрационный документ, не является официальной выпиской.</p>'+
+      '<iframe id="egrnFrame" title="Образец выписки"></iframe>'+
+      '<div class="row"><button class="btn" type="button" data-close>Закрыть</button><button class="btn" type="button" id="egrnPrint">Печать</button><button class="btn" type="button" id="egrnDl">Скачать</button></div>');
+    modal.classList.add('wide');
+    document.getElementById('egrnFrame').srcdoc=egrnDoc(z);
+    document.getElementById('egrnDl').onclick=function(){egrnDownload(z);toast('Образец выписки скачан (демо)');};
+    document.getElementById('egrnPrint').onclick=function(){try{document.getElementById('egrnFrame').contentWindow.print();}catch(e){egrnDownload(z);}};
   }
 
   /* ===== modal ===== */
   var ov=document.getElementById('ov'),modal=document.getElementById('modal');
   function showModal(h){modal.innerHTML=h;ov.classList.add('show');}
-  function closeModal(){ov.classList.remove('show');modal.innerHTML='';}
+  function closeModal(){ov.classList.remove('show');modal.innerHTML='';modal.classList.remove('wide');}
   ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
   var tt;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show');},2600);}
@@ -529,6 +682,17 @@ body:not(.year) .yearv{display:none}
   document.addEventListener('click',function(e){
     var t=e.target;
     if(t.closest('[data-close]')){closeModal();return;}
+    var eg=t.closest('[data-egrn]');
+    if(eg){e.preventDefault();e.stopPropagation();egrnModal(eg.getAttribute('data-egrn'));return;}
+    var rn=t.closest('[data-rent]');if(rn){rentModal(rn.getAttribute('data-rent'));return;}
+    var ur=t.closest('[data-unrent]');if(ur){unrentModal(ur.getAttribute('data-unrent'));return;}
+    var nv=t.closest('[data-nav]');if(nv){e.preventDefault();setView(nv.getAttribute('data-nav'),true);window.scrollTo(0,0);return;}
+    var yt=t.closest('[data-ytoggle]');
+    if(yt){var rid=yt.getAttribute('data-ytoggle');yopen[rid]=!yopen[rid];
+      document.querySelectorAll('#yt tr[data-parent="'+rid+'"]').forEach(function(tr){tr.classList.toggle('hid',!yopen[rid]);});
+      var ar=document.querySelector('#yt tr[data-row="'+rid+'"] .yexp');if(ar)ar.textContent=yopen[rid]?'▾':'▸';return;}
+    var yu=t.closest('td[data-yunit]');
+    if(yu){var u2=UNITS[yu.getAttribute('data-yunit')];payUnits([u2],unitTitle(u2));return;}
     var p=t.closest('[data-pay]');
     if(p){e.stopPropagation();var u=UNITS[p.getAttribute('data-pay')];payUnits([u],unitTitle(u));return;}
     var c=t.closest('td[data-cell]');
@@ -540,19 +704,20 @@ body:not(.year) .yearv{display:none}
   document.getElementById('payAll').onclick=function(){var us=allUnpaid();payUnits(us,'Оплата всей задолженности ('+us.length+' начисл.)');};
   document.getElementById('topupBtn').onclick=function(){topupModal(0);};
   document.getElementById('autoBtn').onclick=autopayModal;
-  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо: баланс, оплаты, историю и автоплатежи?')){state=defState();save();renderAll();toast('Демо сброшено');}};
+  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо: баланс, оплаты, историю, автоплатежи и аренду?')){state=defState();save();renderAll();toast('Демо сброшено');}};
   document.getElementById('logout').onclick=function(e){e.preventDefault();localStorage.removeItem('demoUser');location.href='index.html';};
   document.querySelectorAll('a[href="#"]').forEach(function(a){if(!a.id)a.addEventListener('click',function(e){e.preventDefault();});});
   document.querySelectorAll('.tab[data-view]').forEach(function(t){t.addEventListener('click',function(){setView(t.getAttribute('data-view'),true);window.scrollTo(0,0);});});
-  document.getElementById('primaryBtn').addEventListener('click',function(){if(view==='year')setView('month',true);});
-  window.addEventListener('hashchange',function(){setView(location.hash==='#year'?'year':'month',false);});
+  document.getElementById('primaryBtn').addEventListener('click',function(){if(view!=='month'){setView('month',true);window.scrollTo(0,0);}});
+  document.getElementById('rentBtn').addEventListener('click',function(){setView('rent',true);document.getElementById('rentp').scrollIntoView({block:'start'});});
+  window.addEventListener('hashchange',function(){setView(hashView(),false);});
 
   /* test hook (read-only) */
   window.__demo={monthNet:function(){return monthNet(CUR);},yearNet:yearNet,debt:function(){return debtOf(allUnits(CUR));},wallet:function(){return state.wallet;},
     marchCol:function(){return sum(SECTIONS,function(s){return sum(s.rows,function(r){return r.vals[CUR]||0;});});}};
 
   renderAll();
-  setView(location.hash==='#year'?'year':'month',false);
+  setView(hashView(),false);
 })();
 </script>
 </body>
