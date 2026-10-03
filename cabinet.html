@@ -335,7 +335,7 @@ body:not(.year) .yearv{display:none}
   var ICON='<span class="ico"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-9 2.2-9 5v3h18v-3c0-2.8-4.6-5-9-5z"/></svg></span>';
 
   /* ===== month view ===== */
-  var open={zhkh:true,zhkh0:true};
+  var open={}; /* all collapsed on load */
   function chargeRow(u){
     var p=isPaid(u);
     return '<div class="ch '+(p?'paid':'unpaid')+'" data-unit="'+u.key+'">'+
