@@ -14,18 +14,19 @@
 <script>
 (function(){
   var D=window.DemoDeal,app=document.getElementById('app'),esc=D.esc;
+  var x0=D.dec(new URLSearchParams(location.search).get('c')),BACK='<a class="back" href="cabinet.html#rent'+(x0&&x0.b?'-'+encodeURIComponent(D.str(x0.b,20)):'')+'" data-back>← В кабинет владельца (демо)</a>';
   var NOTE='<div class="demo-note">Демо-оплата: деньги не списываются, данные карты не запрашиваются. Статус сохраняется только в этом браузере; для работы между устройствами нужен сервер.</div>';
   var x=D.dec(new URLSearchParams(location.search).get('c'));
   var id=x&&D.str(x.i,40),price=x&&D.num(x.p,1e7),dep=x?Math.max(0,Math.round(+x.z)||0):0,from=x?Math.min(11,Math.max(0,Math.round(+x.f)||0)):0,addr=x&&D.str(x.a,160);
-  if(!id||!price||!addr){app.innerHTML='<div class="card"><h1>Ссылка недействительна</h1>'+NOTE+'</div>';return;}
+  if(!id||!price||!addr){app.innerHTML=BACK+'<div class="card"><h1>Ссылка недействительна</h1>'+NOTE+'</div>';return;}
   var d=D.get(id);
   if(d){price=d.price;dep=d.deposit;from=d.from;addr=d.addr;}
   var total=price+dep;
-  function paidView(){app.innerHTML='<div class="card"><div class="ok-big">✓ Оплачено (демо)</div><p class="sub">'+D.rub(total)+' · '+esc(addr)+'</p><p class="sub">Владелец получил уведомление об оплате. Договор вступает в силу с 1 '+D.MG[from]+' 2026 г.</p>'+NOTE+'</div>';}
+  function paidView(){app.innerHTML=BACK+'<div class="card"><div class="ok-big">✓ Оплачено (демо)</div><p class="sub">'+D.rub(total)+' · '+esc(addr)+'</p><p class="sub">Владелец получил уведомление об оплате. Договор вступает в силу с 1 '+D.MG[from]+' 2026 г.</p>'+NOTE+'</div>';}
   if(d&&d.status==='paid'){paidView();return;}
-  if(d&&(d.status==='cancelled'||d.status==='ended')){app.innerHTML='<div class="card"><h1>Сделка отменена</h1>'+NOTE+'</div>';return;}
+  if(d&&(d.status==='cancelled'||d.status==='ended')){app.innerHTML=BACK+'<div class="card"><h1>Сделка отменена</h1>'+NOTE+'</div>';return;}
   var who=d&&d.tenant&&d.tenant.fio?esc(d.tenant.fio):'арендатор';
-  app.innerHTML='<div class="card"><h1>Оплата по договору</h1><p class="sub">'+esc(addr)+'<br>Плательщик: '+who+'</p>'+
+  app.innerHTML=BACK+'<div class="card"><h1>Оплата по договору</h1><p class="sub">'+esc(addr)+'<br>Плательщик: '+who+'</p>'+
     '<div class="rowsum"><span>Аренда за '+['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'][from]+' 2026</span><span>'+D.rub(price)+'</span></div>'+
     '<div class="rowsum"><span>Залог (обеспечительный платёж)</span><span>'+D.rub(dep)+'</span></div>'+
     '<div class="rowsum total"><span>Итого к оплате</span><b id="total">'+D.rub(total)+'</b></div>'+

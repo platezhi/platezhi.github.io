@@ -187,6 +187,7 @@ body.rent .mhead{display:none}
 .robj .rs.on{color:var(--green)}
 .racts{display:flex;gap:8px;flex-wrap:wrap}
 .racts .btn{width:auto;margin:0;padding:9px 14px;font-size:12px}
+.racts .btn.solid{background:var(--accent);color:#fff}.racts .btn.solid:hover{background:#b5543a}.racts .btn.big{flex:1 1 100%;font-size:16px;padding:14px}
 .rtotal{margin-top:12px;font-size:13px;display:flex;justify-content:space-between;font-weight:600}
 .rtotal b{color:var(--green)}
 .modal.wide{max-width:760px}
@@ -549,7 +550,8 @@ body:not(.year) .yearv{display:none}
     el.textContent=fmt(n)+' РУБ.';el.className='total'+(n>0?' pos':'');
   }
   function renderAll(){syncRent();renderMonth();renderYear();renderRent();setTotal();}
-  function hashView(){return location.hash==='#year'?'year':location.hash==='#rent'?'rent':'month';}
+  function hashView(){var h=location.hash;if(/^#rent-/.test(h)){var z=decodeURIComponent(h.slice(6));if(ROWS[z]){rui.focus=z;rui.mode='flow';}return 'rent';}
+    return h==='#year'?'year':h==='#rent'?'rent':'month';}
   function setView(v,push){
     view=(v==='year'||v==='rent')?v:'month';
     document.body.classList.toggle('year',view==='year');
@@ -626,15 +628,15 @@ body:not(.year) .yearv{display:none}
       '<div class="err" id="pherr-'+id+'"></div><div class="racts"><button class="btn" type="button" data-dcancel="'+id+'">Отменить</button><button class="btn" type="button" data-send="'+id+'">Отправить по СМС</button></div>';
     if(d.status==='sent'){var L=D.signLink(d);return '<span class="chip wait">Отправлено, ждём подпись</span>'+
       D.smsHtml(d.phone,'Владимир Яковлев: договор '+kind+' '+d.obj+', '+D.rub(d.price)+'/мес. Ознакомьтесь и подпишите:',L)+
-      '<div class="racts"><a class="btn" href="'+esc(L)+'" target="_blank" rel="noopener" data-tenantlink="'+id+'">Открыть как арендатор (демо)</a><button class="btn" type="button" data-copy="'+esc(L)+'">Скопировать ссылку</button><button class="btn" type="button" data-dcancel="'+id+'">Отменить</button></div>'+
+      '<div class="racts"><a class="btn" href="'+esc(L)+'" data-tenantlink="'+id+'">Открыть как арендатор (демо)</a><button class="btn" type="button" data-copy="'+esc(L)+'">Скопировать ссылку</button><button class="btn" type="button" data-dcancel="'+id+'">Отменить</button></div>'+
       '<details class="rdet"><summary>Показать договор</summary>'+ct+'</details>';}
-    if(d.status==='tenant_signed')return '<span class="chip acc">Арендатор подписал</span> <small>'+esc(d.tenant.fio)+' · '+D.dtstr(d.tenant.t)+'</small>'+ct+
-      '<div class="rlbl">Ваша подпись</div><div class="sigwrap"><canvas data-sig="'+id+'" aria-label="Поле для подписи владельца"></canvas><div class="sighint"><span>Распишитесь пальцем или мышью</span><button type="button" data-sigclear="'+id+'">Очистить</button></div></div>'+
-      '<div class="err" id="oserr-'+id+'"></div><div class="racts"><button class="btn" type="button" data-osign="'+id+'">Подписать</button></div>';
+    if(d.status==='tenant_signed')return '<span class="chip acc">Арендатор подписал</span> <small>'+esc(d.tenant.fio)+' · '+D.dtstr(d.tenant.t)+(d.tenant.via==='gos'?' · через Госуслуги (демо)':'')+'</small>'+
+      '<div class="racts"><button class="btn solid big" type="button" data-osign="'+id+'">Подписать</button></div><p class="rs" style="font-size:12px;margin:4px 0 8px">Подписание через Госуслуги (демо) — одно подтверждение. Можно также нажать на строку подписи в договоре.</p>'+
+      '<div class="ct-box">'+D.contractHtml(d,{tap:'O'})+'</div>';
     if(d.status==='owner_signed'){var P=D.payLink(d);return '<span class="chip ok">Договор подписан обеими сторонами</span>'+
       '<div class="racts"><button class="btn" type="button" data-ctview="'+id+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+id+'">Скачать договор</button></div>'+
       D.smsHtml(d.tenant&&d.tenant.phone||d.phone,'Договор подписан обеими сторонами. Оплатите первый месяц и залог ('+D.rub(D.due(d))+'):',P)+
-      '<span class="chip wait">Ждём оплату: '+D.rub(D.due(d))+'</span><div class="racts"><a class="btn" href="'+esc(P)+'" target="_blank" rel="noopener" data-paylink="'+id+'">Открыть страницу оплаты (демо)</a><button class="btn" type="button" data-copy="'+esc(P)+'">Скопировать ссылку</button></div>';}
+      '<span class="chip wait">Ждём оплату: '+D.rub(D.due(d))+'</span><div class="racts"><a class="btn" href="'+esc(P)+'" data-paylink="'+id+'">Открыть страницу оплаты (демо)</a><button class="btn" type="button" data-copy="'+esc(P)+'">Скопировать ссылку</button></div>';}
     if(d.status==='paid')return '<span class="chip ok">Оплачено</span> <small>'+D.rub(d.paidAmount||D.due(d))+' · '+D.dtstr(d.paidT)+'</small>'+
       '<p class="rs on" style="font-size:12px">Объект сдаётся с 1 '+MONTHS_GEN[d.from]+' 2026. Доход добавлен в раздел АРЕНДА, оплата зачислена на баланс счёта.</p>'+
       '<div class="racts"><button class="btn" type="button" data-ctview="'+id+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+id+'">Скачать договор</button><button class="btn" type="button" data-dend="'+id+'">Снять с аренды</button></div>';
@@ -673,9 +675,9 @@ body:not(.year) .yearv{display:none}
       showModal('<h3>Отменить сделку?</h3><p style="font-size:13px">Ссылка для арендатора перестанет действовать.</p><div class="row"><button class="btn" type="button" data-close>Нет</button><button class="btn" type="button" id="okDc">Отменить сделку</button></div>');
       document.getElementById('okDc').onclick=function(){var d2=D.get(id);if(d2){d2.status='cancelled';D.put(d2);}closeModal();rui.focus=null;renderAll();toast('Сделка отменена');};return true;}
     if((el=t.closest('[data-sigclear]'))){var pd=pads[el.getAttribute('data-sigclear')];if(pd)pd.clear();return true;}
-    if((el=t.closest('[data-osign]'))){id=el.getAttribute('data-osign');var pad=pads[id],d3=D.get(id);
-      if(!pad||pad.isEmpty()){document.getElementById('oserr-'+id).textContent='Поставьте подпись';return true;}
-      d3.ownerSig=pad.data();d3.ownerT=Date.now();d3.status='owner_signed';D.put(d3);pads={};renderRent();toast('Договор подписан обеими сторонами');return true;}
+    if((el=t.closest('[data-osign]'))){id=el.getAttribute('data-osign');var d3=D.get(id);if(!d3||d3.status!=='tenant_signed')return true;
+      D.gosSign({doc:D.ctTitle(d3)+' · '+d3.addr,who:D.OWNER},function(tm){var d5=D.get(id);if(!d5||d5.status!=='tenant_signed'){renderAll();return;}
+        d5.ownerSig='gos';d5.ownerT=tm;d5.status='owner_signed';D.put(d5);renderRent();toast('Договор подписан обеими сторонами');});return true;}
     if((el=t.closest('[data-ctview]'))){ctModal(D.get(el.getAttribute('data-ctview')));return true;}
     if((el=t.closest('[data-ctdl]'))){var d4=D.get(el.getAttribute('data-ctdl'));dlHtml(D.contractDoc(d4),ctFile(d4));toast('Договор скачан (демо)');return true;}
     if((el=t.closest('[data-dend]'))){id=el.getAttribute('data-dend');
@@ -841,15 +843,16 @@ body:not(.year) .yearv{display:none}
   document.querySelectorAll('.tab[data-view]').forEach(function(t){t.addEventListener('click',function(){setView(t.getAttribute('data-view'),true);window.scrollTo(0,0);});});
   document.getElementById('primaryBtn').addEventListener('click',function(){if(view!=='month'){setView('month',true);window.scrollTo(0,0);}});
   document.getElementById('rentBtn').addEventListener('click',function(){rui.focus=null;renderRent();setView('rent',true);document.getElementById('rentp').scrollIntoView({block:'start'});});
-  window.addEventListener('hashchange',function(){setView(hashView(),false);});
+  window.addEventListener('hashchange',function(){var v=hashView();renderRent();setView(v,false);});
 
   /* test hook (read-only) */
   window.__demo={monthNet:function(){return monthNet(CUR);},yearNet:yearNet,debt:function(){return debtOf(allUnits(CUR));},wallet:function(){return state.wallet;},
     marchCol:function(){return sum(SECTIONS,function(s){return sum(s.rows,function(r){return r.vals[CUR]||0;});});}};
 
   var ctst=document.createElement('style');ctst.textContent=DemoDeal.CT_CSS;document.head.appendChild(ctst);
+  var hv0=hashView();
   renderAll();
-  setView(hashView(),false);
+  setView(hv0,false);
 })();
 </script>
 </body>

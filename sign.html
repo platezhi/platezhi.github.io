@@ -8,51 +8,55 @@
 <link rel="stylesheet" href="deal.css">
 <style id="ctcss"></style>
 </head>
-<body class="dp">
+<body class="dp hasbar">
 <header class="top"><div class="top-in"><div class="logo">МОИ <b>ДОКУМЕНТЫ</b></div><span class="chip acc">демо</span></div></header>
 <main class="page" id="app"></main>
+<div class="abar" id="bar"></div>
 <script src="deal.js"></script>
 <script>
 (function(){
-  var D=window.DemoDeal,app=document.getElementById('app'),esc=D.esc;
+  var D=window.DemoDeal,app=document.getElementById('app'),bar=document.getElementById('bar'),esc=D.esc;
   document.getElementById('ctcss').textContent=D.CT_CSS;
-  var NOTE='<div class="demo-note">Демо: никаких реальных СМС, подписей и платежей. Данные сохраняются только в этом браузере (localStorage); чтобы подпись дошла до владельца с другого устройства, нужен сервер. Не вводите настоящие паспортные данные.</div>';
+  var NOTE='<div class="demo-note">Демо: никаких реальных входов, СМС, подписей и платежей. Данные «из Госуслуг» — вымышленные. Всё сохраняется только в этом браузере (localStorage); чтобы подпись дошла до владельца с другого устройства, нужен сервер.</div>';
   var q=new URLSearchParams(location.search),x=D.fromLink(D.dec(q.get('c')));
-  if(!x){app.innerHTML='<div class="card"><h1>Ссылка недействительна</h1><p class="sub">Не удалось прочитать данные договора. Попросите владельца отправить ссылку ещё раз.</p>'+NOTE+'</div>';return;}
-  var d=D.get(x.id)||x;
+  function back(objId){return '<a class="back" href="cabinet.html#rent'+(objId?'-'+encodeURIComponent(objId):'')+'" data-back>← В кабинет владельца (демо)</a>';}
+  function noBar(){bar.style.display='none';document.body.classList.remove('hasbar');}
+  if(!x){noBar();app.innerHTML=back('')+'<div class="card"><h1>Ссылка недействительна</h1><p class="sub">Не удалось прочитать данные договора. Попросите владельца отправить ссылку ещё раз.</p>'+NOTE+'</div>';return;}
+  var d=D.get(x.id)||x,LK='demoTenantLogin_'+d.id,objId=d.objId||x.objId;
+  function logged(){try{return localStorage.getItem(LK)==='1';}catch(e){return false;}}
+  function profile(){var p=Object.assign({},D.TENANT_DEMO);p.phone=d.phone||'';return p;}
   function done(){
-    app.innerHTML='<div class="card"><div class="ok-big">✓ Договор подписан и отправлен владельцу</div><p class="sub">Спасибо, '+esc(d.tenant.fio)+'! Владелец получит подписанный договор, подпишет его со своей стороны и пришлёт вам ссылку на оплату первого месяца и залога (демо).</p>'+NOTE+'</div>'+
+    noBar();
+    app.innerHTML=back(objId)+'<div class="card"><div class="ok-big">✓ Договор подписан и отправлен владельцу</div><p class="sub">Спасибо, '+esc(d.tenant.fio)+'! Владелец подпишет договор со своей стороны и пришлёт ссылку на оплату первого месяца и залога (демо).</p>'+NOTE+'</div>'+
       '<div class="card"><h2>Ваш экземпляр</h2><div class="ct-box full">'+D.contractHtml(d)+'</div></div>';
   }
-  if(d.status==='cancelled'||d.status==='ended'){app.innerHTML='<div class="card"><h1>Предложение отозвано</h1><p class="sub">Владелец отменил это предложение.</p>'+NOTE+'</div>';return;}
+  if(d.status==='cancelled'||d.status==='ended'){noBar();app.innerHTML=back(objId)+'<div class="card"><h1>Предложение отозвано</h1><p class="sub">Владелец отменил это предложение.</p>'+NOTE+'</div>';return;}
   if(d.tenant&&d.tenant.sig){done();return;}
-  app.innerHTML='<div class="card"><h1>Подписание договора</h1><p class="sub">'+esc(D.OWNER)+' предлагает вам '+(D.isStorage(d)?'аренду кладовой':'найм квартиры')+': '+esc(d.addr)+', '+D.rub(d.price)+' в месяц.</p>'+NOTE+'</div>'+
-    '<div class="card"><h2>Договор</h2><div class="ct-box" id="ct">'+D.contractHtml(d)+'</div></div>'+
-    '<div class="card"><h2>Ваши данные</h2>'+
-    '<label class="f" for="fio">ФИО</label><input class="inp" id="fio" maxlength="80" autocomplete="name" placeholder="Иванов Иван Иванович">'+
-    '<label class="f" for="pass">Паспорт (демо — можно условные данные)</label><input class="inp" id="pass" maxlength="20" placeholder="0000 000000">'+
-    '<label class="f" for="tel">Телефон</label><input class="inp" id="tel" type="tel" maxlength="20" autocomplete="tel" value="'+esc(d.phone||'')+'" placeholder="+7 900 000-00-00">'+
-    '<label class="f">Подпись</label><div class="sigwrap"><canvas id="sig" aria-label="Поле для подписи"></canvas><div class="sighint"><span>Распишитесь пальцем или мышью</span><button type="button" id="clr">Очистить</button></div></div>'+
-    '<label class="chk"><input type="checkbox" id="agree"><span>С условиями договора ознакомлен(а) и согласен(на)</span></label>'+
-    '<button class="btn" type="button" id="go">Подписать и отправить</button><div class="err" id="err"></div></div>';
-  var pad=D.SigPad(document.getElementById('sig'));
-  ['input','change','pointerdown'].forEach(function(ev){app.addEventListener(ev,function(e){if(e.target.id!=='go')document.getElementById('err').textContent='';});});
-  document.getElementById('clr').onclick=function(){pad.clear();};
-  function live(){var t={fio:document.getElementById('fio').value.trim(),passport:document.getElementById('pass').value.trim(),phone:document.getElementById('tel').value.trim()};
-    var c=Object.assign({},d,{tenant:t});document.getElementById('ct').innerHTML=D.contractHtml(c);}
-  ['fio','pass','tel'].forEach(function(id){document.getElementById(id).addEventListener('input',live);});
-  document.getElementById('go').onclick=function(){
-    var fio=document.getElementById('fio').value.trim(),ps=document.getElementById('pass').value.trim(),tel=document.getElementById('tel').value.trim(),err=document.getElementById('err');
-    if(fio.split(/\s+/).length<2){err.textContent='Укажите фамилию и имя';return;}
-    if(ps.replace(/\D/g,'').length<6){err.textContent='Укажите паспорт (для демо подойдут условные цифры)';return;}
-    if(tel.replace(/\D/g,'').length<10){err.textContent='Укажите телефон';return;}
-    if(pad.isEmpty()){err.textContent='Поставьте подпись';return;}
-    if(!document.getElementById('agree').checked){err.textContent='Подтвердите согласие с условиями';return;}
-    var cur=D.get(d.id)||d;
-    if(cur.status==='cancelled'||cur.status==='ended'){err.textContent='Владелец отозвал предложение';return;}
-    cur.tenant={fio:fio,passport:ps,phone:tel,sig:pad.data(),t:Date.now()};
-    cur.status='tenant_signed';D.put(cur);d=cur;window.scrollTo(0,0);done();
-  };
+  function render(){
+    var L=logged(),p=profile(),c=L?Object.assign({},d,{tenant:p}):d;
+    app.innerHTML=back(objId)+'<div class="card"><h1>Подписание договора</h1><p class="sub">'+esc(D.OWNER)+' предлагает вам '+(D.isStorage(d)?'аренду кладовой':'найм квартиры')+': '+esc(d.addr)+', '+D.rub(d.price)+' в месяц, залог '+D.rub(d.deposit)+'</p>'+
+      (L?'':'<p class="sub">Чтобы подписать, войдите через Госуслуги (демо) — ваши данные подставятся в договор автоматически.</p>')+NOTE+'</div>'+
+      (L?'<div class="card"><h2>Ваши данные <span class="src">получено из Госуслуг (демо)</span></h2><div class="kv"><span>ФИО</span><b>'+esc(p.fio)+'</b><span>Дата рождения</span><b>'+esc(p.birth)+'</b><span>Паспорт</span><b>'+esc(p.passport)+'</b><span>Регистрация</span><b>'+esc(p.reg)+'</b><span>Телефон</span><b>'+esc(p.phone||'—')+'</b></div></div>':'')+
+      '<div class="card"><h2>Договор</h2><div class="ct-box" id="ct">'+D.contractHtml(c,{tap:'T'})+'</div></div>';
+    bar.innerHTML='<div class="abar-in">'+(L?'<button class="btn solid" type="button" id="go">Подписать</button><small>Подписание через Госуслуги (демо) — одно подтверждение</small>'
+      :'<button class="btn solid" type="button" id="login"><span class="g-mark">Г</span>Войти через Госуслуги</button><small>Демо: логин и пароль не запрашиваются</small>')+'</div>';
+  }
+  function login(){D.gosLogin(function(){try{localStorage.setItem(LK,'1');}catch(e){}render();window.scrollTo(0,0);});}
+  function sign(){
+    var p=profile();
+    D.gosSign({doc:D.ctTitle(d)+' · '+d.addr,who:p.fio},function(t){
+      var cur=D.get(d.id)||d;
+      if(cur.status==='cancelled'||cur.status==='ended'){alert('Владелец отозвал предложение');location.reload();return;}
+      cur.tenant={fio:p.fio,birth:p.birth,passport:p.passport,reg:p.reg,phone:p.phone,sig:'gos',via:'gos',t:t};
+      cur.status='tenant_signed';D.put(cur);d=cur;window.scrollTo(0,0);done();
+    });
+  }
+  document.addEventListener('click',function(e){var t=e.target;
+    if(t.closest('#login'))login();
+    else if(t.closest('#go'))sign();
+    else if(t.closest('[data-tsign]')){if(logged())sign();else login();}
+  });
+  render();
 })();
 </script>
 </body>

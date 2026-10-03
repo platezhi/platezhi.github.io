@@ -7,6 +7,7 @@
 .steps li.cur{color:#c8603f;background:#f7ecea;font-weight:600}.steps li.cur span{background:#c8603f;color:#fff}
 .ct-box{border:1px solid #e6e6e6;border-radius:6px;padding:14px;max-height:360px;overflow:auto;background:#fff;margin:8px 0;-webkit-overflow-scrolling:touch}
 .ct-box.full{max-height:none}
+@media(max-width:700px){.ct-box{max-height:none;overflow:visible;padding:10px}}
 .sms{margin:10px 0}
 .sms-to{font-size:11px;color:#888;margin-bottom:4px}.sms-to span{color:#c8603f}
 .sms-bubble{background:#e9f0ff;color:#1d2b4a;border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:13px;line-height:1.4;max-width:520px;overflow-wrap:anywhere;word-break:break-word}
@@ -45,3 +46,32 @@ body.dp .rowsum.total b{color:#c8603f}
 body.dp .ok-big{font-size:18px;font-weight:700;color:#2e9e5b;margin:4px 0 6px}
 body.dp .spin{width:34px;height:34px;border:4px solid #efdbd6;border-top-color:#c8603f;border-radius:50%;margin:14px auto;animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
+
+/* DEMO Госуслуги overlay / bottom sheet (shared by cabinet and standalone pages) */
+.g-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;box-sizing:border-box}
+.g-sheet{background:#fff;border-radius:10px;max-width:400px;width:100%;padding:18px 18px 16px;box-sizing:border-box;font-family:"Roboto","Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif;color:#2b2b2b;text-align:center}
+.g-head{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px;margin-bottom:12px}
+.g-mark{display:inline-flex;width:24px;height:24px;border-radius:4px;background:#c8603f;color:#fff;font-weight:800;align-items:center;justify-content:center;font-size:14px}
+.g-demo{font-size:10px;font-weight:700;background:#f7ecea;color:#c8603f;border-radius:8px;padding:2px 7px}
+.g-t{font-size:17px;font-weight:700;margin:4px 0 10px}
+.g-doc{text-align:left;background:#f6f6f6;border-radius:6px;padding:10px 12px;font-size:13px;line-height:1.35}
+.g-l{font-size:11px;color:#888;margin-top:6px}.g-l:first-child{margin-top:0}
+.g-p{font-size:14px;margin:6px 0}.g-s{font-size:12px;color:#888;margin:10px 0;line-height:1.4}
+.g-btn,.g-btn2{display:block;width:100%;border:0;border-radius:6px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;-webkit-appearance:none;appearance:none;margin-top:8px}
+.g-btn{background:#c8603f;color:#fff}.g-btn2{background:#f4f4f4;color:#666;font-weight:600}
+.g-spin{width:36px;height:36px;border:4px solid #efdbd6;border-top-color:#c8603f;border-radius:50%;margin:14px auto;animation:sp 1s linear infinite}
+@media(max-width:600px){.g-ov{align-items:flex-end;padding:0}.g-sheet{border-radius:14px 14px 0 0;max-width:none;padding-bottom:calc(18px + env(safe-area-inset-bottom))}}
+@keyframes sp{to{transform:rotate(360deg)}}
+.btn.solid,body.dp .btn.solid{background:#c8603f;color:#fff}
+.btn.solid:hover,body.dp .btn.solid:hover{background:#b5543a}
+/* sticky action bar (sign.html / pay.html) */
+body.dp.hasbar{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+body.dp .abar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eadad5;box-shadow:0 -2px 10px rgba(0,0,0,.06);padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:50}
+body.dp .abar-in{max-width:760px;margin:0 auto}
+body.dp .abar .btn{font-size:17px;padding:15px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px}
+body.dp .abar small{display:block;text-align:center;font-size:11px;color:#888;margin-top:5px}
+body.dp .abar .g-mark{background:#fff;color:#c8603f}
+body.dp .back{display:inline-block;margin:0 0 10px;color:#c8603f;font-size:13px;text-decoration:none;padding:6px 0}
+body.dp .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px;margin:6px 0}
+body.dp .kv span{color:#888}
+body.dp .src{display:inline-block;font-size:11px;color:#2e6fb5;background:#eef4fb;border-radius:8px;padding:2px 8px;margin-left:4px;font-weight:600}
