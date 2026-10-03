@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Подписание договора (демо) — Мои документы</title>
+<link rel="stylesheet" href="deal.css">
+<style id="ctcss"></style>
+</head>
+<body class="dp">
+<header class="top"><div class="top-in"><div class="logo">МОИ <b>ДОКУМЕНТЫ</b></div><span class="chip acc">демо</span></div></header>
+<main class="page" id="app"></main>
+<script src="deal.js"></script>
+<script>
+(function(){
+  var D=window.DemoDeal,app=document.getElementById('app'),esc=D.esc;
+  document.getElementById('ctcss').textContent=D.CT_CSS;
+  var NOTE='<div class="demo-note">Демо: никаких реальных СМС, подписей и платежей. Данные сохраняются только в этом браузере (localStorage); чтобы подпись дошла до владельца с другого устройства, нужен сервер. Не вводите настоящие паспортные данные.</div>';
+  var q=new URLSearchParams(location.search),x=D.fromLink(D.dec(q.get('c')));
+  if(!x){app.innerHTML='<div class="card"><h1>Ссылка недействительна</h1><p class="sub">Не удалось прочитать данные договора. Попросите владельца отправить ссылку ещё раз.</p>'+NOTE+'</div>';return;}
+  var d=D.get(x.id)||x;
+  function done(){
+    app.innerHTML='<div class="card"><div class="ok-big">✓ Договор подписан и отправлен владельцу</div><p class="sub">Спасибо, '+esc(d.tenant.fio)+'! Владелец получит подписанный договор, подпишет его со своей стороны и пришлёт вам ссылку на оплату первого месяца и залога (демо).</p>'+NOTE+'</div>'+
+      '<div class="card"><h2>Ваш экземпляр</h2><div class="ct-box full">'+D.contractHtml(d)+'</div></div>';
+  }
+  if(d.status==='cancelled'||d.status==='ended'){app.innerHTML='<div class="card"><h1>Предложение отозвано</h1><p class="sub">Владелец отменил это предложение.</p>'+NOTE+'</div>';return;}
+  if(d.tenant&&d.tenant.sig){done();return;}
+  app.innerHTML='<div class="card"><h1>Подписание договора</h1><p class="sub">'+esc(D.OWNER)+' предлагает вам '+(D.isStorage(d)?'аренду кладовой':'найм квартиры')+': '+esc(d.addr)+', '+D.rub(d.price)+' в месяц.</p>'+NOTE+'</div>'+
+    '<div class="card"><h2>Договор</h2><div class="ct-box" id="ct">'+D.contractHtml(d)+'</div></div>'+
+    '<div class="card"><h2>Ваши данные</h2>'+
+    '<label class="f" for="fio">ФИО</label><input class="inp" id="fio" maxlength="80" autocomplete="name" placeholder="Иванов Иван Иванович">'+
+    '<label class="f" for="pass">Паспорт (демо — можно условные данные)</label><input class="inp" id="pass" maxlength="20" placeholder="0000 000000">'+
+    '<label class="f" for="tel">Телефон</label><input class="inp" id="tel" type="tel" maxlength="20" autocomplete="tel" value="'+esc(d.phone||'')+'" placeholder="+7 900 000-00-00">'+
+    '<label class="f">Подпись</label><div class="sigwrap"><canvas id="sig" aria-label="Поле для подписи"></canvas><div class="sighint"><span>Распишитесь пальцем или мышью</span><button type="button" id="clr">Очистить</button></div></div>'+
+    '<label class="chk"><input type="checkbox" id="agree"><span>С условиями договора ознакомлен(а) и согласен(на)</span></label>'+
+    '<button class="btn" type="button" id="go">Подписать и отправить</button><div class="err" id="err"></div></div>';
+  var pad=D.SigPad(document.getElementById('sig'));
+  ['input','change','pointerdown'].forEach(function(ev){app.addEventListener(ev,function(e){if(e.target.id!=='go')document.getElementById('err').textContent='';});});
+  document.getElementById('clr').onclick=function(){pad.clear();};
+  function live(){var t={fio:document.getElementById('fio').value.trim(),passport:document.getElementById('pass').value.trim(),phone:document.getElementById('tel').value.trim()};
+    var c=Object.assign({},d,{tenant:t});document.getElementById('ct').innerHTML=D.contractHtml(c);}
+  ['fio','pass','tel'].forEach(function(id){document.getElementById(id).addEventListener('input',live);});
+  document.getElementById('go').onclick=function(){
+    var fio=document.getElementById('fio').value.trim(),ps=document.getElementById('pass').value.trim(),tel=document.getElementById('tel').value.trim(),err=document.getElementById('err');
+    if(fio.split(/\s+/).length<2){err.textContent='Укажите фамилию и имя';return;}
+    if(ps.replace(/\D/g,'').length<6){err.textContent='Укажите паспорт (для демо подойдут условные цифры)';return;}
+    if(tel.replace(/\D/g,'').length<10){err.textContent='Укажите телефон';return;}
+    if(pad.isEmpty()){err.textContent='Поставьте подпись';return;}
+    if(!document.getElementById('agree').checked){err.textContent='Подтвердите согласие с условиями';return;}
+    var cur=D.get(d.id)||d;
+    if(cur.status==='cancelled'||cur.status==='ended'){err.textContent='Владелец отозвал предложение';return;}
+    cur.tenant={fio:fio,passport:ps,phone:tel,sig:pad.data(),t:Date.now()};
+    cur.status='tenant_signed';D.put(cur);d=cur;window.scrollTo(0,0);done();
+  };
+})();
+</script>
+</body>
+</html>
