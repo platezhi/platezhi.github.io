@@ -6,13 +6,13 @@
 <meta name="theme-color" content="#ffffff">
 <title>Мои документы — личный кабинет (демо)</title>
 <style>
-:root{--accent:#d9532b;--accent-d:#c2441f;--bg:#f2f2f2;--line:#ececec;--text:#2b2b2b;--muted:#8a8a8a;--red:#e0342b;--green:#2e9e5b;--sub:#f6f8fa}
+:root{--accent:#d9532b;--bg:#f2f2f2;--line:#ececec;--text:#2b2b2b;--muted:#8a8a8a;--green:#2e9e5b;--sub:#f6f8fa}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;font-family:"Roboto","Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
 a{color:var(--accent);text-decoration:none}
 button{font-family:inherit}
-button:focus:not(:focus-visible){outline:none}
+button,button:focus,button:focus-visible,button:active{outline:none;box-shadow:none}
 /* top bar */
 .top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
 .top-in{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:64px;gap:16px}
@@ -34,11 +34,10 @@ button:focus:not(:focus-visible){outline:none}
 .field .l{font-size:11px;color:var(--muted);margin-bottom:3px}
 .field .v{font-size:13px}
 .field a{font-size:12px}
-.btn{display:block;width:100%;border-radius:4px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;text-align:center}
-.btn-acc{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn-acc:hover{background:var(--accent-d)}
-.btn-out{background:#fff;color:#333;border-color:#dcdcdc;margin-top:10px}
-.btn-out:hover{border-color:#bbb}
+.btn{display:block;width:100%;border-radius:4px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;border:0;outline:none;box-shadow:none;text-align:center;background:var(--accent);color:#fff;-webkit-appearance:none;appearance:none}
+.btn-acc,.btn-out{background:var(--accent);color:#fff;border:0}
+.btn:hover,.pay:hover{filter:brightness(.94)}
+.btn-out{margin-top:10px}
 /* main card */
 .main{overflow:hidden}
 .mhead{display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid var(--line)}
@@ -55,7 +54,7 @@ button:focus:not(:focus-visible){outline:none}
 .bal{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line);border-radius:6px;margin-bottom:12px;background:#fff}
 .bal .t{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
 .bal .s{font-size:20px;font-weight:700;margin-top:2px}
-.bal .s.debt{color:var(--red)}
+.bal .s.debt{color:var(--accent)}
 .bal .s.ok{color:var(--green)}
 .bal .acts{display:flex;gap:8px;flex-wrap:wrap}
 .bal .btn{width:auto;padding:10px 16px;margin:0}
@@ -81,7 +80,7 @@ button:focus:not(:focus-visible){outline:none}
 .prop:last-child{border-bottom:0}
 .prow{display:grid;grid-template-columns:30px 1fr 30px 50px auto 12px;gap:8px;align-items:center;padding:11px 12px;font-size:12px;cursor:pointer;color:#555}
 .prow .pa{text-align:right;white-space:nowrap}
-.prop.has-debt>.prow .pa{color:var(--red)}
+.prop.has-debt>.prow .pa{color:var(--accent)}
 .pbody{display:none;padding:2px 12px 10px}
 .prop.open>.pbody{display:block}
 /* charge rows */
@@ -90,14 +89,13 @@ button:focus:not(:focus-visible){outline:none}
 .ch .a{text-align:right;color:#666;white-space:nowrap}
 .ch .d{text-align:right;white-space:nowrap}
 .ch .d small{color:var(--muted);font-size:10px;margin-right:3px}
-.ch.unpaid .d{color:var(--red);font-weight:600}
+.ch.unpaid .d{color:var(--accent);font-weight:600}
 .ch.paid .d{color:var(--green)}
-.pdf{display:inline-block;font-size:8px;font-weight:700;color:var(--red);border:1px solid #f0a9a3;border-radius:3px;padding:2px 4px;background:#fff;line-height:1}
-.pay{border:0;border-radius:4px;padding:7px 8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff;white-space:nowrap}
-.pay:hover{background:var(--accent-d)}
+.pdf{display:inline-block;font-size:8px;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:2px 4px;background:#fff;line-height:1}
+.pay{border:0;outline:none;box-shadow:none;-webkit-appearance:none;appearance:none;border-radius:4px;padding:7px 8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff;white-space:nowrap}
 .pay.done{background:transparent;color:var(--green);cursor:default}
 .debtline{display:flex;justify-content:space-between;padding:10px 8px 4px;font-size:12px;font-weight:700}
-.debtline .v{color:var(--red)}
+.debtline .v{color:var(--accent)}
 .debtline .v.ok{color:var(--green)}
 .list{padding:2px 12px 10px}
 /* modal */
