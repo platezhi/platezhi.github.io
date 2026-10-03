@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Платежи — кабинет</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:760px;margin:0 auto;padding:20px 16px;color:#1f2937;background:#f7f8fa}
+header{display:flex;justify-content:space-between;align-items:center}
+a{color:#0d4cd3}
+.card{background:#fff;border-radius:12px;padding:18px;margin:14px 0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.card h2{margin:0 0 6px;font-size:18px}
+.demo{font-size:12px;color:#b45309;background:#fef3c7;border-radius:8px;padding:8px;margin-top:10px}
+</style>
+</head>
+<body>
+<header><h1 id="hi">Здравствуйте!</h1><a href="#" onclick="localStorage.removeItem('demoUser');location.href='index.html'">Выйти</a></header>
+<div class="card"><h2>ПИК-Комфорт</h2><p>Квитанции приходят 1-го числа каждого месяца.</p></div>
+<div class="card"><h2>ДомОкей</h2><p>Оплата: <a href="https://domokey.ru/payments">domokey.ru/payments</a></p></div>
+<div class="demo">Демо-кабинет. Данные условные.</div>
+<script>
+var u=localStorage.getItem('demoUser'); if(!u){location.href='index.html'} else {document.getElementById('hi').textContent='Здравствуйте, '+u+'!'}
+</script>
+</body>
+</html>
