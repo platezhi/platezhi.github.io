@@ -1,6 +1,6 @@
 /* Demo booking to МФЦ «Мои документы». Nothing is sent anywhere; stored in localStorage. */
 (function(){
-  var KEY='demoMfc_v1',V='20';
+  var KEY='demoMfc_v1',V='21';
   var LIST=[
     {id:'tver',name:'МФЦ района Тверской',addr:'Москва, Настасьинский пер., д. 7',metro:'Пушкинская, Тверская, Чеховская',ll:[55.76777,37.60490]},
     {id:'arb',name:'МФЦ района Арбат',addr:'Москва, пер. Сивцев Вражек, д. 20',metro:'Смоленская, Кропоткинская',ll:[55.74795,37.59434]},
