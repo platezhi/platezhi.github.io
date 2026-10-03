@@ -89,3 +89,15 @@ body.dp .src{display:inline-block;font-size:11px;color:#2e6fb5;background:#eef4f
 .qr-link{display:inline-block;margin-top:8px;color:#c8603f;font-size:13px;font-weight:600;text-decoration:none}
 .qr-note{font-size:11px;color:#888;margin-top:8px;line-height:1.4}
 @media(max-width:480px){.qr-row{flex-direction:column;align-items:center}.qr-img{width:230px}.qr-info{width:100%}}
+
+/* DEMO insurance cards */
+.ins-card{border:1px solid #e6e6e6;border-radius:8px;padding:12px;margin:8px 0;background:#fff}
+.ins-h{display:flex;gap:8px;align-items:flex-start;font-weight:700;font-size:14px;line-height:1.3}
+.ins-h input{width:20px;height:20px;accent-color:#c8603f;flex:0 0 auto;margin:0}
+.ins-sub{font-size:11.5px;color:#888;margin:4px 0 6px 28px}.ins-sub b{color:#c8603f;font-weight:600}
+.ins-cov{list-style:none;margin:0 0 6px;padding:0}
+.ins-cov li{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:5px 0;border-bottom:1px dashed #eee}.ins-cov li b{white-space:nowrap;font-weight:600}
+.ins-prem{display:flex;justify-content:space-between;font-size:14px;padding:6px 0}.ins-prem b{color:#c8603f}
+.ins-pay{font-size:11.5px;color:#666}
+.ins-h input:disabled{opacity:1}
+.ins-prem b{white-space:nowrap}

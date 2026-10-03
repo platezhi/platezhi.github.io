@@ -37,8 +37,10 @@
   function render(){
     var L=logged(),p=profile(),c=L?Object.assign({},d,{tenant:p}):d;
     app.innerHTML=back(objId)+'<div class="card"><h1>Подписание договора</h1><p class="sub">'+esc(D.OWNER)+' предлагает вам '+(D.isStorage(d)?'аренду кладовой':'найм квартиры')+': '+esc(d.addr)+', '+D.rub(d.price)+' в месяц, залог '+D.rub(d.deposit)+'</p>'+
+      (d.inv&&d.inv.length?'<p class="sub">В конце договора — <b>Приложение №1. Опись имущества</b> ('+d.inv.length+' предм.): проверьте перечень и состояние вещей.</p>':'')+
       (L?'':'<p class="sub">Чтобы подписать, войдите через Госуслуги (демо) — ваши данные подставятся в договор автоматически.</p>')+NOTE+'</div>'+
       (L?'<div class="card"><h2>Ваши данные <span class="src">получено из Госуслуг (демо)</span></h2><div class="kv"><span>ФИО</span><b>'+esc(p.fio)+'</b><span>Дата рождения</span><b>'+esc(p.birth)+'</b><span>Паспорт</span><b>'+esc(p.passport)+'</b><span>Регистрация</span><b>'+esc(p.reg)+'</b><span>Телефон</span><b>'+esc(p.phone||'—')+'</b></div></div>':'')+
+      (d.ins?'<div class="card"><h2>Страхование</h2><div class="demo-note">'+D.INS_NOTE+'</div>'+D.insCard(c,'tenant')+'</div>':'')+
       '<div class="card"><h2>Договор</h2><div class="ct-box" id="ct">'+D.contractHtml(c,{tap:'T'})+'</div></div>';
     bar.innerHTML='<div class="abar-in">'+(L?'<button class="btn solid" type="button" id="go">Подписать</button><small>Подписание через Госуслуги (демо) — одно подтверждение</small>'
       :'<button class="btn solid" type="button" id="login"><span class="g-mark">Г</span>Войти через Госуслуги</button><small>Демо: логин и пароль не запрашиваются</small>')+'</div>';

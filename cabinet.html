@@ -164,6 +164,7 @@ body.rent .mhead{display:none}
 .hrow{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
 .hrow .racts{grid-column:1/-1;margin:0}
 .hrow small{color:#888}
+.hrow .hret{grid-column:1/-1}
 .rentp h2{font-size:16px;margin:4px 0 6px}
 .rentp .rsub{font-size:12px;color:#777;margin-bottom:12px}
 .robj{padding:12px 0;border-bottom:1px solid var(--line)}
@@ -171,6 +172,38 @@ body.rent .mhead{display:none}
 .robj.active{background:#fff}
 .rbody{padding:2px 0 6px}
 .rlbl{font-size:12px;font-weight:600;margin:12px 0 2px;color:#444}
+/* inventory editor */
+.inv-room{margin:10px 0 4px}
+.inv-rh{display:flex;justify-content:space-between;align-items:center;font-weight:700;color:var(--accent);font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
+.inv-rh button,.inv-x,.lnk{border:0;background:none;color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;padding:6px 4px;font-family:inherit}
+.inv-it{border:1px solid var(--line);border-radius:6px;padding:8px;margin:6px 0;background:#fff}
+.inv-it .inp{margin:0}
+.inv-top{display:flex;gap:6px;align-items:center}.inv-top .inp{flex:1}
+.inv-g{display:grid;grid-template-columns:58px 1.3fr 1fr;gap:6px;margin:6px 0}
+.inv-g label{font-size:10.5px;color:#888;display:block}.inv-g .inp{width:100%;box-sizing:border-box;padding:7px 6px;font-size:14px}
+.inv-ph{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px}
+.inv-ph img{width:44px;height:44px;object-fit:cover;border-radius:4px}
+.inv-ph label{color:var(--accent);font-weight:600;cursor:pointer;padding:6px 8px;background:var(--accent-bg);border-radius:4px}
+.inv-ph input[type=file]{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.inv-sum{display:flex;justify-content:space-between;font-size:13px;margin:10px 0;padding:8px 10px;background:#faf6f5;border-radius:6px}
+@media(min-width:760px){.inv-it{display:grid;grid-template-columns:1.4fr 2fr;gap:4px 10px;align-items:center}.inv-g{margin:0}.inv-ph{grid-column:1/-1;margin-top:0}}
+/* 3D viewer */
+.v3d{position:relative;width:100%;height:300px;border-radius:8px;overflow:hidden;background:#f6f1ef;border:1px solid var(--line);touch-action:none}
+.v3d canvas{display:block;width:100%!important;height:100%!important}
+.v3d-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#888;font-size:12px;padding:16px}
+.v3d-pct{position:absolute;left:10px;top:10px;background:rgba(46,158,91,.92);color:#fff;font-size:12px;font-weight:700;border-radius:12px;padding:4px 10px;z-index:2}
+.v3d-cap{font-size:11px;color:#888;margin:4px 0 6px}
+.v3d-pair{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:760px){.v3d-pair{grid-template-columns:1fr 1fr}.v3d{height:340px}}
+.glbin{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+/* return check */
+.ret-it{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.ret-it small{color:#888;display:block}
+.seg{display:inline-flex;border-radius:16px;background:#f3f3f3;padding:2px}
+.seg button{border:0;background:none;font-size:11.5px;padding:7px 9px;border-radius:14px;cursor:pointer;color:#666;font-family:inherit}
+.seg button.on[data-k=ok]{background:#e8f5ee;color:#2e9e5b;font-weight:700}.seg button.on[data-k=dmg]{background:#fff4e0;color:#a86a00;font-weight:700}.seg button.on[data-k=miss]{background:#fbe5e0;color:#c0392b;font-weight:700}
+.ret-sum{background:#faf6f5;border-radius:6px;padding:10px 12px;margin:10px 0;font-size:13px}
+.ret-sum div{display:flex;justify-content:space-between;padding:3px 0}.ret-sum b.d{color:var(--accent)}.ret-sum b.g{color:#2e9e5b}
 .rentp label.f{display:block;font-size:12px;color:#666;margin:10px 0 4px}
 .rentp .inp{width:100%;font-size:16px;padding:9px 10px;border:1px solid #ddd;border-radius:4px;font-family:inherit;background:#fff}
 .rentp .inp:focus{outline:none;border-color:var(--accent)}
@@ -341,6 +374,7 @@ body:not(.year) .yearv{display:none}
 
 <script src="qrcode.js"></script>
 <script src="deal.js"></script>
+<script src="scan3d.js"></script>
 <script>
 (function(){
   if(!localStorage.getItem('demoUser')){location.replace('index.html');return;}
@@ -379,7 +413,7 @@ body:not(.year) .yearv{display:none}
   SECTIONS.forEach(function(s){s.rows.forEach(function(r){for(var m=0;m<12;m++)unitsFor(r,m).forEach(function(u){UNITS[u.key]=u;});});});
 
   /* ===== rent: objects come ONLY from shared ЖКХ data ===== */
-  var ZSEC=SECTIONS.filter(function(s){return s.id==='zhkh';})[0], RSEC=SECTIONS.filter(function(s){return s.id==='rent';})[0];
+  var ZSEC=SECTIONS.filter(function(s){return s.id==='zhkh';})[0], RSEC=SECTIONS.filter(function(s){return s.id==='rent';})[0], ISEC=SECTIONS.filter(function(s){return s.id==='ins';})[0];
   function zObjects(){return ZSEC.rows;}
   var MONTHS_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
   var TYPE_NAME={'кв':'Квартира','кл':'Кладовая'};
@@ -392,7 +426,7 @@ body:not(.year) .yearv{display:none}
     var deals=DemoDeal.all(),changed=false;
     deals.forEach(function(d){
       if(d.status==='paid'&&d.objId&&ROWS[d.objId]&&!state.dealsApplied[d.id]){
-        var a=DemoDeal.due(d);state.dealsApplied[d.id]=1;state.wallet=r2(state.wallet+a);
+        var a=DemoDeal.ownerDue(d);state.dealsApplied[d.id]=1;state.wallet=r2(state.wallet+a);
         state.hist.push({t:d.paidT||Date.now(),title:'Аренда: оплата от арендатора (1-й месяц + залог), '+d.obj,amount:a});changed=true;
       }
     });
@@ -402,6 +436,15 @@ body:not(.year) .yearv{display:none}
       var vals=[];for(var m=0;m<12;m++)vals.push(m>=x.from?x.price:null);
       var o={id:'rentx_'+z.id,sec:RSEC,type:'сдаю',obj:z.obj,vals:vals,parts:null,dyn:true,label:'сдаю '+z.obj};
       RSEC.rows.push(o);ROWS[o.id]=o;
+    });
+    /* owner's insurance premium (demo policy) as a payable charge in СТРАХОВКИ, in the lease start month */
+    ISEC.rows.filter(function(r){return r.dyn;}).forEach(function(r){delete ROWS[r.id];for(var m=0;m<12;m++)delete UNITS[r.id+'|'+m+'|0'];});
+    ISEC.rows=ISEC.rows.filter(function(r){return !r.dyn;});
+    deals.forEach(function(d){
+      if(!(d.status==='paid'||d.status==='ended')||!d.ins||!d.ins.owner||!d.paidT||!ROWS[d.objId])return;
+      var vals=[];for(var m=0;m<12;m++)vals.push(m===d.from?-d.ins.owner.premium:null);
+      var o={id:'insx_'+d.id,sec:ISEC,type:'полис наймодателя',obj:d.obj,vals:vals,parts:null,dyn:true,label:'полис '+d.ins.owner.no+' · '+d.obj};
+      ISEC.rows.push(o);ROWS[o.id]=o;unitsFor(o,d.from).forEach(function(u){UNITS[u.key]=u;});
     });
   }
 
@@ -583,10 +626,12 @@ body:not(.year) .yearv{display:none}
       var d=activeDeal(fz.id),hist=historyOf(fz.id);
       h+='<a href="#" class="rback" data-rback="1">← К объектам</a>';
       h+='<div class="robj active single" data-robj="'+fz.id+'"><div class="rhead">'+objHead(fz,d)+'<div class="racts"><button class="btn" type="button" data-egrn="'+fz.id+'">Скачать ЕГРН</button></div></div>';
-      if(rui.mode==='history'){
+      if(rui.mode==='return'&&rui.ret&&D.get(rui.ret)){h+=retPanel(D.get(rui.ret));}
+      else if(rui.mode==='history'){
         h+='<div class="rlbl">Договоры по объекту ('+hist.length+')</div>'+(hist.length?hist.map(function(x){var st=HST[x.status];
           return '<div class="hrow" data-hist="'+esc(x.id)+'"><div class="hinfo"><b>'+D.dstr(x.ownerT)+'</b> · '+esc(x.tenant&&x.tenant.fio||'—')+'<br><small>'+rub(x.price)+'/мес, с '+MONTHS_GEN[x.from]+' 2026</small></div><span class="chip '+st[1]+'">'+st[0]+'</span>'+
-            '<div class="racts"><button class="btn" type="button" data-ctview="'+esc(x.id)+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+esc(x.id)+'">Скачать</button>'+(x.paidT?'<button class="btn" type="button" data-qr="'+esc(x.id)+'">QR арендатора</button>':'')+'</div></div>';}).join(''):'<div class="hempty">Подписанных договоров пока нет</div>');
+            '<div class="racts"><button class="btn" type="button" data-ctview="'+esc(x.id)+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+esc(x.id)+'">Скачать</button>'+(x.paidT?'<button class="btn" type="button" data-qr="'+esc(x.id)+'">QR арендатора</button>':'')+(x.scanIn?'<button class="btn" type="button" data-v3dm="'+esc(x.id)+'">3D-скан</button>':'')+(x.status==='ended'&&x.inv&&x.inv.length?'<button class="btn" type="button" data-ret="'+esc(x.id)+'">'+(x.ret?'Акт возврата':'Возврат квартиры')+'</button>':'')+'</div>'+
+            (x.ins?'<small class="hret">Полисы (демо): '+esc(x.ins.owner.no)+' — '+rub(x.ins.owner.premium)+'; '+esc(x.ins.tenant.no)+' — '+rub(x.ins.tenant.premium)+'</small>':'')+(x.ret?'<small class="hret">Возврат '+D.dstr(x.ret.t)+': удержание '+rub(x.ret.deduct)+', к возврату '+rub(x.ret.refund)+'</small>':'')+'</div>';}).join(''):'<div class="hempty">Подписанных договоров пока нет</div>');
       }else{
         h+=D.stepper(D.stepOf(d,!d))+'<div class="rbody">'+(d?dealBody(d):priceForm(fz))+'</div>';
         if(hist.length)h+='<div class="racts" style="margin-top:12px"><button class="btn" type="button" data-rhist="'+fz.id+'">Договоры ('+hist.length+')</button></div>';
@@ -607,7 +652,9 @@ body:not(.year) .yearv{display:none}
       var ds=D.all().filter(function(d){return d.objId&&ROWS[d.objId];});
       h+='<h2 style="margin-top:20px">Сделки</h2>'+(ds.length?ds.map(function(d){return '<div class="dl" data-deal="'+esc(d.id)+'"><div><b>'+esc(d.obj)+'</b> · '+rub(d.price)+'/мес<br><small>'+D.dtstr(d.created)+(d.tenant&&d.tenant.fio?' · '+esc(d.tenant.fio):'')+'</small></div><span class="chip '+chipCls(d.status)+'">'+esc(D.STATUS[d.status]||d.status)+'</span></div>';}).join(''):'<div class="hempty">Пока нет сделок</div>');
     }
+    if(window.Scan3D)Scan3D.disposeIn(el);
     el.innerHTML=h;
+    el.querySelectorAll('[data-v3d]').forEach(mountV3d);
     pads={};el.querySelectorAll('canvas[data-sig]').forEach(function(c){pads[c.getAttribute('data-sig')]=D.SigPad(c);});
     el.querySelectorAll('canvas[data-sig]').forEach(function(c){c.addEventListener('pointerdown',function(){var er=document.getElementById('oserr-'+c.getAttribute('data-sig'));if(er)er.textContent='';});});
     el.querySelectorAll('.steps').forEach(function(st){var cur=st.querySelector('li.cur');if(cur)st.scrollLeft=Math.max(0,cur.offsetLeft-st.offsetLeft-st.clientWidth/2+cur.offsetWidth/2);});
@@ -620,11 +667,14 @@ body:not(.year) .yearv{display:none}
     return '<div class="pform"><label class="f" for="pf-price-'+id+'">Цена в месяц, руб.</label><input class="inp" id="pf-price-'+id+'" data-pf="price" data-z="'+id+'" type="number" inputmode="numeric" min="1" step="1" placeholder="60000" value="'+esc(rui.price[id]||'')+'">'+
       '<label class="f" for="pf-dep-'+id+'">Залог, руб.</label><input class="inp" id="pf-dep-'+id+'" data-pf="dep" data-z="'+id+'" type="number" inputmode="numeric" min="0" step="1" placeholder="равен цене" value="'+esc(rui.dep[id]||'')+'">'+
       '<label class="f" for="pf-from-'+id+'">Начало аренды</label><select class="inp" id="pf-from-'+id+'" data-pf="from" data-z="'+id+'">'+opts+'</select>'+
-      '<div class="err" id="pf-err-'+id+'"></div><div class="racts"><button class="btn" type="button" data-pfcancel="'+id+'">Отмена</button><button class="btn" type="button" data-mkdeal="'+id+'">Сформировать договор</button></div></div>';
+      '<div class="err" id="pf-err-'+id+'"></div><div class="racts"><button class="btn" type="button" data-pfcancel="'+id+'">Отмена</button><button class="btn" type="button" data-mkdeal="'+id+'">Далее: опись имущества</button></div></div>';
   }
   function dealBody(d){
     var D=DemoDeal,id=esc(d.id),ct='<div class="ct-box">'+D.contractHtml(d)+'</div>',kind=D.isStorage(d)?'аренды кладовой':'найма квартиры';
-    if(d.status==='draft')return '<div class="rlbl">Договор (стандартный шаблон)</div>'+ct+
+    if(d.status==='inv')return invEditor(d);
+    if(d.status==='ins')return '<div class="rlbl">Страхование — обязательно для сделок через сервис</div><div class="demo-note">'+D.INS_NOTE+'</div>'+D.insCard(d,'owner')+D.insCard(d,'tenant')+
+      '<div class="racts"><button class="btn" type="button" data-invedit="'+id+'">← Опись</button><button class="btn solid" type="button" data-insdone="'+id+'">Далее: договор</button></div>';
+    if(d.status==='draft')return '<div class="rlbl">Договор (стандартный шаблон) с Приложением №1 — описью имущества</div><div class="racts"><button class="btn" type="button" data-invedit="'+id+'">Изменить опись ('+(d.inv||[]).length+')</button></div>'+ct+
       '<label class="f" for="ph-'+id+'">Телефон арендатора</label><input class="inp" id="ph-'+id+'" type="tel" inputmode="tel" maxlength="20" placeholder="+7 900 000-00-00" value="'+esc(d.phone||'')+'">'+
       '<div class="err" id="pherr-'+id+'"></div><div class="racts"><button class="btn" type="button" data-dcancel="'+id+'">Отменить</button><button class="btn" type="button" data-send="'+id+'">Отправить по СМС</button></div>';
     if(d.status==='sent'){var L=D.signLink(d);return '<span class="chip wait">Отправлено, ждём подпись</span>'+
@@ -636,12 +686,77 @@ body:not(.year) .yearv{display:none}
       '<div class="ct-box">'+D.contractHtml(d,{tap:'O'})+'</div>';
     if(d.status==='owner_signed'){var P=D.payLink(d);return '<span class="chip ok">Договор подписан обеими сторонами</span>'+
       '<div class="racts"><button class="btn" type="button" data-ctview="'+id+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+id+'">Скачать договор</button></div>'+
-      D.smsHtml(d.tenant&&d.tenant.phone||d.phone,'Договор подписан обеими сторонами. Оплатите первый месяц и залог ('+D.rub(D.due(d))+'):',P)+
+      D.smsHtml(d.tenant&&d.tenant.phone||d.phone,'Договор подписан обеими сторонами. Оплатите первый месяц, залог'+(d.ins?' и страховку':'')+' ('+D.rub(D.due(d))+'):',P)+
       '<span class="chip wait">Ждём оплату: '+D.rub(D.due(d))+'</span><div class="racts"><a class="btn" href="'+esc(P)+'" data-paylink="'+id+'">Открыть страницу оплаты (демо)</a><button class="btn" type="button" data-copy="'+esc(P)+'">Скопировать ссылку</button></div>';}
     if(d.status==='paid')return '<span class="chip ok">Оплачено</span> <small>'+D.rub(d.paidAmount||D.due(d))+' · '+D.dtstr(d.paidT)+'</small>'+
-      '<p class="rs on" style="font-size:12px">Объект сдаётся с 1 '+MONTHS_GEN[d.from]+' 2026. Доход добавлен в раздел АРЕНДА, оплата зачислена на баланс счёта.</p>'+
-      '<div class="racts"><button class="btn" type="button" data-ctview="'+id+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+id+'">Скачать договор</button><button class="btn" type="button" data-dend="'+id+'">Снять с аренды</button></div>'+D.qrCard(d,'QR арендатора');
+      '<p class="rs on" style="font-size:12px">Объект сдаётся с 1 '+MONTHS_GEN[d.from]+' 2026. Доход добавлен в раздел АРЕНДА, оплата зачислена на баланс счёта.'+(d.ins?' Страховка наймодателя (полис № '+esc(d.ins.owner.no)+', '+rub(d.ins.owner.premium)+') добавлена в раздел СТРАХОВКИ; полис нанимателя № '+esc(d.ins.tenant.no)+' оплачен арендатором.':'')+'</p>'+
+      '<div class="racts"><button class="btn" type="button" data-ctview="'+id+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+id+'">Скачать договор</button><button class="btn" type="button" data-dend="'+id+'">Снять с аренды</button></div>'+'<div class="rlbl" style="margin-top:14px">3D-осмотр при передаче ключей</div>'+scanNote()+scanBlock(d,'in')+D.qrCard(d,'QR арендатора');
     return '';
+  }
+  var CONDS=DemoDeal.CONDS;
+  function invEditor(d){
+    var D=DemoDeal,id=esc(d.id),inv=d.inv||[],h='<div class="inv" data-inv="'+id+'"><div class="rlbl">Опись имущества — Приложение №1 к договору</div>'+
+      '<p class="rs" style="font-size:12px;margin:2px 0 6px">Типовой список уже заполнен — уберите лишнее, поправьте количество и состояние, при желании добавьте фото. Опись войдёт в договор и будет подписана обеими сторонами.</p>';
+    D.invRooms(d.type,inv).forEach(function(room){
+      h+='<div class="inv-room"><div class="inv-rh"><span>'+esc(room)+'</span><button type="button" data-invadd="'+esc(room)+'">+ Добавить предмет</button></div>';
+      inv.forEach(function(i){if(i.room!==room)return;var ii=esc(i.id);
+        h+='<div class="inv-it" data-iid="'+ii+'"><div class="inv-top"><input class="inp" data-if="name" maxlength="60" value="'+esc(i.name)+'" placeholder="Название" aria-label="Название"><button type="button" class="inv-x" data-idel="'+ii+'" aria-label="Удалить">✕</button></div>'+
+          '<div class="inv-g"><label>Кол-во<input class="inp" data-if="qty" type="number" inputmode="numeric" min="1" max="999" value="'+(+i.qty||1)+'"></label>'+
+          '<label>Состояние<select class="inp" data-if="cond">'+CONDS.map(function(c,k){return '<option value="'+k+'"'+(k===+i.cond?' selected':'')+'>'+c+'</option>';}).join('')+'</select></label>'+
+          '<label>Оценка, руб.<input class="inp" data-if="val" type="number" inputmode="numeric" min="0" placeholder="—" value="'+(i.val?+i.val:'')+'"></label></div>'+
+          '<input class="inp" data-if="note" maxlength="120" value="'+esc(i.note||'')+'" placeholder="Примечание (необязательно)">'+
+          '<div class="inv-ph">'+(i.photo?'<img alt="фото" src="'+esc(i.photo)+'"><button type="button" class="lnk" data-iphdel="'+ii+'">убрать фото</button>':'')+
+          '<label>📷 '+(i.photo?'Заменить фото':'Фото (необязательно)')+'<input type="file" accept="image/*" data-iphoto="'+ii+'"></label></div></div>';});
+      h+='</div>';
+    });
+    h+='<div class="inv-sum"><span>Предметов: <b id="invN">'+inv.length+'</b></span><span>Оценка: <b id="invT">'+rub(D.invTotal(inv))+'</b></span></div>'+
+      '<div class="demo-note">Демо: фото уменьшаются и хранятся только в этом браузере.</div>'+
+      '<div class="racts"><button class="btn" type="button" data-dcancel="'+id+'">Отменить</button><button class="btn solid" type="button" data-invdone="'+id+'">Далее: договор</button></div></div>';
+    return h;
+  }
+  function scanBlock(d,slot){
+    var id=esc(d.id),sc=slot==='in'?d.scanIn:d.scanOut,ttl=slot==='in'?'3D-скан при сдаче':'3D-скан при возврате',k=id+'|'+slot;
+    var h='<div class="v3dslot"><div class="rlbl">'+ttl+'</div>';
+    if(sc)h+='<div class="v3d" data-v3d="'+k+'"><div class="v3d-msg">Загрузка 3D…</div></div><div class="v3d-cap">'+(sc.kind==='glb'?'Файл '+esc(sc.name)+' ('+Math.round((sc.size||0)/1024)+' КБ)':'Демо-модель по описи')+' · '+DemoDeal.dtstr(sc.t)+' · вращайте пальцем/мышью, масштаб — щипком/колёсиком</div>';
+    else h+='<div class="v3d" data-v3dempty="'+k+'"><div class="v3d-msg">'+(slot==='in'?'Сделайте 3D-осмотр при передаче ключей: он зафиксирует состояние квартиры.':'Скан при возврате ещё не сделан')+'</div></div>';
+    h+='<div class="racts"><button class="btn'+(sc?'':' solid')+'" type="button" data-scan="'+k+'">'+(sc?'Пересканировать (демо)':'Сканировать (демо)')+'</button>'+
+      '<label class="btn" style="position:relative">Загрузить .glb<input class="glbin" type="file" accept=".glb,model/gltf-binary" data-glb="'+k+'"></label></div></div>';
+    return h;
+  }
+  function scanNote(){return '<div class="demo-note">Демо: «сканирование» строит условную модель по описи. Настоящее 3D-сканирование делается в приложении на iPhone/iPad с LiDAR (например, Polycam, Scaniverse) — экспортируйте модель в .glb и загрузите сюда. Файл хранится только в этом браузере.</div>';}
+  var retSel={};
+  function retPanel(d){
+    var D=DemoDeal,id=esc(d.id),sel=retSel[d.id]||(retSel[d.id]=Object.assign({},d.ret&&d.ret.items||{})),c=D.retCalc(d,sel);
+    var h='<div class="rlbl">Возврат квартиры — проверка по описи</div><p class="rs" style="font-size:12px">Договор № '+esc(D.ctNo(d))+' · '+esc(d.tenant&&d.tenant.fio||'—')+' · залог '+rub(d.deposit)+(d.ret?' · акт сохранён '+D.dtstr(d.ret.t):'')+'</p>';
+    D.invRooms(d.type,d.inv).forEach(function(room){var its=(d.inv||[]).filter(function(i){return i.room===room;});if(!its.length)return;
+      h+='<div class="inv-rh"><span>'+esc(room)+'</span></div>';
+      its.forEach(function(i){var k=sel[i.id]||'ok';h+='<div class="ret-it" data-rit="'+esc(i.id)+'"><div><b>'+esc(i.name)+'</b>'+(i.qty>1?' ×'+i.qty:'')+'<small>'+esc(CONDS[i.cond]||'')+(i.val?' · оценка '+rub(i.val):'')+'</small></div><div class="seg">'+
+        ['ok','dmg','miss'].map(function(x){return '<button type="button" data-k="'+x+'" data-rset="'+id+'|'+esc(i.id)+'|'+x+'" class="'+(k===x?'on':'')+'">'+D.RET[x][0]+'</button>';}).join('')+'</div></div>';});
+    });
+    h+='<div class="ret-sum"><div><span>Предлагаемое удержание из залога</span><b class="d" id="retD">'+rub(c.deduct)+'</b></div><div><span>Вернуть арендатору</span><b class="g" id="retR">'+rub(c.refund)+'</b></div>'+
+      '<small style="color:#888">Расчёт: повреждено — 30% оценки, отсутствует — 100% оценки, не больше суммы залога. Итог согласуйте с арендатором.</small></div>'+
+      '<div class="rlbl">Сравнение 3D-сканов</div>'+scanNote()+'<div class="v3d-pair">'+
+      (d.scanIn?scanView(d,'in'):'<div class="v3dslot"><div class="rlbl">3D-скан при сдаче</div><div class="v3d"><div class="v3d-msg">Скан при сдаче не делался</div></div></div>')+scanBlock(d,'out')+'</div>'+
+      '<div class="racts" style="margin-top:12px"><button class="btn" type="button" data-rhist="'+esc(d.objId)+'">К договорам</button><button class="btn solid" type="button" data-retsave="'+id+'">Сохранить акт возврата</button></div>';
+    return h;
+  }
+  function scanView(d,slot){var sc=slot==='in'?d.scanIn:d.scanOut;return '<div class="v3dslot"><div class="rlbl">'+(slot==='in'?'3D-скан при сдаче':'3D-скан при возврате')+'</div><div class="v3d" data-v3d="'+esc(d.id)+'|'+slot+'"><div class="v3d-msg">Загрузка 3D…</div></div><div class="v3d-cap">'+(sc.kind==='glb'?'Файл '+esc(sc.name):'Демо-модель по описи')+' · '+DemoDeal.dtstr(sc.t)+'</div></div>';}
+  function scanSrc(d,slot){var sc=slot==='in'?d.scanIn:d.scanOut;if(!sc)return null;if(sc.kind==='glb')return {kind:'glb',key:d.id+'-'+slot};
+    var inv=d.inv||[];if(slot==='out'){var sel=retSel[d.id]||(d.ret&&d.ret.items)||{};inv=inv.filter(function(i){return sel[i.id]!=='miss';});}
+    return {kind:'demo',inv:inv,storage:DemoDeal.isStorage(d)};}
+  function mountV3d(el){var p=el.getAttribute('data-v3d').split('|'),d=DemoDeal.get(p[0]);if(!d||!window.Scan3D)return;var src=scanSrc(d,p[1]);if(src)Scan3D.mount(el,src);}
+  var busy=0;
+  function readImg(file,cb){var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){var m=160,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',0.6));};im.onerror=function(){cb(null);};im.src=fr.result;};fr.onerror=function(){cb(null);};fr.readAsDataURL(file);}
+  function invUpd(dealId,fn){var d=DemoDeal.get(dealId);if(!d||!d.inv)return null;fn(d);DemoDeal.put(d);return d;}
+  function doScan(id,slot){
+    var D=DemoDeal,d=D.get(id);if(!d||!window.Scan3D)return;
+    if(!Scan3D.webglOk()){toast('WebGL недоступен в этом браузере');return;}
+    var box=document.querySelector('[data-v3d="'+id+'|'+slot+'"],[data-v3dempty="'+id+'|'+slot+'"]');if(!box)return;
+    if(box._v3d)box._v3d.dispose();box.removeAttribute('data-v3d');box.innerHTML='<div class="v3d-pct">Сканирование (демо)… 0%</div>';busy++;
+    var inv=d.inv||[];if(slot==='out'){var sel=retSel[id]||{};inv=inv.filter(function(i){return sel[i.id]!=='miss';});}
+    Scan3D.scan(box,inv,D.isStorage(d),function(p){var e=box.querySelector('.v3d-pct');if(e)e.textContent='Сканирование (демо)… '+p+'%';}).then(function(){
+      setTimeout(function(){busy--;var d2=D.get(id);if(!d2)return;d2[slot==='in'?'scanIn':'scanOut']={kind:'demo',t:Date.now()};D.put(d2);renderRent();toast(slot==='in'?'3D-скан при сдаче сохранён (демо)':'3D-скан при возврате сохранён (демо)');},400);
+    }).catch(function(){busy--;toast('Не удалось загрузить 3D-модуль');renderRent();});
   }
   function dlHtml(html,name){var blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},4000);}
   function ctFile(d){return 'DOGOVOR-DEMO-'+(d.type==='кл'?'kl':'kv')+'-'+String(d.obj).split(' ').pop()+'.html';}
@@ -662,9 +777,9 @@ body:not(.year) .yearv{display:none}
       var pr=Math.round(+document.getElementById('pf-price-'+id).value),dv=document.getElementById('pf-dep-'+id).value,dp=dv===''?pr:Math.round(+dv),fr=+document.getElementById('pf-from-'+id).value;
       if(!(pr>0&&pr<=10000000)){err.textContent='Укажите цену от 1 до 10 000 000 руб.';return true;}
       if(!(dp>=0&&dp<=10000000)){err.textContent='Проверьте сумму залога';return true;}
-      var d={id:D.newId(),objId:z.id,type:z.type,obj:z.obj,addr:addrOf(z),price:pr,deposit:dp,from:fr,created:Date.now(),status:'draft'};
+      var d={id:D.newId(),objId:z.id,type:z.type,obj:z.obj,addr:addrOf(z),price:pr,deposit:dp,from:fr,created:Date.now(),status:'inv',inv:D.invDefault(z.type)};d.ins=D.insMake(d);
       D.put(d);rui.price[id]='';rui.dep[id]='';rui.depTouched[id]=false;rentGo(id);
-      toast('Договор сформирован');return true;
+      toast('Проверьте опись имущества');return true;
     }
     if((el=t.closest('[data-send]'))){
       id=el.getAttribute('data-send');var d1=D.get(id),ph=document.getElementById('ph-'+id).value.trim();
@@ -679,12 +794,29 @@ body:not(.year) .yearv{display:none}
     if((el=t.closest('[data-osign]'))){id=el.getAttribute('data-osign');var d3=D.get(id);if(!d3||d3.status!=='tenant_signed')return true;
       D.gosSign({doc:D.ctTitle(d3)+' · '+d3.addr,who:D.OWNER},function(tm){var d5=D.get(id);if(!d5||d5.status!=='tenant_signed'){renderAll();return;}
         d5.ownerSig='gos';d5.ownerT=tm;d5.status='owner_signed';D.put(d5);renderRent();toast('Договор подписан обеими сторонами');});return true;}
+    if((el=t.closest('[data-invdone]'))){id=el.getAttribute('data-invdone');var di=D.get(id);if(!di)return true;
+      di.inv=(di.inv||[]).filter(function(i){return String(i.name||'').trim();});if(!di.ins)di.ins=D.insMake(di);di.status='ins';D.put(di);renderRent();toast('Опись сохранена. Страхование — следующий шаг');return true;}
+    if((el=t.closest('[data-insdone]'))){var dn=D.get(el.getAttribute('data-insdone'));if(dn){dn.status='draft';D.put(dn);renderRent();toast('Договор сформирован: опись и полисы включены');}return true;}
+    if((el=t.closest('[data-invedit]'))){var de=D.get(el.getAttribute('data-invedit'));if(de){de.status='inv';D.put(de);renderRent();}return true;}
+    if((el=t.closest('[data-invadd]'))){var room=el.getAttribute('data-invadd'),box=el.closest('[data-inv]');invUpd(box.getAttribute('data-inv'),function(d){d.inv.push(D.invItem(room,'',1,0));});renderRent();
+      var its=document.querySelectorAll('[data-inv] .inv-it');var last=null;its.forEach(function(x){var r=x.closest('.inv-room');if(r&&r.querySelector('.inv-rh span').textContent===room)last=x;});if(last){last.querySelector('[data-if=name]').focus();}return true;}
+    if((el=t.closest('[data-idel]'))){var iid=el.getAttribute('data-idel');invUpd(el.closest('[data-inv]').getAttribute('data-inv'),function(d){d.inv=d.inv.filter(function(i){return i.id!==iid;});});renderRent();return true;}
+    if((el=t.closest('[data-iphdel]'))){var iid2=el.getAttribute('data-iphdel');invUpd(el.closest('[data-inv]').getAttribute('data-inv'),function(d){d.inv.forEach(function(i){if(i.id===iid2)i.photo='';});});renderRent();return true;}
+    if((el=t.closest('[data-iphoto]'))||(el=t.closest('[data-glb]'))){busy++;setTimeout(function(){busy=Math.max(0,busy-1);},60000);return false;}
+    if((el=t.closest('[data-scan]'))){var ps=el.getAttribute('data-scan').split('|');doScan(ps[0],ps[1]);return true;}
+    if((el=t.closest('[data-rset]'))){var pr2=el.getAttribute('data-rset').split('|'),dr=D.get(pr2[0]);if(!dr)return true;(retSel[pr2[0]]=retSel[pr2[0]]||{})[pr2[1]]=pr2[2];
+      el.parentNode.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b===el);});var c=D.retCalc(dr,retSel[pr2[0]]);document.getElementById('retD').textContent=rub(c.deduct);document.getElementById('retR').textContent=rub(c.refund);return true;}
+    if((el=t.closest('[data-retsave]'))){id=el.getAttribute('data-retsave');var dv2=D.get(id);if(!dv2)return true;var sl=Object.assign({},retSel[id]||{}),cc=D.retCalc(dv2,sl);
+      dv2.ret={t:Date.now(),items:sl,deduct:cc.deduct,refund:cc.refund};D.put(dv2);toast('Акт возврата сохранён: удержание '+rub(cc.deduct));rentGo(dv2.objId,'history');return true;}
+    if((el=t.closest('[data-ret]'))){var dt=D.get(el.getAttribute('data-ret'));if(dt){delete retSel[dt.id];rui.ret=dt.id;rentGo(dt.objId,'return');}return true;}
+    if((el=t.closest('[data-v3dm]'))){var dm=D.get(el.getAttribute('data-v3dm'));if(dm){showModal('<h3>3D-скан при сдаче</h3><p style="font-size:12px;color:#777">'+esc(dm.addr)+'</p>'+scanView(dm,'in')+'<div class="row"><button class="btn" type="button" data-close>Закрыть</button></div>');modal.classList.add('wide');modal.querySelectorAll('[data-v3d]').forEach(mountV3d);}return true;}
     if((el=t.closest('[data-qr]'))){var dq=D.get(el.getAttribute('data-qr'));if(dq)showModal(D.qrCard(dq,'QR арендатора')+'<div class="row"><button class="btn" type="button" data-close>Закрыть</button></div>');return true;}
     if((el=t.closest('[data-ctview]'))){ctModal(D.get(el.getAttribute('data-ctview')));return true;}
     if((el=t.closest('[data-ctdl]'))){var d4=D.get(el.getAttribute('data-ctdl'));dlHtml(D.contractDoc(d4),ctFile(d4));toast('Договор скачан (демо)');return true;}
     if((el=t.closest('[data-dend]'))){id=el.getAttribute('data-dend');
       showModal('<h3>Снять с аренды?</h3><p style="font-size:13px">Доход от аренды будет убран из раздела АРЕНДА.</p><div class="row"><button class="btn" type="button" data-close>Отмена</button><button class="btn" type="button" id="okUnrent">Снять</button></div>');
-      document.getElementById('okUnrent').onclick=function(){var d5=D.get(id);if(d5){d5.status='ended';d5.endT=Date.now();D.put(d5);}closeModal();renderAll();toast('Объект снят с аренды (демо)');};return true;}
+      document.getElementById('okUnrent').onclick=function(){var d5=D.get(id);if(d5){d5.status='ended';d5.endT=Date.now();D.put(d5);}closeModal();renderAll();toast('Объект снят с аренды (демо)');
+        if(d5&&d5.inv&&d5.inv.length){delete retSel[d5.id];rui.ret=d5.id;rentGo(d5.objId,'return');}};return true;}
     if((el=t.closest('[data-rtap]'))){
       if(t.closest('input,select,textarea,canvas,a'))return false;
       rentGo(el.getAttribute('data-rtap'));return true;
@@ -698,7 +830,23 @@ body:not(.year) .yearv{display:none}
     else if(k==='from'){rui.from[id]=+t.value;}
   });
   document.addEventListener('change',function(e){var t=e.target;if(t.getAttribute&&t.getAttribute('data-pf')==='from')rui.from[t.getAttribute('data-z')]=+t.value;});
-  function refreshDeals(){for(var k in pads){if(pads[k]&&!pads[k].isEmpty())return;}renderAll();}
+  function invField(t){var k=t.getAttribute&&t.getAttribute('data-if');if(!k)return;var it=t.closest('[data-iid]'),box=t.closest('[data-inv]');if(!it||!box)return;var iid=it.getAttribute('data-iid');
+    var d=invUpd(box.getAttribute('data-inv'),function(d){d.inv.forEach(function(i){if(i.id!==iid)return;var v=t.value;
+      if(k==='qty')i.qty=Math.max(1,Math.min(999,Math.round(+v)||1));else if(k==='val')i.val=Math.max(0,Math.min(1e8,Math.round(+v)||0));else if(k==='cond')i.cond=Math.min(2,Math.max(0,+v||0));else i[k]=String(v).slice(0,k==='note'?120:60);});});
+    if(d){var n=document.getElementById('invN'),tt=document.getElementById('invT');if(n)n.textContent=d.inv.length;if(tt)tt.textContent=rub(DemoDeal.invTotal(d.inv));}}
+  document.addEventListener('input',function(e){invField(e.target);});
+  document.addEventListener('change',function(e){var t=e.target;if(!t.getAttribute)return;
+    if(t.getAttribute('data-if')==='cond')invField(t);
+    var ip=t.getAttribute('data-iphoto');
+    if(ip&&t.files&&t.files[0]){var box=t.closest('[data-inv]').getAttribute('data-inv');readImg(t.files[0],function(u){busy=Math.max(0,busy-1);if(!u){toast('Не удалось прочитать фото');return;}
+      try{invUpd(box,function(d){d.inv.forEach(function(i){if(i.id===ip)i.photo=u;});});}catch(err){toast('Недостаточно места для фото в браузере');}renderRent();toast('Фото добавлено (демо)');});}
+    var gb=t.getAttribute('data-glb');
+    if(gb&&t.files&&t.files[0]){var f=t.files[0],pp=gb.split('|');if(f.size>50*1024*1024){busy=Math.max(0,busy-1);toast('Файл больше 50 МБ');return;}
+      f.arrayBuffer().then(function(buf){return Scan3D.parseGlb(buf).then(function(){return Scan3D.idbPut(pp[0]+'-'+pp[1],buf);});}).then(function(){
+        busy=Math.max(0,busy-1);var d=DemoDeal.get(pp[0]);if(!d)return;d[pp[1]==='in'?'scanIn':'scanOut']={kind:'glb',name:f.name.slice(0,80),size:f.size,t:Date.now()};DemoDeal.put(d);renderRent();toast('3D-модель загружена');
+      }).catch(function(){busy=Math.max(0,busy-1);toast('Не удалось открыть .glb');});}
+  });
+  function refreshDeals(){for(var k in pads){if(pads[k]&&!pads[k].isEmpty())return;}if(busy>0)return;var ae=document.activeElement;if(ae&&ae.closest&&ae.closest('#rentp')&&/INPUT|SELECT|TEXTAREA/.test(ae.tagName))return;renderAll();}
   window.addEventListener('storage',function(e){if(e.key===DemoDeal.KEY||e.key===null)refreshDeals();});
   window.addEventListener('focus',refreshDeals);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)refreshDeals();});
@@ -745,7 +893,7 @@ body:not(.year) .yearv{display:none}
   /* ===== modal ===== */
   var ov=document.getElementById('ov'),modal=document.getElementById('modal');
   function showModal(h){modal.innerHTML=h;ov.classList.add('show');}
-  function closeModal(){ov.classList.remove('show');modal.innerHTML='';modal.classList.remove('wide');}
+  function closeModal(){if(window.Scan3D)Scan3D.disposeIn(modal);ov.classList.remove('show');modal.innerHTML='';modal.classList.remove('wide');}
   ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
   var tt;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show');},2600);}
@@ -839,7 +987,7 @@ body:not(.year) .yearv{display:none}
   document.getElementById('payAll').onclick=function(){var us=allUnpaid();payUnits(us,'Оплата всей задолженности ('+us.length+' начисл.)');};
   document.getElementById('topupBtn').onclick=function(){topupModal(0);};
   document.getElementById('autoBtn').onclick=autopayModal;
-  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо: баланс, оплаты, историю, автоплатежи и аренду?')){state=defState();save();DemoDeal.clear();rui={focus:null,mode:'flow',price:{},dep:{},depTouched:{},from:{}};renderAll();toast('Демо сброшено');}};
+  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо: баланс, оплаты, историю, автоплатежи и аренду?')){state=defState();save();DemoDeal.clear();if(window.Scan3D)Scan3D.idbClear();rui={focus:null,mode:'flow',price:{},dep:{},depTouched:{},from:{}};renderAll();toast('Демо сброшено');}};
   document.getElementById('logout').onclick=function(e){e.preventDefault();localStorage.removeItem('demoUser');location.href='index.html';};
   document.querySelectorAll('a[href="#"]').forEach(function(a){if(!a.id)a.addEventListener('click',function(e){e.preventDefault();});});
   document.querySelectorAll('.tab[data-view]').forEach(function(t){t.addEventListener('click',function(){setView(t.getAttribute('data-view'),true);window.scrollTo(0,0);});});

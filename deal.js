@@ -4,8 +4,8 @@
   'use strict';
   var KEY='demoDeals_v1';
   var MG=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-  var STEPS=['Объект','Цена','Договор','СМС','Подпись арендатора','Ваша подпись','Оплата'];
-  var STATUS={draft:'Договор сформирован',sent:'Отправлено, ждём подпись',tenant_signed:'Арендатор подписал',owner_signed:'Подписан обеими сторонами · ждём оплату',paid:'Оплачено · сдаётся',cancelled:'Отменена',ended:'Завершена'};
+  var STEPS=['Объект','Цена','Опись','Страховка','Договор','СМС','Подпись арендатора','Ваша подпись','Оплата','3D-осмотр'];
+  var STATUS={inv:'Опись имущества',ins:'Страхование',draft:'Договор сформирован',sent:'Отправлено, ждём подпись',tenant_signed:'Арендатор подписал',owner_signed:'Подписан обеими сторонами · ждём оплату',paid:'Оплачено · сдаётся',cancelled:'Отменена',ended:'Завершена'};
   var OWNER='Яковлев Владимир Владимирович';
 
   function load(){try{var s=JSON.parse(localStorage.getItem(KEY));if(s&&s.deals&&typeof s.deals==='object')return s;}catch(e){}return {deals:{}};}
@@ -29,21 +29,23 @@
   function dtstr(t){var d=new Date(t);return dstr(t)+' '+p2(d.getHours())+':'+p2(d.getMinutes());}
 
   function baseUrl(){return new URL('.',location.href).href;}
-  function linkData(d){return {i:d.id,k:d.type,o:d.obj,a:d.addr,p:d.price,z:d.deposit,f:d.from,ph:d.phone||'',t:d.created,b:d.objId||''};}
+  function linkData(d){return {i:d.id,k:d.type,o:d.obj,a:d.addr,p:d.price,z:d.deposit,f:d.from,ph:d.phone||'',t:d.created,b:d.objId||'',s:d.ins?[d.ins.owner.no,d.ins.owner.premium,d.ins.tenant.no,d.ins.tenant.premium]:0,v:(d.inv||[]).slice(0,60).map(function(i){return [i.room,i.name,+i.qty||1,+i.cond||0,+i.val||0,i.note||''];})};}
   function fromLink(x){
     if(!x||typeof x!=='object')return null;
     var d={id:str(x.i,40),type:x.k==='кл'?'кл':'кв',obj:str(x.o,80),addr:str(x.a,160),price:num(x.p,1e7),deposit:Math.max(0,Math.round(+x.z)||0),from:Math.min(11,Math.max(0,Math.round(+x.f)||0)),phone:str(x.ph,30),created:+x.t||Date.now(),objId:str(x.b,20),status:'sent'};
+    if(Array.isArray(x.s)&&x.s.length===4)d.ins={owner:{no:str(x.s[0],30),premium:num(x.s[1],1e7)},tenant:{no:str(x.s[2],30),premium:num(x.s[3],1e7)}};
+    if(Array.isArray(x.v))d.inv=x.v.slice(0,60).filter(Array.isArray).map(function(a,k){return {id:'l'+k,room:str(a[0],30),name:str(a[1],60),qty:num(a[2],999)||1,cond:Math.min(2,Math.max(0,Math.round(+a[3])||0)),val:num(a[4],1e8),note:str(a[5],120),photo:''};});
     return d.id&&d.price&&d.addr?d:null;
   }
   function signLink(d){return baseUrl()+'sign.html?c='+enc(linkData(d));}
-  function payLink(d){return baseUrl()+'pay.html?c='+enc({b:d.objId||'',n:d.tenant&&d.tenant.fio||'',i:d.id,p:d.price,z:d.deposit,a:d.addr,f:d.from,k:d.type,o:d.obj,t:d.created});}
+  function payLink(d){return baseUrl()+'pay.html?c='+enc({b:d.objId||'',n:d.tenant&&d.tenant.fio||'',ti:insTenant(d),tn:d.ins?d.ins.tenant.no:'',i:d.id,p:d.price,z:d.deposit,a:d.addr,f:d.from,k:d.type,o:d.obj,t:d.created});}
   function ctNo(d){var t=new Date(d.created||Date.now());return 'Д-'+t.getFullYear()+p2(t.getMonth()+1)+p2(t.getDate())+'-'+String(d.id||'').slice(-4).toUpperCase();}
   function period(d){var f=d.from||0;return {from:'01.'+p2(f+1)+'.2026',to:dstr(new Date(2026,f+11,0))};}
   /* ---- DEMO "Моё проживание" QR: link to check.html with deal summary (not an official document) ---- */
   function shortName(f){var a=String(f||'').trim().split(/\s+/);return a[0]?a[0]+(a[1]?' '+a[1][0]+'.':'')+(a[2]?a[2][0]+'.':''):'';}
   function checkData(d){var t=d.tenant||{},pr=period(d);return {i:d.id,n:t.fio||'',a:d.addr,k:d.type,no:ctNo(d),d:dstr(d.created||Date.now()),f:pr.from,u:pr.to,o:shortName(OWNER),s:d.status==='paid'?'paid':d.status==='ended'?'ended':'unpaid',pd:d.paidT?dstr(d.paidT):''};}
   function checkLink(d){var b=location.protocol==='file:'?'https://platezhi.github.io/':baseUrl();return b+'check.html?c='+enc(checkData(d));}
-  function qrSvg(text){if(!w.qrcode)return '<div class="qr-miss">QR недоступен</div>';var q=w.qrcode(0,'M');q.addData(text);q.make();return q.createSvgTag({cellSize:4,margin:16,scalable:true,alt:'QR-код проверки проживания (демо)'});}
+  function qrSvg(text){if(!w.qrcode)return '<div class="qr-miss">QR недоступен</div>';var q=w.qrcode(0,'L');q.addData(text);q.make();return q.createSvgTag({cellSize:4,margin:16,scalable:true,alt:'QR-код проверки проживания (демо)'});}
   function qrCard(d,title){var L=checkLink(d),pr=period(d),t=d.tenant||{};
     return '<div class="qr-card"><div class="qr-h">'+esc(title||'Моё проживание')+' <span class="qr-demo">ДЕМО</span></div>'+
       '<div class="qr-row"><div class="qr-img" data-qr>'+qrSvg(L)+'</div><div class="qr-info"><div><span>Арендатор</span><b>'+esc(t.fio||'—')+'</b></div><div><span>Адрес</span><b>'+esc(d.addr)+'</b></div>'+
@@ -51,11 +53,12 @@
       '<div><span>Оплата</span><b class="'+(d.status==='paid'?'qr-ok':'')+'">'+(d.status==='paid'?'оплачено':d.status==='ended'?'договор завершён':'не оплачено')+'</b></div></div></div>'+
       '<a class="qr-link" href="'+esc(L)+'" data-checklink>Открыть страницу проверки</a>'+
       '<div class="qr-note">Демо: QR ведёт на страницу с данными договора. Это не документ о регистрации и не подтверждается МВД.</div></div>';}
-  function due(d){return (d.price||0)+(d.deposit||0);}
+  function due(d){return (d.price||0)+(d.deposit||0)+insTenant(d);}
+  function ownerDue(d){return (d.price||0)+(d.deposit||0);}
   function isStorage(d){return d.type==='кл';}
   function stepOf(d,priceOpen){
     if(!d)return priceOpen?1:0;
-    return {draft:3,sent:4,tenant_signed:5,owner_signed:6,paid:7}[d.status]||0;
+    return d.status==='paid'?(d.scanIn?10:9):({inv:2,ins:3,draft:5,sent:6,tenant_signed:7,owner_signed:8}[d.status]||0);
   }
   function stepper(cur){
     return '<ol class="steps">'+STEPS.map(function(s,i){var c=i<cur?'done':i===cur?'cur':'';return '<li class="'+c+'"><span>'+(i<cur?'✓':(i+1))+'</span>'+s+'</li>';}).join('')+'</ol>';
@@ -89,19 +92,72 @@
       '<p>5.1. '+R.O+' обязуется передать '+(st?'Помещение':'Квартиру')+' в состоянии, пригодном для использования, и не препятствовать пользованию.</p>'+
       '<p>5.2. '+R.T+' обязуется использовать '+(st?'Помещение':'Квартиру')+' по назначению, своевременно вносить плату, бережно относиться к имуществу, не производить перепланировку и не передавать '+(st?'Помещение':'Квартиру')+' третьим лицам без согласия '+R.Og+'.</p>'+
       '<p>5.3. Каждая из сторон вправе расторгнуть договор, письменно уведомив другую сторону не менее чем за 30 дней.</p>'+
+      (d.inv&&d.inv.length?'<p>5.4. Перечень имущества, передаваемого вместе с '+(st?'Помещением':'Квартирой')+', и его состояние указаны в Приложении №1 (опись имущества), которое является неотъемлемой частью договора.</p>':'')+
+      (d.ins?'<p>5.5. Страхование является обязательным условием сделок через сервис «Мои документы» (условие сервиса, а не требование закона). '+R.O+' страхует '+(st?'Помещение':'Квартиру')+' и свою ответственность (полис № '+esc(d.ins.owner.no)+', премия '+rub(d.ins.owner.premium)+' в год, оплачивает '+R.O+'); '+R.T+' страхует свою гражданскую ответственность перед соседями и '+R.Od.replace(/ю$/,'ем')+' (полис № '+esc(d.ins.tenant.no)+', премия '+rub(d.ins.tenant.premium)+' в год, оплачивается вместе с первым платежом). Условия полисов — в Приложении №2.</p>':'')+
       '<h4>6. Подписи сторон</h4>'+
       '<div class="ct-sign"><div><div class="ct-role">'+R.O+'</div><div>'+OWNER+'</div>'+sigBox(d.ownerSig,d.ownerT,OWNER,opt.tap==='O'?'data-osign="'+esc(d.id)+'"':'')+'</div>'+
       '<div><div class="ct-role">'+R.T+'</div><div>'+(t.fio?esc(t.fio):'______________________')+'</div>'+sigBox(t.sig,t.t,t.fio,opt.tap==='T'?'data-tsign="1"':'')+'</div></div>'+
-      '</div>';
+      invAppendix(d,R)+insAppendix(d,R)+'</div>';
     return h;
   }
+  /* ---- inventory (опись имущества) ---- */
+  var CONDS=['новое','хорошее','есть дефекты'];
+  var INV_KV=[['Кухня',[['Холодильник',1,30000],['Плита',1,20000],['Вытяжка',1,8000],['Микроволновка',1,6000],['Кухонный гарнитур',1,60000],['Стол',1,8000],['Стулья',4,8000]]],
+    ['Комната',[['Кровать',1,25000],['Матрас',1,15000],['Шкаф',1,20000],['Телевизор',1,25000],['Шторы',1,5000]]],
+    ['Санузел',[['Стиральная машина',1,25000],['Бойлер',1,12000],['Зеркало',1,3000]]],
+    ['Прихожая',[['Шкаф',1,12000],['Ключи',2,2000]]]];
+  var INV_KL=[['Кладовая',[['Стеллажи',2,8000],['Ключи',2,1000]]]];
+  var iseq=0;
+  function invId(){iseq++;return 'i'+Date.now().toString(36).slice(-4)+iseq.toString(36);}
+  function invItem(room,name,qty,val){return {id:invId(),room:room,name:name,qty:qty||1,cond:1,val:val||0,note:'',photo:''};}
+  function invDefault(type){var L=[];(type==='кл'?INV_KL:INV_KV).forEach(function(r){r[1].forEach(function(x){L.push(invItem(r[0],x[0],x[1],x[2]));});});return L;}
+  function invRooms(type,inv){var r=(type==='кл'?INV_KL:INV_KV).map(function(x){return x[0];});(inv||[]).forEach(function(i){if(r.indexOf(i.room)<0)r.push(i.room);});return r;}
+  function invTotal(inv){return (inv||[]).reduce(function(a,i){return a+(+i.val||0);},0);}
+  var RET={ok:['на месте',0],dmg:['повреждено',0.3],miss:['отсутствует',1]};
+  function retCalc(d,sel){var sum=0;(d.inv||[]).forEach(function(i){var k=sel&&sel[i.id]||'ok';sum+=Math.round((+i.val||0)*(RET[k]?RET[k][1]:0));});var ded=Math.min(sum,d.deposit||0);return {raw:sum,deduct:ded,refund:Math.max(0,(d.deposit||0)-ded)};}
+  function invAppendix(d,R){
+    var inv=d.inv;if(!inv||!inv.length)return '';var n=0,t=d.tenant||{};
+    var h='<div class="ct-app"><h4 class="ct-apph">Приложение №1 к договору № '+esc(ctNo(d))+' от '+dstr(d.created||Date.now())+'<br>Опись имущества (акт приёма-передачи)</h4>'+
+      '<div class="ct-invw"><table class="ct-inv"><thead><tr><th>№</th><th>Наименование</th><th>Кол-во</th><th>Состояние</th><th>Оценка, руб.</th><th>Примечание</th></tr></thead><tbody>';
+    invRooms(d.type,inv).forEach(function(room){var its=inv.filter(function(i){return i.room===room;});if(!its.length)return;
+      h+='<tr class="ct-invr"><td colspan="6">'+esc(room)+'</td></tr>';
+      its.forEach(function(i){n++;var ph=typeof i.photo==='string'&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(i.photo);
+        h+='<tr><td>'+n+'</td><td>'+esc(i.name)+'</td><td>'+(+i.qty||1)+'</td><td>'+esc(CONDS[i.cond]||CONDS[1])+'</td><td>'+(i.val?fmt(i.val).replace('.00',''):'—')+'</td><td>'+esc(i.note||'')+(ph?'<img class="ct-invph" alt="фото" src="'+i.photo+'">':'')+'</td></tr>';});
+    });
+    h+='</tbody></table></div><p>Итого предметов: <b>'+n+'</b>; общая оценочная стоимость: <b>'+rub(invTotal(inv))+'</b>.</p>'+
+      '<p class="ct-invsig">Опись подписана сторонами в составе договора: '+R.O+' — '+(d.ownerSig?'подписано'+(d.ownerT?' '+dtstr(d.ownerT):''):'________')+'; '+R.T+' — '+(t.sig?'подписано'+(t.t?' '+dtstr(t.t):''):'________')+(d.ownerSig==='gos'||t.sig==='gos'?' (через Госуслуги, демо)':'')+'.</p></div>';
+    return h;
+  }
+  /* ---- DEMO insurance (condition of deals via the service, NOT a legal requirement) ---- */
+  var INSURER='ООО «Демо-Страхование» (вымышленная компания)';
+  function insTitles(d){var st=isStorage(d);return {owner:st?'Страхование кладовой и ответственности арендодателя':'Страхование квартиры и ответственности наймодателя',tenant:st?'Страхование гражданской ответственности арендатора перед соседями и арендодателем':'Страхование гражданской ответственности нанимателя перед соседями и наймодателем'};}
+  function insCover(d){var st=isStorage(d),inv=invTotal(d.inv);
+    return {owner:[['Отделка и конструктив '+(st?'помещения':'квартиры')+' (пожар, залив, взрыв газа, противоправные действия третьих лиц)',st?200000:1000000],['Имущество по описи (Приложение №1)',Math.max(inv,50000)],['Ответственность '+(st?'арендодателя':'наймодателя')+' перед соседями',500000]],
+      tenant:[['Ущерб соседям (залив, пожар по вине '+(st?'арендатора':'нанимателя')+')',500000],['Ущерб '+(st?'арендодателю':'наймодателю')+': отделка и имущество по описи',300000]]};}
+  function insMake(d){var k=String(d.id||'').slice(-5).toUpperCase(),y=new Date(d.created||Date.now()).getFullYear();
+    return {owner:{no:'ДЕМО-НД-'+y+'-'+k,premium:Math.max(500,Math.round((d.price||0)*12*0.015))},tenant:{no:'ДЕМО-ГО-'+y+'-'+k,premium:3000},t:Date.now()};}
+  function insTenant(d){return d&&d.ins&&d.ins.tenant?(+d.ins.tenant.premium||0):0;}
+  var INS_NOTE='Страхование обязательно для сделок через сервис «Мои документы» — это условие сервиса, а не требование закона. Демо: полисы условные, страховщик вымышленный, деньги не списываются.';
+  function insCard(d,who,opt){opt=opt||{};var T=insTitles(d),C=insCover(d),p=d.ins&&d.ins[who];if(!p)return '';
+    return '<div class="ins-card" data-ins="'+who+'"><label class="ins-h"><input type="checkbox" checked disabled> <span>'+esc(T[who])+'</span></label>'+
+      '<div class="ins-sub">'+(who==='owner'?'Полис наймодателя':'Полис нанимателя')+' · № '+esc(p.no)+' · <b>обязательно для сделок через сервис</b></div>'+
+      '<ul class="ins-cov">'+C[who].map(function(c){return '<li><span>'+esc(c[0])+'</span><b>до '+fmt(c[1]).replace('.00','')+' ₽</b></li>';}).join('')+'</ul>'+
+      '<div class="ins-prem"><span>Страховая премия за срок договора</span><b>'+rub(p.premium)+'</b></div>'+
+      '<div class="ins-pay">'+(who==='owner'?'Оплачивает наймодатель — добавится в раздел СТРАХОВКИ в кабинете ('+(isStorage(d)?'1,5% годовой аренды':'1,5% годовой аренды')+').':'Оплачивает наниматель — добавляется к первому платежу (1-й месяц + залог + страховка).')+'</div></div>';}
+  function insAppendix(d,R){if(!d.ins)return '';var T=insTitles(d),C=insCover(d),t=d.tenant||{},pr=period(d);
+    function pol(who,holder){var p=d.ins[who];return '<div class="ct-pol"><p><b>Полис № '+esc(p.no)+' (демо)</b> — '+esc(T[who])+'</p><p>Страховщик: '+INSURER+'. Страхователь: '+holder+'. Объект: '+esc(d.addr)+'. Срок: '+pr.from+' — '+pr.to+'.</p>'+
+      '<table class="ct-inv"><tbody>'+C[who].map(function(c){return '<tr><td>'+esc(c[0])+'</td><td>до '+fmt(c[1]).replace('.00','')+' руб.</td></tr>';}).join('')+'<tr><td><b>Страховая премия</b></td><td><b>'+rub(p.premium)+'</b></td></tr></tbody></table></div>';}
+    return '<div class="ct-app"><h4 class="ct-apph">Приложение №2 к договору № '+esc(ctNo(d))+'<br>Полисы страхования (демо)</h4>'+
+      '<p>Страхование является обязательным условием сделок через сервис «Мои документы» (условие сервиса, а не требование закона).</p>'+
+      pol('owner',esc(OWNER)+' ('+R.O+')')+pol('tenant',(t.fio?esc(t.fio):'______________')+' ('+R.T+')')+
+      '<p class="ct-invsig">ДЕМО: полисы не выпускаются, страховщик вымышленный.</p></div>';}
   function sigBox(src,t,who,tap){
     if(src==='gos')return '<div class="ct-sigbox"><div class="ct-stamp"><b>ПОДПИСАНО</b><br>через Госуслуги (демо)<br>'+esc(who||'')+'<br>'+(t?dtstr(t):'')+'</div></div><div class="ct-date">'+(t?'подписано '+dtstr(t):'')+'</div>';
     var ok=typeof src==='string'&&/^data:image\/png;base64,[A-Za-z0-9+\/=]+$/.test(src);
     if(!ok&&tap)return '<div class="ct-sigbox tap" role="button" tabindex="0" '+tap+'><span>✍ Нажмите, чтобы подписать</span></div><div class="ct-date">дата ________</div>';
     return '<div class="ct-sigbox">'+(ok?'<img alt="подпись" src="'+src+'">':'<span>подпись</span>')+'</div><div class="ct-date">'+(t?'подписано '+dtstr(t):'дата ________')+'</div>';
   }
-  var CT_CSS='.ct{font-family:Georgia,"Times New Roman",serif;font-size:13px;line-height:1.5;color:#222}.ct h3{text-align:center;font-size:16px;margin:8px 0}.ct h4{font-size:13px;margin:12px 0 4px}.ct p{margin:4px 0}.ct-demo{font-family:Arial,sans-serif;background:#f7ecea;color:#c8603f;font-size:11px;font-weight:700;text-align:center;padding:6px;border-radius:4px}.ct-meta{display:flex;justify-content:space-between;color:#555;margin-bottom:8px}.ct-blank{color:#999}.ct-sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}.ct-role{font-weight:700}.ct-sigbox{height:70px;border-bottom:1px solid #999;display:flex;align-items:flex-end;justify-content:center;margin-top:6px}.ct-sigbox img{max-height:66px;max-width:100%}.ct-sigbox span{color:#bbb;font-size:11px}.ct-date{font-size:11px;color:#777;margin-top:3px}.ct-sigbox.tap{cursor:pointer;background:#f7ecea;border:1px dashed #c8603f;border-radius:6px;align-items:center;min-height:56px}.ct-sigbox.tap span{color:#c8603f;font-size:13px;font-weight:700;font-family:Arial,sans-serif;text-align:center;padding:4px}.ct-stamp{font-family:Arial,sans-serif;border:2px solid #2e6fb5;color:#2e6fb5;border-radius:6px;padding:4px 6px;font-size:10px;line-height:1.3;text-align:center;margin-bottom:4px;background:#f3f8fd}.ct-stamp b{font-size:11px;letter-spacing:.5px}';
+  var CT_CSS='.ct{font-family:Georgia,"Times New Roman",serif;font-size:13px;line-height:1.5;color:#222}.ct h3{text-align:center;font-size:16px;margin:8px 0}.ct h4{font-size:13px;margin:12px 0 4px}.ct p{margin:4px 0}.ct-demo{font-family:Arial,sans-serif;background:#f7ecea;color:#c8603f;font-size:11px;font-weight:700;text-align:center;padding:6px;border-radius:4px}.ct-meta{display:flex;justify-content:space-between;color:#555;margin-bottom:8px}.ct-blank{color:#999}.ct-sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}.ct-role{font-weight:700}.ct-sigbox{height:70px;border-bottom:1px solid #999;display:flex;align-items:flex-end;justify-content:center;margin-top:6px}.ct-sigbox img{max-height:66px;max-width:100%}.ct-sigbox span{color:#bbb;font-size:11px}.ct-date{font-size:11px;color:#777;margin-top:3px}.ct-sigbox.tap{cursor:pointer;background:#f7ecea;border:1px dashed #c8603f;border-radius:6px;align-items:center;min-height:56px}.ct-sigbox.tap span{color:#c8603f;font-size:13px;font-weight:700;font-family:Arial,sans-serif;text-align:center;padding:4px}.ct-stamp{font-family:Arial,sans-serif;border:2px solid #2e6fb5;color:#2e6fb5;border-radius:6px;padding:4px 6px;font-size:10px;line-height:1.3;text-align:center;margin-bottom:4px;background:#f3f8fd}.ct-stamp b{font-size:11px;letter-spacing:.5px}.ct-app{margin-top:18px;border-top:1px dashed #bbb;padding-top:10px}.ct-apph{text-align:center;font-size:13px}.ct-invw{overflow-x:auto;-webkit-overflow-scrolling:touch}.ct-inv{width:100%;border-collapse:collapse;font-size:11.5px;font-family:Arial,sans-serif;margin:6px 0}.ct-inv th,.ct-inv td{border:1px solid #ccc;padding:3px 5px;text-align:left;vertical-align:top}.ct-inv th{background:#f4f4f4;font-weight:700}.ct-invr td{background:#faf3f1;font-weight:700;color:#c8603f}.ct-invph{display:block;max-width:56px;max-height:56px;margin-top:3px;border-radius:3px}.ct-invsig{font-size:12px;color:#444}.ct-pol{margin:8px 0}';
   function contractDoc(d){
     return '<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Договор (демо-образец)</title><style>body{margin:0;padding:20px;background:#fff}.wrap{max-width:720px;margin:0 auto}'+CT_CSS+'</style></head><body><div class="wrap">'+contractHtml(d)+'</div></body></html>';
   }
@@ -162,5 +218,5 @@
 
   w.DemoDeal={KEY:KEY,MG:MG,STEPS:STEPS,STATUS:STATUS,OWNER:OWNER,load:load,save:save,all:all,get:get,put:put,clear:clear,newId:newId,enc:enc,dec:dec,fromLink:fromLink,
     signLink:signLink,payLink:payLink,due:due,isStorage:isStorage,stepOf:stepOf,stepper:stepper,contractHtml:contractHtml,contractDoc:contractDoc,smsHtml:smsHtml,
-    SigPad:SigPad,copy:copy,ctNo:ctNo,period:period,checkData:checkData,checkLink:checkLink,qrSvg:qrSvg,qrCard:qrCard,gosLogin:gosLogin,gosSign:gosSign,ctTitle:ctTitle,TENANT_DEMO:TENANT_DEMO,esc:esc,fmt:fmt,rub:rub,dstr:dstr,dtstr:dtstr,num:num,str:str,CT_CSS:CT_CSS};
+    SigPad:SigPad,copy:copy,insMake:insMake,insCard:insCard,insTitles:insTitles,insTenant:insTenant,INS_NOTE:INS_NOTE,ownerDue:ownerDue,CONDS:CONDS,RET:RET,invDefault:invDefault,invItem:invItem,invRooms:invRooms,invTotal:invTotal,retCalc:retCalc,ctNo:ctNo,period:period,checkData:checkData,checkLink:checkLink,qrSvg:qrSvg,qrCard:qrCard,gosLogin:gosLogin,gosSign:gosSign,ctTitle:ctTitle,TENANT_DEMO:TENANT_DEMO,esc:esc,fmt:fmt,rub:rub,dstr:dstr,dtstr:dtstr,num:num,str:str,CT_CSS:CT_CSS};
 })(window);

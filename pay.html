@@ -22,7 +22,8 @@
   if(!id||!price||!addr){app.innerHTML=BACK+'<div class="card"><h1>Ссылка недействительна</h1>'+NOTE+'</div>';return;}
   var d=D.get(id);
   if(d){price=d.price;dep=d.deposit;from=d.from;addr=d.addr;}
-  var total=price+dep;
+  var ti=x?D.num(x.ti,1e7):0,tn=x?D.str(x.tn,30):'';if(d&&d.ins){ti=D.insTenant(d);tn=d.ins.tenant.no;}
+  var total=price+dep+ti;
   function paidView(){var dq=D.get(id)||{id:id,addr:addr,type:x.k==='кл'?'кл':'кв',from:from,price:price,deposit:dep,created:+x.t||Date.now(),status:'paid',tenant:{fio:D.str(x.n,80)}};
     app.innerHTML=BACK+'<div class="card"><div class="ok-big">✓ Оплачено (демо)</div><p class="sub">'+D.rub(total)+' · '+esc(addr)+'</p><p class="sub">Владелец получил уведомление об оплате. Договор вступает в силу с 1 '+D.MG[from]+' 2026 г.</p>'+NOTE+'</div>'+
       '<div class="card">'+D.qrCard(dq,'Моё проживание')+'</div>';}
@@ -32,6 +33,7 @@
   app.innerHTML=BACK+'<div class="card"><h1>Оплата по договору</h1><p class="sub">'+esc(addr)+'<br>Плательщик: '+who+'</p>'+
     '<div class="rowsum"><span>Аренда за '+['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'][from]+' 2026</span><span>'+D.rub(price)+'</span></div>'+
     '<div class="rowsum"><span>Залог (обеспечительный платёж)</span><span>'+D.rub(dep)+'</span></div>'+
+    (ti?'<div class="rowsum"><span>Страхование ответственности нанимателя<br><small style="color:#888">полис № '+esc(tn)+' (демо) · обязательно для сделок через сервис</small></span><span>'+D.rub(ti)+'</span></div>':'')+
     '<div class="rowsum total"><span>Итого к оплате</span><b id="total">'+D.rub(total)+'</b></div>'+
     NOTE+'<button class="btn" type="button" id="pay">Оплатить (демо)</button></div>';
   document.getElementById('pay').onclick=function(){
