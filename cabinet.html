@@ -158,7 +158,12 @@ button,button:focus,button:focus-visible,button:active{outline:none;box-shadow:n
 .rentp{display:none}
 body.rent .rentp{display:block}
 body.rent .content>.bal,body.rent .content>.demo,body.rent #cats{display:none}
-body.rent .total{visibility:hidden}
+body.rent .mhead{display:none}
+.rback{display:inline-block;font-size:13px;margin:4px 0 8px;font-weight:600}
+.robj.single{border-bottom:0}
+.hrow{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
+.hrow .racts{grid-column:1/-1;margin:0}
+.hrow small{color:#888}
 .rentp h2{font-size:16px;margin:4px 0 6px}
 .rentp .rsub{font-size:12px;color:#777;margin-bottom:12px}
 .robj{padding:12px 0;border-bottom:1px solid var(--line)}
@@ -558,28 +563,54 @@ body:not(.year) .yearv{display:none}
   }
 
   /* ===== rent view ===== */
-  var rui={open:{},price:{},dep:{},depTouched:{},from:{}},pads={};
+  var rui={focus:null,mode:'flow',price:{},dep:{},depTouched:{},from:{}},pads={};
   function chipCls(st){return st==='paid'?'ok':(st==='sent'||st==='owner_signed')?'wait':st==='tenant_signed'?'acc':'';}
+  function historyOf(zid){return DemoDeal.all().filter(function(d){return d.objId===zid&&d.ownerSig&&(d.status==='owner_signed'||d.status==='paid'||d.status==='ended');});}
+  var HST={owner_signed:['подписан','acc'],paid:['оплачен','ok'],ended:['завершён','']};
+  function objHead(z,d){
+    var paid=d&&d.status==='paid';
+    return '<div><div class="rt">'+(TYPE_NAME[z.type]||z.type)+' · '+esc(z.type)+'</div><div class="ra">'+esc(z.obj)+'</div>'+
+      '<div class="rs'+(paid?' on':'')+'">'+(paid?'Сдаётся: '+rub(d.price)+'/мес с '+MONTHS_GEN[d.from]+' 2026'+(d.tenant&&d.tenant.fio?', '+esc(d.tenant.fio):''):d?esc(DemoDeal.STATUS[d.status]):'Не сдаётся')+'</div></div>';
+  }
   function renderRent(){
-    var D=DemoDeal,h='<h2>Сдать недвижимость</h2><div class="rsub">Нажмите на объект и укажите цену — сформируем договор, отправим арендатору по СМС на подпись, вы подпишете со своей стороны, и арендатор получит ссылку на оплату.</div>'+
-      '<div class="demo-note">Демо: СМС не отправляются, подписи и оплата условные, данные карты не запрашиваются. Всё хранится только в этом браузере.</div>',inc=0;
-    zObjects().forEach(function(z){
-      var d=activeDeal(z.id),po=!!rui.open[z.id]&&!d,paid=d&&d.status==='paid';
-      if(paid)inc+=d.price*(12-d.from);
-      h+='<div class="robj'+(d||po?' active':'')+'" data-robj="'+z.id+'"><div class="rhead" data-rtap="'+z.id+'"><div><div class="rt">'+(TYPE_NAME[z.type]||z.type)+' · '+esc(z.type)+'</div><div class="ra">'+esc(z.obj)+'</div>'+
-        '<div class="rs'+(paid?' on':'')+'">'+(paid?'Сдаётся: '+rub(d.price)+'/мес с '+MONTHS_GEN[d.from]+' 2026'+(d.tenant&&d.tenant.fio?', '+esc(d.tenant.fio):''):d?esc(D.STATUS[d.status]):'Не сдаётся')+'</div></div>'+
-        '<div class="racts">'+(!d&&!po?'<button class="btn" type="button" data-rtap="'+z.id+'">Сдать</button>':'')+'<button class="btn" type="button" data-egrn="'+z.id+'">Скачать ЕГРН</button></div></div>';
-      if(d||po)h+=D.stepper(D.stepOf(d,po))+'<div class="rbody">'+(d?dealBody(d):priceForm(z))+'</div>';
+    var D=DemoDeal,h='',el=document.getElementById('rentp');
+    var fz=rui.focus&&ROWS[rui.focus]?ROWS[rui.focus]:null;
+    if(fz){
+      /* single-object mode: only the selected object */
+      var d=activeDeal(fz.id),hist=historyOf(fz.id);
+      h+='<a href="#" class="rback" data-rback="1">← К объектам</a>';
+      h+='<div class="robj active single" data-robj="'+fz.id+'"><div class="rhead">'+objHead(fz,d)+'<div class="racts"><button class="btn" type="button" data-egrn="'+fz.id+'">Скачать ЕГРН</button></div></div>';
+      if(rui.mode==='history'){
+        h+='<div class="rlbl">Договоры по объекту ('+hist.length+')</div>'+(hist.length?hist.map(function(x){var st=HST[x.status];
+          return '<div class="hrow" data-hist="'+esc(x.id)+'"><div class="hinfo"><b>'+D.dstr(x.ownerT)+'</b> · '+esc(x.tenant&&x.tenant.fio||'—')+'<br><small>'+rub(x.price)+'/мес, с '+MONTHS_GEN[x.from]+' 2026</small></div><span class="chip '+st[1]+'">'+st[0]+'</span>'+
+            '<div class="racts"><button class="btn" type="button" data-ctview="'+esc(x.id)+'">Просмотр / печать</button><button class="btn" type="button" data-ctdl="'+esc(x.id)+'">Скачать</button></div></div>';}).join(''):'<div class="hempty">Подписанных договоров пока нет</div>');
+      }else{
+        h+=D.stepper(D.stepOf(d,!d))+'<div class="rbody">'+(d?dealBody(d):priceForm(fz))+'</div>';
+        if(hist.length)h+='<div class="racts" style="margin-top:12px"><button class="btn" type="button" data-rhist="'+fz.id+'">Договоры ('+hist.length+')</button></div>';
+      }
       h+='</div>';
-    });
-    h+='<div class="rtotal"><span>Доход от аренды этих объектов в 2026</span><b>'+rub(inc)+'</b></div>';
-    var ds=D.all().filter(function(d){return d.objId&&ROWS[d.objId];});
-    h+='<h2 style="margin-top:20px">Сделки</h2>'+(ds.length?ds.map(function(d){return '<div class="dl" data-deal="'+esc(d.id)+'"><div><b>'+esc(d.obj)+'</b> · '+rub(d.price)+'/мес<br><small>'+D.dtstr(d.created)+(d.tenant&&d.tenant.fio?' · '+esc(d.tenant.fio):'')+'</small></div><span class="chip '+chipCls(d.status)+'">'+esc(D.STATUS[d.status]||d.status)+'</span></div>';}).join(''):'<div class="hempty">Пока нет сделок</div>');
-    var el=document.getElementById('rentp');el.innerHTML=h;
+    }else{
+      h='<h2>Сдать недвижимость</h2><div class="rsub">Нажмите на объект и укажите цену — сформируем договор, отправим арендатору по СМС на подпись, вы подпишете со своей стороны, и арендатор получит ссылку на оплату.</div>'+
+        '<div class="demo-note">Демо: СМС не отправляются, подписи и оплата условные, данные карты не запрашиваются. Всё хранится только в этом браузере.</div>';
+      var inc=0;
+      zObjects().forEach(function(z){
+        var d=activeDeal(z.id),n=historyOf(z.id).length;
+        if(d&&d.status==='paid')inc+=d.price*(12-d.from);
+        h+='<div class="robj" data-robj="'+z.id+'"><div class="rhead" data-rtap="'+z.id+'">'+objHead(z,d)+
+          '<div class="racts">'+(d?'<button class="btn" type="button" data-rtap="'+z.id+'">Открыть сделку</button>':'<button class="btn" type="button" data-rtap="'+z.id+'">Сдать</button>')+
+          '<button class="btn" type="button" data-egrn="'+z.id+'">Скачать ЕГРН</button><button class="btn" type="button" data-rhist="'+z.id+'">Договоры ('+n+')</button></div></div></div>';
+      });
+      h+='<div class="rtotal"><span>Доход от аренды этих объектов в 2026</span><b>'+rub(inc)+'</b></div>';
+      var ds=D.all().filter(function(d){return d.objId&&ROWS[d.objId];});
+      h+='<h2 style="margin-top:20px">Сделки</h2>'+(ds.length?ds.map(function(d){return '<div class="dl" data-deal="'+esc(d.id)+'"><div><b>'+esc(d.obj)+'</b> · '+rub(d.price)+'/мес<br><small>'+D.dtstr(d.created)+(d.tenant&&d.tenant.fio?' · '+esc(d.tenant.fio):'')+'</small></div><span class="chip '+chipCls(d.status)+'">'+esc(D.STATUS[d.status]||d.status)+'</span></div>';}).join(''):'<div class="hempty">Пока нет сделок</div>');
+    }
+    el.innerHTML=h;
     pads={};el.querySelectorAll('canvas[data-sig]').forEach(function(c){pads[c.getAttribute('data-sig')]=D.SigPad(c);});
     el.querySelectorAll('canvas[data-sig]').forEach(function(c){c.addEventListener('pointerdown',function(){var er=document.getElementById('oserr-'+c.getAttribute('data-sig'));if(er)er.textContent='';});});
     el.querySelectorAll('.steps').forEach(function(st){var cur=st.querySelector('li.cur');if(cur)st.scrollLeft=Math.max(0,cur.offsetLeft-st.offsetLeft-st.clientWidth/2+cur.offsetWidth/2);});
   }
+  function rentGo(zid,mode){rui.focus=zid;rui.mode=mode||'flow';renderRent();var el=document.getElementById('rentp');if(el)el.scrollIntoView({block:'start'});
+    if(zid&&rui.mode==='flow'&&!activeDeal(zid)){var inp=document.getElementById('pf-price-'+zid);if(inp)inp.focus({preventScroll:true});}}
   function priceForm(z){
     var id=z.id,f=rui.from[id]!=null?rui.from[id]:CUR+1,opts='';
     for(var m=CUR;m<12;m++)opts+='<option value="'+m+'"'+(m==f?' selected':'')+'>'+MONTHS[m]+' 2026</option>';
@@ -621,15 +652,15 @@ body:not(.year) .yearv{display:none}
   }
   function handleRentClick(t,e){
     var D=DemoDeal,el,id;
-    if((el=t.closest('[data-pfcancel]'))){rui.open[el.getAttribute('data-pfcancel')]=false;renderRent();return true;}
+    if((el=t.closest('[data-pfcancel]'))||(el=t.closest('[data-rback]'))){e.preventDefault();rentGo(null);return true;}
+    if((el=t.closest('[data-rhist]'))){rentGo(el.getAttribute('data-rhist'),'history');return true;}
     if((el=t.closest('[data-mkdeal]'))){
       id=el.getAttribute('data-mkdeal');var z=ROWS[id],err=document.getElementById('pf-err-'+id);
       var pr=Math.round(+document.getElementById('pf-price-'+id).value),dv=document.getElementById('pf-dep-'+id).value,dp=dv===''?pr:Math.round(+dv),fr=+document.getElementById('pf-from-'+id).value;
       if(!(pr>0&&pr<=10000000)){err.textContent='Укажите цену от 1 до 10 000 000 руб.';return true;}
       if(!(dp>=0&&dp<=10000000)){err.textContent='Проверьте сумму залога';return true;}
       var d={id:D.newId(),objId:z.id,type:z.type,obj:z.obj,addr:addrOf(z),price:pr,deposit:dp,from:fr,created:Date.now(),status:'draft'};
-      D.put(d);rui.open[id]=false;rui.price[id]='';rui.dep[id]='';rui.depTouched[id]=false;renderRent();
-      var c=document.querySelector('.robj[data-robj="'+id+'"]');if(c)c.scrollIntoView({block:'start'});
+      D.put(d);rui.price[id]='';rui.dep[id]='';rui.depTouched[id]=false;rentGo(id);
       toast('Договор сформирован');return true;
     }
     if((el=t.closest('[data-send]'))){
@@ -640,7 +671,7 @@ body:not(.year) .yearv{display:none}
     if((el=t.closest('[data-copy]'))){var L=el.getAttribute('data-copy');D.copy(L,function(){toast('Ссылка скопирована');});return true;}
     if((el=t.closest('[data-dcancel]'))){id=el.getAttribute('data-dcancel');
       showModal('<h3>Отменить сделку?</h3><p style="font-size:13px">Ссылка для арендатора перестанет действовать.</p><div class="row"><button class="btn" type="button" data-close>Нет</button><button class="btn" type="button" id="okDc">Отменить сделку</button></div>');
-      document.getElementById('okDc').onclick=function(){var d2=D.get(id);if(d2){d2.status='cancelled';D.put(d2);}closeModal();renderAll();toast('Сделка отменена');};return true;}
+      document.getElementById('okDc').onclick=function(){var d2=D.get(id);if(d2){d2.status='cancelled';D.put(d2);}closeModal();rui.focus=null;renderAll();toast('Сделка отменена');};return true;}
     if((el=t.closest('[data-sigclear]'))){var pd=pads[el.getAttribute('data-sigclear')];if(pd)pd.clear();return true;}
     if((el=t.closest('[data-osign]'))){id=el.getAttribute('data-osign');var pad=pads[id],d3=D.get(id);
       if(!pad||pad.isEmpty()){document.getElementById('oserr-'+id).textContent='Поставьте подпись';return true;}
@@ -652,10 +683,7 @@ body:not(.year) .yearv{display:none}
       document.getElementById('okUnrent').onclick=function(){var d5=D.get(id);if(d5){d5.status='ended';d5.endT=Date.now();D.put(d5);}closeModal();renderAll();toast('Объект снят с аренды (демо)');};return true;}
     if((el=t.closest('[data-rtap]'))){
       if(t.closest('input,select,textarea,canvas,a'))return false;
-      id=el.getAttribute('data-rtap');if(activeDeal(id))return true;
-      rui.open[id]=!rui.open[id];renderRent();
-      if(rui.open[id]){var inp=document.getElementById('pf-price-'+id);if(inp)inp.focus({preventScroll:true});}
-      return true;
+      rentGo(el.getAttribute('data-rtap'));return true;
     }
     return false;
   }
@@ -789,7 +817,7 @@ body:not(.year) .yearv{display:none}
     var eg=t.closest('[data-egrn]');
     if(eg){e.preventDefault();e.stopPropagation();egrnModal(eg.getAttribute('data-egrn'));return;}
     if(t.closest('#rentp')&&handleRentClick(t,e))return;
-    var nv=t.closest('[data-nav]');if(nv){e.preventDefault();setView(nv.getAttribute('data-nav'),true);window.scrollTo(0,0);return;}
+    var nv=t.closest('[data-nav]');if(nv){e.preventDefault();if(nv.getAttribute('data-nav')==='rent'){rui.focus=null;renderRent();}setView(nv.getAttribute('data-nav'),true);window.scrollTo(0,0);return;}
     var yt=t.closest('[data-ytoggle]');
     if(yt){var rid=yt.getAttribute('data-ytoggle');yopen[rid]=!yopen[rid];
       document.querySelectorAll('#yt tr[data-parent="'+rid+'"]').forEach(function(tr){tr.classList.toggle('hid',!yopen[rid]);});
@@ -807,12 +835,12 @@ body:not(.year) .yearv{display:none}
   document.getElementById('payAll').onclick=function(){var us=allUnpaid();payUnits(us,'Оплата всей задолженности ('+us.length+' начисл.)');};
   document.getElementById('topupBtn').onclick=function(){topupModal(0);};
   document.getElementById('autoBtn').onclick=autopayModal;
-  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо: баланс, оплаты, историю, автоплатежи и аренду?')){state=defState();save();DemoDeal.clear();rui={open:{},price:{},dep:{},depTouched:{},from:{}};renderAll();toast('Демо сброшено');}};
+  document.getElementById('reset').onclick=function(e){e.preventDefault();if(confirm('Сбросить демо: баланс, оплаты, историю, автоплатежи и аренду?')){state=defState();save();DemoDeal.clear();rui={focus:null,mode:'flow',price:{},dep:{},depTouched:{},from:{}};renderAll();toast('Демо сброшено');}};
   document.getElementById('logout').onclick=function(e){e.preventDefault();localStorage.removeItem('demoUser');location.href='index.html';};
   document.querySelectorAll('a[href="#"]').forEach(function(a){if(!a.id)a.addEventListener('click',function(e){e.preventDefault();});});
   document.querySelectorAll('.tab[data-view]').forEach(function(t){t.addEventListener('click',function(){setView(t.getAttribute('data-view'),true);window.scrollTo(0,0);});});
   document.getElementById('primaryBtn').addEventListener('click',function(){if(view!=='month'){setView('month',true);window.scrollTo(0,0);}});
-  document.getElementById('rentBtn').addEventListener('click',function(){setView('rent',true);document.getElementById('rentp').scrollIntoView({block:'start'});});
+  document.getElementById('rentBtn').addEventListener('click',function(){rui.focus=null;renderRent();setView('rent',true);document.getElementById('rentp').scrollIntoView({block:'start'});});
   window.addEventListener('hashchange',function(){setView(hashView(),false);});
 
   /* test hook (read-only) */
